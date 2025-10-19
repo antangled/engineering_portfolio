@@ -12,12 +12,16 @@ type Project = {
   content?: string;
 };
 
+const withBase = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\//, "")}`;
+
 const navLinks = [
   { label: "Home", to: "/" },
   { label: "Projects", to: "/projects" }
 ];
 
-const aboutImages = ["/images/about-1.jpg", "/images/about-2.jpg", "/images/about-3.jpg"];
+const aboutImages = ["/images/about-1.jpg", "/images/about-2.jpg", "/images/about-3.jpg"].map(withBase);
+const heroImage = withBase("/images/feature.jpg");
+const resumeFile = withBase("/resume.pdf");
 
 const projects: Project[] = [
   {
@@ -25,7 +29,7 @@ const projects: Project[] = [
     title: "Low-Cost AI-Powered Biodiversity-Sensing Module",
     description:
       "Designed fully-custom, modular, low-cost biodiversity sensor nodes, utilizing on-device AI to optimize data collection.",
-    image: "/images/projects/BiodiversityTech.jpg",
+    image: withBase("/images/projects/BiodiversityTech.jpg"),
     content:
       "Led hardware design and firmware for a distributed sensor network that identifies wildlife activity using edge AI. Optimized power delivery with custom buck converters, added solar recharging, and trained lightweight audio models to run on an ESP32-S3. Deployed pilots in remote preserves, cutting per-node costs by 68%."
   },
@@ -34,7 +38,7 @@ const projects: Project[] = [
     title: "Solar Array Optimization",
     description:
       "Designed array telemetry and bypass-diode placement experiments for a solar race car; improved partial-shade output by 12%.",
-    image: "/images/projects/CalSol_Excalibur.jpg",
+    image: withBase("/images/projects/CalSol_Excalibur.jpg"),
     content:
       "Collaborated with the CalSol race team to instrument the Excalibur array with custom telemetry, mapping cell mismatch under dynamic shading. Simulated bypass-diode placements, validated the best layout in a controlled track environment, and raised partial-shade efficiency by 12% while keeping thermal loads in check."
   },
@@ -43,7 +47,7 @@ const projects: Project[] = [
     title: "Compact Automated Aquaponics System",
     description:
       "Designed (CAD) and manufactured a fully automated aquaponics system that supplied our dining hall with fresh lettuce and fish, serving as multidisciplinary educational tool.",
-    image: "/images/projects/AquaponicsDLab.jpg",
+    image: withBase("/images/projects/AquaponicsDLab.jpg"),
     content:
       "Architected an intelligent aquaponics platform with modular grow towers, nutrient balancing, and automated fish feeding. Designed the structure in Fusion 360, CNC-milled the frame, and built a sensor + control stack with Node-RED dashboards. The system now supplies produce to the dining hall and serves as a living lab."
   },
@@ -52,7 +56,7 @@ const projects: Project[] = [
     title: "Flume-Simulated + Field Microplastics Dynamics Research",
     description:
       "Investigated the movement and behavior of microscopic particles within the vertical water table and quantified the levels of microplastic pollution in local rivers.",
-    image: "/images/projects/Microplastics.jpg",
+    image: withBase("/images/projects/Microplastics.jpg"),
     content:
       "Designed flume experiments and in-situ sampling campaigns to map microplastic transport across hydrologic zones. Built image-processing pipelines for particle classification, calibrated sensors for salinity and turbidity, and created open-access datasets that informed local mitigation policies."
   }
@@ -144,8 +148,7 @@ function HomePage({ aboutImages }: { aboutImages: string[] }) {
         >
           <motion.div style={{ y: imageOffset }} className="absolute inset-0">
             <div
-              className="h-full w-full bg-cover bg-center"
-              style={{ backgroundImage: "url('/images/feature.jpg')" }}
+              className="h-full w-full bg-cover bg-center"style={{ backgroundImage: `url(${heroImage})` }}
             />
             <div className="absolute inset-0 bg-black/15" />
           </motion.div>
@@ -199,7 +202,7 @@ function HomePage({ aboutImages }: { aboutImages: string[] }) {
               </a>
             </div>
             <Button asChild className="w-full gap-2 rounded-full bg-white text-black hover:bg-white/90" size="lg" variant="default">
-              <a download href="/resume.pdf">
+              <a download href={resumeFile} rel="noopener">
                 <Download className="h-4 w-4" />
                 Download My Resume
               </a>

@@ -2,12 +2,4 @@
 > adam-website-v2@0.0.1 build
 > tsc && vite build
 
-vite v7.1.10 building for production...
-transforming...
-✓ 1849 modules transformed.
-rendering chunks...
-computing gzip size...
-dist/index.html                   0.42 kB │ gzip:   0.28 kB
-dist/assets/index-BSwjJYzg.css   21.35 kB │ gzip:   4.97 kB
-dist/assets/index-BgCUUso_.js   327.00 kB │ gzip: 106.90 kB
-✓ built in 1.34s
+src/App.tsx(205,60): error TS17001: JSX elements cannot have multiple attributes with the same name.
