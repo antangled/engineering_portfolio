@@ -11,7 +11,7 @@ const navLinks = [
 ];
 const aboutImages = ["/images/about-1.jpg", "/images/about-2.jpg", "/images/about-3.jpg"].map(withBase);
 const heroImage = withBase("/images/feature.jpg");
-const resumeFile = withBase("/resume.pdf");
+const resumeFile = withBase("/AdamTang_Resume.pdf");
 const projects = [
     {
         slug: "low-cost-biodiversity-sensing-module",
