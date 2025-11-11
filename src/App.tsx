@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, Route, Routes, useLocation, useParams } from "react-router-dom";
+import { Link, Route, Routes, useLocation, useNavigate, useParams } from "react-router-dom";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowRight, Mail, Phone, Download, Linkedin, Github, Youtube } from "lucide-react";
 import { Button } from "./components/ui/button";
@@ -10,6 +10,18 @@ type Project = {
   image: string;
   slug: string;
   content?: string;
+};
+
+type ScrollState = {
+  scrollTarget?: string;
+};
+
+type SkillCategory = {
+  title: string;
+  skills: {
+    name: string;
+    level: number; // 0-1
+  }[];
 };
 
 const withBase = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\//, "")}`;
@@ -62,6 +74,37 @@ const projects: Project[] = [
   }
 ];
 
+const skillCategories: SkillCategory[] = [
+  {
+    title: "Programming",
+    skills: [
+      { name: "Python", level: 0.8 },
+      { name: "Java", level: 0.9 },
+      { name: "TypeScript", level: 0.6 },
+      { name: "MATLAB", level: 0.5 }
+    ]
+  },
+  {
+    title: "CAD / Simulation",
+    skills: [
+      { name: "Fusion 360", level: 0.7 },
+      { name: "Onshape", level: 0.9 },
+      { name: "Solidworks", level: 0.6 },
+      { name: "ANSYS", level: 0.5 },
+      { name: "KiCad", level: 0.6 }
+    ]
+  },
+  {
+    title: "Fabrication / Prototyping",
+    skills: [
+      { name: "3D Printing", level: 0.9 },
+      { name: "Machining & Manufacturing", level: 0.8 },
+      { name: "Soldering / PCBs", level: 0.8 },
+      { name: "Rapid Prototyping", level: 0.8 }
+    ]
+  }
+];
+
 function App() {
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#15181d] text-white">
@@ -83,7 +126,21 @@ function App() {
 
 function Header() {
   const location = useLocation();
+  const navigate = useNavigate();
   const activePath = location.pathname;
+
+  const scrollToAbout = () => {
+    const aboutSection = document.getElementById("about");
+    aboutSection?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const handleAboutClick = () => {
+    if (activePath !== "/") {
+      navigate("/", { state: { scrollTarget: "about" } });
+      return;
+    }
+    scrollToAbout();
+  };
 
   return (
     <motion.header
@@ -107,9 +164,13 @@ function Header() {
             {link.label}
           </Link>
         ))}
-        <a className="text-white/70 transition hover:text-white" href="/#about">
-          About
-        </a>
+        <button
+          className="bg-transparent text-white/70 transition hover:text-white focus:outline-none"
+          onClick={handleAboutClick}
+          type="button"
+        >
+          ABOUT
+        </button>
         <a className="text-white/70 transition hover:text-white" href="https://www.linkedin.com/in/adam-tang-2374992a7">
           Contact
         </a>
@@ -122,6 +183,8 @@ function HomePage({ aboutImages }: { aboutImages: string[] }) {
   const { scrollY } = useScroll();
   const imageOffset = useTransform(scrollY, (value) => value * 0.1);
   const contentOffset = useTransform(scrollY, (value) => value * -0.1);
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const aboutImageList = useMemo(
     () => (aboutImages.length > 0 ? aboutImages : ["/images/about.jpg"]),
@@ -136,6 +199,33 @@ function HomePage({ aboutImages }: { aboutImages: string[] }) {
     }, 2000);
     return () => clearInterval(timer);
   }, [aboutImageList.length]);
+
+  useEffect(() => {
+    const scrollTarget = (location.state as ScrollState | null)?.scrollTarget;
+    if (scrollTarget === "about") {
+      let timeoutId: number | null = null;
+
+      const scrollToSection = () => {
+        const section = document.getElementById(scrollTarget);
+        if (section) {
+          section.scrollIntoView({ behavior: "smooth", block: "start" });
+          navigate(location.pathname, { replace: true, state: null });
+          return;
+        }
+        timeoutId = window.setTimeout(scrollToSection, 50);
+      };
+
+      timeoutId = window.setTimeout(scrollToSection, 0);
+
+      return () => {
+        if (timeoutId !== null) {
+          clearTimeout(timeoutId);
+        }
+      };
+    }
+  }, [location, navigate]);
+
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
 
   return (
     <>
@@ -240,55 +330,154 @@ function HomePage({ aboutImages }: { aboutImages: string[] }) {
         </motion.section>
       </main>
 
-      <motion.div
-        id="about"
-        initial={{ opacity: 0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.2 }}
-        transition={{ duration: 1, ease: "easeOut" }}
-        className="mt-16 grid gap-8 text-white lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]"
-      >
-        <div className="rounded-[3.5rem] border border-white/10 bg-[#1c2028]/85 p-10 shadow-[0_35px_120px_-70px_rgba(0,0,0,0.65)] backdrop-blur-xl">
-          <div className="space-y-6">
-            <div className="space-y-2">
-              <p className="text-xs uppercase tracking-[0.5em] text-white/40">About Me</p>
-              <h2 className="font-display text-3xl font-semibold sm:text-4xl">Building thoughtful, resilient systems.</h2>
-            </div>
-            <p className="text-base leading-relaxed text-white/70">
-              I’m Adam Tang—an engineer passionate about crafting autonomous platforms, responsive hardware, and immersive
-              product experiences. From prototyping intelligent robots to designing carbon-conscious solutions, my work focuses
-              on translating complex problems into tangible, elegant outcomes. 
-            </p>
-            <p className="text-base leading-relaxed text-white/70">
-              Outside the lab, you can find me documenting builds on YouTube, mentoring younger makers, or exploring trails for
-              inspiration. I thrive in cross-disciplinary teams where curiosity, empathy, and precise execution intersect.
-            </p>
-            <div className="flex flex-wrap gap-3 text-sm text-white/60">
-              <span className="rounded-full border border-white/12 px-4 py-2">Rapid Prototyping</span>
-              <span className="rounded-full border border-white/12 px-4 py-2">Autonomy</span>
-              <span className="rounded-full border border-white/12 px-4 py-2">Sustainable Design</span>
-            </div>
-          </div>
-        </div>
+      <section id="about" className="mt-16 space-y-12">
         <motion.div
-          className="relative flex min-h-[360px] overflow-hidden rounded-[3.5rem] border border-white/10 bg-[#14171d]/60 shadow-[0_35px_120px_-70px_rgba(0,0,0,0.65)] backdrop-blur-xl"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true, amount: 0.4 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 1, ease: "easeOut" }}
+          className="rounded-[3.5rem] border border-white/10 bg-[#1c2028]/85 px-10 py-4 text-center text-white shadow-[0_35px_120px_-70px_rgba(0,0,0,0.65)] backdrop-blur-xl lg:-mx-6"
         >
-          {aboutImageList.map((src, index) => (
-            <motion.div
-              key={`${src}-${index}`}
-              className="absolute inset-0 bg-cover bg-center"
-              style={{ backgroundImage: `url('${src}')` }}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: aboutImageIndex === index ? 1 : 0 }}
-              transition={{ duration: 1, ease: "easeInOut" }}
-            />
-          ))}
+          <p className="text-[1.85rem] font-semibold uppercase tracking-[0.55em] sm:text-[2.15rem]">About Me</p>
         </motion.div>
-      </motion.div>
+
+        <div className="grid gap-8 text-white lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+          <motion.div
+            initial={{ opacity: 0, x: -40 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 1, ease: "easeOut" }}
+            className="rounded-[3.5rem] border border-white/10 bg-[#1c2028]/85 p-10 shadow-[0_35px_120px_-70px_rgba(0,0,0,0.65)] backdrop-blur-xl lg:-ml-6"
+          >
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <h2 className="font-display text-3xl font-semibold sm:text-4xl">Building thoughtful, resilient systems.</h2>
+              </div>
+              <p className="text-base leading-relaxed text-white/70">
+                I’m Adam Tang—an engineer passionate about crafting autonomous platforms, responsive hardware, and immersive
+                product experiences. From prototyping intelligent robots to designing carbon-conscious solutions, my work focuses
+                on translating complex problems into tangible, elegant outcomes. 
+              </p>
+              <p className="text-base leading-relaxed text-white/70">
+                Outside the lab, you can find me documenting builds on YouTube, mentoring younger makers, or exploring trails for
+                inspiration. I thrive in cross-disciplinary teams where curiosity, empathy, and precise execution intersect.
+              </p>
+              <div className="flex flex-wrap gap-3 text-sm text-white/60">
+                <span className="rounded-full border border-white/12 px-4 py-2">Rapid Prototyping</span>
+                <span className="rounded-full border border-white/12 px-4 py-2">Autonomy</span>
+                <span className="rounded-full border border-white/12 px-4 py-2">Sustainable Design</span>
+              </div>
+            </div>
+          </motion.div>
+          <motion.div
+            className="relative flex min-h-[360px] overflow-hidden rounded-[3.5rem] border border-white/10 bg-[#14171d]/60 shadow-[0_35px_120px_-70px_rgba(0,0,0,0.65)] backdrop-blur-xl lg:-mr-6"
+            initial={{ opacity: 0, x: 40 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, amount: 0.4 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+          >
+            {aboutImageList.map((src, index) => (
+              <motion.div
+                key={`${src}-${index}`}
+                className="absolute inset-0 bg-cover bg-center"
+                style={{ backgroundImage: `url('${src}')` }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: aboutImageIndex === index ? 1 : 0 }}
+                transition={{ duration: 1, ease: "easeInOut" }}
+              />
+            ))}
+          </motion.div>
+        </div>
+
+        <div className="grid gap-8 text-white lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
+          <motion.div
+            initial={{ opacity: 0, x: -40 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 1, ease: "easeOut" }}
+            className="rounded-[3.5rem] border border-white/10 bg-[#14171d]/65 p-10 shadow-[0_35px_120px_-70px_rgba(0,0,0,0.65)] backdrop-blur-xl lg:-ml-6"
+          >
+            <p className="text-sm font-semibold uppercase tracking-[0.45em] text-white">Skills</p>
+            <div className="mt-6 space-y-7">
+              {skillCategories.map((category) => (
+                <div key={category.title}>
+                  <p className="text-xs uppercase tracking-[0.4em] text-white/50">{category.title}</p>
+                  <div className="mt-3 space-y-3">
+                    {category.skills.map((skill) => (
+                      <div className="flex items-center gap-4" key={skill.name}>
+                        <div className="w-32 text-sm text-white/80">{skill.name}</div>
+                        <div className="relative h-[3px] flex-1 overflow-hidden rounded-full bg-white/15">
+                          <div className="absolute inset-0 bg-gradient-to-r from-white/10 via-white/5 to-transparent" />
+                          <motion.div
+                            initial={{ width: "0%" }}
+                            whileInView={{ width: `${skill.level * 100}%` }}
+                            viewport={{ once: true, amount: 0.5 }}
+                            transition={{ duration: 1, ease: "easeOut" }}
+                            className="absolute inset-y-0 left-0 rounded-full bg-white"
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, x: 40 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 1, ease: "easeOut" }}
+            className="relative overflow-hidden rounded-[3.5rem] border border-white/10 bg-[#1c2028]/85 p-10 text-base leading-relaxed text-white/80 shadow-[0_35px_120px_-70px_rgba(0,0,0,0.65)] backdrop-blur-xl lg:-mr-6"
+          >
+            <h2 className="font-display text-3xl font-semibold sm:text-4xl">My Background</h2>
+            <div className="h-px w-12 bg-white/15" />
+            <p className="mt-4">
+              At UC Berkeley, I study Electrical Engineering & Computer Science with a minor in Bioengineering. I lead the
+              engineering for Echeverri Lab’s Solar-Powered Biodiversity Sensing Module — a rugged, satellite-IoT embedded field
+              system for wildlife tracking. I’m also a solar engineer at CalSol, Berkeley’s Solar Vehicle Team, where I optimize
+              solar array layout and integration for our 11th-gen car.
+            </p>
+            <p className="mt-6">
+              As much as I love to learn, I love to lead. Before Berkeley, I led the mechanical team of MUREX, our school’s
+              underwater robotics competition team, with our 6-DOF ROV gaining 6th place at World Finals, and led the design of a
+              compact aquaponics unit with biofiltration and real-time ammonia and pH sensing — now deployed as a sustainable food
+              solution for our dining hall.
+            </p>
+            <p className="mt-6">
+              My engineering DNA is a mix of customer-centric builds, system-level thinking, and sustainability by design. I’ve
+              been fortunate to receive awards from NASA, EPA, and ISEF for environmental tech research, and represented my work as
+              a youth delegate at the UN Climate Conference (COP28) in Dubai. I want to continue making that sustainable,
+              tech-driven impact wherever I go.
+            </p>
+            <div className="pointer-events-none absolute bottom-6 right-6 flex gap-3 opacity-60">
+              <div className="h-[4.5rem] w-[4.5rem] rounded-[1.25rem] border border-white/25 bg-white/15" />
+              <div className="mt-3 h-[3.5rem] w-[3.5rem] rounded-[1rem] border border-white/20 bg-white/12" />
+            </div>
+          </motion.div>
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 1, ease: "easeOut" }}
+          className="rounded-[3.5rem] border border-white/10 bg-[#1c2028]/90 px-10 py-16 text-center text-white shadow-[0_35px_120px_-70px_rgba(0,0,0,0.65)] backdrop-blur-xl lg:-mx-6"
+        >
+          <p className="font-display text-4xl font-bold leading-tight tracking-tight sm:text-5xl">Let’s build something that matters.</p>
+        </motion.div>
+
+        <footer className="flex justify-center pt-6">
+          <button
+            className="inline-flex items-center gap-2 rounded-full border border-white/20 px-5 py-3 text-sm uppercase tracking-[0.3em] text-white/70 transition hover:bg-white/10 hover:text-white"
+            onClick={scrollToTop}
+            type="button"
+          >
+            Back To Top
+            <ArrowRight className="h-4 w-4 rotate-[-90deg]" />
+          </button>
+        </footer>
+      </section>
     </>
   );
 }
