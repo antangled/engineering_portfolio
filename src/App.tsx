@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, Route, Routes, useLocation, useNavigate, useParams } from "react-router-dom";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { ArrowRight, Mail, Phone, Download, Linkedin, Github, Youtube } from "lucide-react";
+import { motion, useMotionValueEvent, useScroll, useTransform } from "framer-motion";
+import { ArrowRight, Mail, Phone, Download, Linkedin, Github, Youtube, Instagram } from "lucide-react";
 import { Button } from "./components/ui/button";
 
 type Project = {
@@ -31,11 +31,23 @@ const navLinks = [
   { label: "Projects", to: "/projects" }
 ];
 
-const aboutImages = ["/images/about-1.jpg", "/images/about-2.jpg", "/images/about-3.jpg"].map(withBase);
+const aboutVideo = withBase("/videos/video_2026-01-11_15-31-58.mov");
+const polysynthVideo = withBase("/videos/polysynthshowcase.mp4");
+const compliantShowcaseVideo = withBase("/videos/compliantshowcase.mp4");
 const heroImage = withBase("/images/feature.jpg");
+const heroFeatureImage = withBase("/images/feature2.jpg");
 const resumeFile = withBase("/AdamTang_Resume.pdf");
 
 const projects: Project[] = [
+  {
+    slug: "polysynth-x-mpe-synth-keyboard",
+    title: "PolySynth X",
+    description:
+      "Designed and built a fully custom hyper-expressive MPE keyboard, integrating real-time embedded firmware with hand-engineered compliant key mechanisms.",
+    image: withBase("/images/projects/polysynthx.jpg"),
+    content:
+      "Led end-to-end R&D of a fully custom hyper-expressive MPE keyboard, using subtractive hall sensors to measure key velocity, side-to-side pitch bend, and polyphonic aftertouch. Designed compliant mechanisms for each key to mimic the hammer action of upright pianos. Developed low-latency firmware on the Daisy Seed microcontroller (ARM Cortex-M7) to perform high-rate sensor readings and synthesizer outputs. Custom-built PCBs for precise hall sensor positioning and laser-cut acrylic light-up keys (in development still) for flashier performance. All in a super compact, portable package."
+  },
   {
     slug: "low-cost-biodiversity-sensing-module",
     title: "Low-Cost AI-Powered Biodiversity-Sensing Module",
@@ -43,7 +55,7 @@ const projects: Project[] = [
       "Designed fully-custom, modular, low-cost biodiversity sensor nodes, utilizing on-device AI to optimize data collection.",
     image: withBase("/images/projects/BiodiversityTech.jpg"),
     content:
-      "Led hardware design and firmware for a distributed sensor network that identifies wildlife activity using edge AI. Optimized power delivery with custom buck converters, added solar recharging, and trained lightweight audio models to run on an ESP32-S3. Deployed pilots in remote preserves, cutting per-node costs by 68%."
+      "Led hardware design and firmware for a distributed sensor network that identifies wildlife activity using edge AI. Optimized power delivery with custom buck converters, added solar recharging, and trained lightweight audio models to run on an ESP32-S3."
   },
   {
     slug: "solar-array-optimization",
@@ -115,7 +127,7 @@ function App() {
       <div className="relative mx-auto flex min-h-screen w-full max-w-[1300px] flex-col px-4 pb-20 pt-6 sm:px-8 lg:px-10">
         <Header />
         <Routes>
-          <Route path="/" element={<HomePage aboutImages={aboutImages} />} />
+          <Route path="/" element={<HomePage />} />
           <Route path="/projects" element={<ProjectsPage projects={projects} />} />
           <Route path="/projects/:slug" element={<ProjectDetailPage projects={projects} />} />
         </Routes>
@@ -179,26 +191,19 @@ function Header() {
   );
 }
 
-function HomePage({ aboutImages }: { aboutImages: string[] }) {
+function HomePage() {
   const { scrollY } = useScroll();
   const imageOffset = useTransform(scrollY, (value) => value * 0.1);
   const contentOffset = useTransform(scrollY, (value) => value * -0.1);
   const location = useLocation();
   const navigate = useNavigate();
-
-  const aboutImageList = useMemo(
-    () => (aboutImages.length > 0 ? aboutImages : ["/images/about.jpg"]),
-    [aboutImages]
-  );
-  const [aboutImageIndex, setAboutImageIndex] = useState(0);
-
-  useEffect(() => {
-    if (aboutImageList.length <= 1) return;
-    const timer = setInterval(() => {
-      setAboutImageIndex((prev) => (prev + 1) % aboutImageList.length);
-    }, 2000);
-    return () => clearInterval(timer);
-  }, [aboutImageList.length]);
+  const aboutBoxRef = useRef<HTMLDivElement | null>(null);
+  const aboutVideoRef = useRef<HTMLVideoElement | null>(null);
+  const isAboutBoxInViewRef = useRef(false);
+  const { scrollYProgress: aboutScrollProgress } = useScroll({
+    target: aboutBoxRef,
+    offset: ["start end", "end start"]
+  });
 
   useEffect(() => {
     const scrollTarget = (location.state as ScrollState | null)?.scrollTarget;
@@ -225,6 +230,29 @@ function HomePage({ aboutImages }: { aboutImages: string[] }) {
     }
   }, [location, navigate]);
 
+  useEffect(() => {
+    const target = aboutBoxRef.current;
+    if (!target) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isAboutBoxInViewRef.current = entry.isIntersecting;
+      },
+      { threshold: 0.25 }
+    );
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, []);
+
+  useMotionValueEvent(aboutScrollProgress, "change", (value) => {
+    if (!isAboutBoxInViewRef.current) return;
+    const video = aboutVideoRef.current;
+    if (!video || !Number.isFinite(video.duration) || video.duration <= 0) return;
+    const clampedProgress = Math.min(Math.max(value, 0), 1);
+    const nextTime = clampedProgress * video.duration;
+    if (Math.abs(nextTime - video.currentTime) < 0.005) return;
+    video.currentTime = nextTime;
+  });
+
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
 
   return (
@@ -249,83 +277,119 @@ function HomePage({ aboutImages }: { aboutImages: string[] }) {
           animate={{ opacity: 1, x: 0 }}
           style={{ y: contentOffset }}
           transition={{ duration: 0.7, ease: "easeOut", delay: 0.1 }}
-          className="flex w-full flex-[1.1] flex-col justify-center rounded-[3.5rem] border border-white/10 bg-[#20242c]/80 px-10 py-12 text-white shadow-[0_45px_120px_-70px_rgba(0,0,0,0.8)] backdrop-blur-xl sm:px-16 lg:-mr-6"
+          className="relative flex w-full flex-[1.1] flex-col justify-center overflow-hidden rounded-[3.5rem] border border-white/10 bg-[#20242c]/65 px-10 py-12 text-white shadow-[0_45px_120px_-70px_rgba(0,0,0,0.8)] backdrop-blur-xl sm:px-16 lg:-mr-6"
         >
-          <div className="space-y-3">
-            <p className="text-[0.65rem] uppercase tracking-[0.7em] text-white/35">Engineering Portfolio</p>
-            <h1 className="font-display text-[3.6rem] font-semibold leading-none sm:text-[4.25rem]">Adam Tang</h1>
-            <p className="text-sm uppercase tracking-[0.3em] text-white/75">Embedded Systems · Robotics · Sustainability</p>
-            <div className="h-px w-16 bg-white/30" />
+          <div className="absolute inset-0 -z-10">
+            <div
+              className="absolute inset-0 bg-cover bg-center blur-sm grayscale brightness-75 opacity-85"
+              style={{ backgroundImage: `url(${heroFeatureImage})` }}
+            />
+            <div className="absolute inset-0 bg-[#20242c]/70" />
           </div>
-          <p className="mt-6 text-base leading-relaxed text-white/75">
-            Embedded systems, green technology, and endless innovation. I design autonomous systems and build sustainable
-            products that question the impossible.
-          </p>
-          <div className="mt-10 flex flex-wrap items-center gap-4">
-            <Button
-              asChild
-              size="lg"
-              variant="default"
-              className="gap-2 rounded-full bg-white px-6 text-black hover:bg-white/90"
-            >
-              <Link to="/projects">
-                My Projects
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-          </div>
-          <div className="mt-10 space-y-3 text-sm text-white/80">
-            <div className="flex flex-wrap gap-3">
-              <a
-                className="flex min-w-[180px] flex-1 items-center gap-3 rounded-full border border-white/12 bg-white/5 px-4 py-3 transition hover:bg-white/10"
-                href="mailto:adam@example.com"
+          <div className="relative z-10">
+            <div className="space-y-3">
+              <p className="text-[0.65rem] uppercase tracking-[0.7em] text-white/35">Engineering Portfolio</p>
+              <h1 className="font-display text-[3.6rem] font-semibold leading-none sm:text-[4.25rem]">Adam Tang</h1>
+              <p className="text-xs uppercase tracking-[0.45em] text-white/70">UC Berkeley EECS</p>
+              <p className="text-sm uppercase tracking-[0.3em] text-white/75">Mechatronics · Embedded Systems · Sustainability</p>
+              <div className="h-px w-16 bg-white/30" />
+            </div>
+            <div className="mt-6 space-y-3 text-base leading-relaxed text-white/75">
+              <p>Hey, I'm Adam! I design systems and products that question the impossible.</p>
+              <div className="h-px w-12 bg-white/30" />
+              <p>
+                My work stretches along electrical, mechanical, and computer engineering. If you're into cross-disciplinary builds, sharp
+                design, and systems that don't just sit there looking pretty---check out the projects page. That’s where the good stuff
+                lives.
+              </p>
+            </div>
+            <div className="mt-10 flex flex-wrap items-center gap-4">
+              <Button
+                asChild
+                size="lg"
+                variant="default"
+                className="group relative overflow-visible gap-2 rounded-full bg-white px-6 text-black transition hover:scale-[1.03] hover:bg-white/90"
               >
-                <Mail className="h-4 w-4" />
-                adamtang0715@gmail.com
+                <Link to="/projects">
+                  <span className="pointer-events-none absolute -inset-4 -z-10 opacity-0 transition duration-200 group-hover:opacity-100">
+                    <span className="absolute left-1/2 top-1/2 h-12 w-12 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/35 blur-[5px] transition duration-200 group-hover:scale-105" />
+                    <span className="absolute -left-2 top-1 h-6 w-6 rounded-full bg-white/55 blur-[3px] transition duration-200 group-hover:-translate-x-2 group-hover:-translate-y-2 group-hover:scale-120" />
+                    <span className="absolute -right-3 top-4 h-5 w-5 rounded-full bg-white/45 blur-[2px] transition duration-200 group-hover:translate-x-2 group-hover:-translate-y-1 group-hover:scale-120" />
+                    <span className="absolute right-5 -bottom-3 h-7 w-7 rounded-full bg-white/40 blur-[3px] transition duration-200 group-hover:translate-x-2 group-hover:translate-y-2 group-hover:scale-110" />
+                    <span className="absolute left-2 -bottom-2 h-4 w-4 rounded-full bg-white/45 blur-[2px] transition duration-200 group-hover:-translate-x-1 group-hover:translate-y-2 group-hover:scale-115" />
+                    <span className="absolute left-8 -top-3 h-3 w-3 rounded-full bg-white/45 blur-[2px] transition duration-200 group-hover:translate-x-1 group-hover:-translate-y-2 group-hover:scale-110" />
+                    <span className="absolute -right-1 top-9 h-3 w-3 rounded-full bg-white/40 blur-[2px] transition duration-200 group-hover:translate-x-2 group-hover:translate-y-2 group-hover:scale-110" />
+                    <span className="absolute right-1 top-1 h-2.5 w-2.5 rounded-full bg-white/40 blur-[2px] transition duration-200 group-hover:translate-x-1 group-hover:-translate-y-1 group-hover:scale-110" />
+                    <span className="absolute left-5 bottom-6 h-2.5 w-2.5 rounded-full bg-white/40 blur-[2px] transition duration-200 group-hover:translate-x-1 group-hover:translate-y-1 group-hover:scale-110" />
+                    <span className="absolute -left-1 bottom-6 h-2 w-2 rounded-full bg-white/40 blur-[2px] transition duration-200 group-hover:-translate-x-1 group-hover:translate-y-1 group-hover:scale-110" />
+                  </span>
+                  My Projects
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+            <div className="mt-10 space-y-3 text-sm text-white/80">
+              <div className="flex flex-wrap gap-3">
+                <a
+                  className="flex min-w-[180px] flex-1 items-center gap-3 rounded-full border border-white/12 bg-white/5 px-4 py-3 transition hover:bg-white/10"
+                  href="mailto:adam@example.com"
+                >
+                  <Mail className="h-4 w-4" />
+                  adamtang0715@gmail.com
+                </a>
+                <a
+                  className="flex min-w-[180px] flex-1 items-center gap-3 rounded-full border border-white/12 bg-white/5 px-4 py-3 transition hover:bg-white/10"
+                  href="tel:+13012756996"
+                >
+                  <Phone className="h-4 w-4" />
+                  (301) 275-6996
+                </a>
+              </div>
+              <Button asChild className="w-full gap-2 rounded-full bg-white text-black hover:bg-white/90" size="lg" variant="default">
+                <a download href={resumeFile} rel="noopener">
+                  <Download className="h-4 w-4" />
+                  Download My Resume
+                </a>
+              </Button>
+            </div>
+            <div className="mt-8 flex items-center gap-4 text-white/70">
+              <a
+                aria-label="LinkedIn"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-white/10 transition hover:bg-white/20"
+                href="https://www.linkedin.com/in/adam-tang-2374992a7"
+                target="_blank"
+                rel="noreferrer"
+              >
+                <Linkedin className="h-4 w-4" />
               </a>
               <a
-                className="flex min-w-[180px] flex-1 items-center gap-3 rounded-full border border-white/12 bg-white/5 px-4 py-3 transition hover:bg-white/10"
-                href="tel:+13012756996"
+                aria-label="Instagram"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-white/10 transition hover:bg-white/20"
+                href="https://www.instagram.com/atangled_studio/"
+                target="_blank"
+                rel="noreferrer"
               >
-                <Phone className="h-4 w-4" />
-                (301) 275-6996
+                <Instagram className="h-4 w-4" />
+              </a>
+              <a
+                aria-label="GitHub"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-white/10 transition hover:bg-white/20"
+                href="https://github.com/antangled?tab=repositories"
+                target="_blank"
+                rel="noreferrer"
+              >
+                <Github className="h-4 w-4" />
+              </a>
+              <a
+                aria-label="YouTube"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-white/10 transition hover:bg-white/20"
+                href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+                target="_blank"
+                rel="noreferrer"
+              >
+                <Youtube className="h-4 w-4" />
               </a>
             </div>
-            <Button asChild className="w-full gap-2 rounded-full bg-white text-black hover:bg-white/90" size="lg" variant="default">
-              <a download href={resumeFile} rel="noopener">
-                <Download className="h-4 w-4" />
-                Download My Resume
-              </a>
-            </Button>
-          </div>
-          <div className="mt-8 flex items-center gap-4 text-white/70">
-            <a
-              aria-label="LinkedIn"
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-white/10 transition hover:bg-white/20"
-              href="https://www.linkedin.com/in/adam-tang-2374992a7"
-              target="_blank"
-              rel="noreferrer"
-            >
-              <Linkedin className="h-4 w-4" />
-            </a>
-            <a
-              aria-label="GitHub"
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-white/10 transition hover:bg-white/20"
-              href="https://github.com/antangled?tab=repositories"
-              target="_blank"
-              rel="noreferrer"
-            >
-              <Github className="h-4 w-4" />
-            </a>
-            <a
-              aria-label="YouTube"
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-white/10 transition hover:bg-white/20"
-              href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-              target="_blank"
-              rel="noreferrer"
-            >
-              <Youtube className="h-4 w-4" />
-            </a>
           </div>
         </motion.section>
       </main>
@@ -341,14 +405,15 @@ function HomePage({ aboutImages }: { aboutImages: string[] }) {
           <p className="text-[1.85rem] font-semibold uppercase tracking-[0.55em] sm:text-[2.15rem]">About Me</p>
         </motion.div>
 
-        <div className="grid gap-8 text-white lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
-          <motion.div
-            initial={{ opacity: 0, x: -40 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, amount: 0.2 }}
-            transition={{ duration: 1, ease: "easeOut" }}
-            className="rounded-[3.5rem] border border-white/10 bg-[#1c2028]/85 p-10 shadow-[0_35px_120px_-70px_rgba(0,0,0,0.65)] backdrop-blur-xl lg:-ml-6"
-          >
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 1, ease: "easeOut" }}
+          className="grid overflow-hidden rounded-[3.5rem] border border-white/10 bg-[#1c2028]/85 text-white shadow-[0_35px_120px_-70px_rgba(0,0,0,0.65)] backdrop-blur-xl lg:-mx-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]"
+          ref={aboutBoxRef}
+        >
+          <div className="p-10">
             <div className="space-y-6">
               <div className="space-y-2">
                 <h2 className="font-display text-3xl font-semibold sm:text-4xl">Building thoughtful, resilient systems.</h2>
@@ -356,11 +421,10 @@ function HomePage({ aboutImages }: { aboutImages: string[] }) {
               <p className="text-base leading-relaxed text-white/70">
                 I’m Adam Tang—an engineer passionate about crafting autonomous platforms, responsive hardware, and immersive
                 product experiences. From prototyping intelligent robots to designing carbon-conscious solutions, my work focuses
-                on translating complex problems into tangible, elegant outcomes. 
+                on translating complex problems into tangible yet elegant outcomes. 
               </p>
               <p className="text-base leading-relaxed text-white/70">
-                Outside the lab, you can find me documenting builds on YouTube, mentoring younger makers, or exploring trails for
-                inspiration. I thrive in cross-disciplinary teams where curiosity, empathy, and precise execution intersect.
+                Outside the lab, you can find me documenting builds on Instagram or biking new trails. I thrive in cross-disciplinary teams where curiosity, empathy, and precise execution intersect.
               </p>
               <div className="flex flex-wrap gap-3 text-sm text-white/60">
                 <span className="rounded-full border border-white/12 px-4 py-2">Rapid Prototyping</span>
@@ -368,26 +432,18 @@ function HomePage({ aboutImages }: { aboutImages: string[] }) {
                 <span className="rounded-full border border-white/12 px-4 py-2">Sustainable Design</span>
               </div>
             </div>
-          </motion.div>
-          <motion.div
-            className="relative flex min-h-[360px] overflow-hidden rounded-[3.5rem] border border-white/10 bg-[#14171d]/60 shadow-[0_35px_120px_-70px_rgba(0,0,0,0.65)] backdrop-blur-xl lg:-mr-6"
-            initial={{ opacity: 0, x: 40 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, amount: 0.4 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-          >
-            {aboutImageList.map((src, index) => (
-              <motion.div
-                key={`${src}-${index}`}
-                className="absolute inset-0 bg-cover bg-center"
-                style={{ backgroundImage: `url('${src}')` }}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: aboutImageIndex === index ? 1 : 0 }}
-                transition={{ duration: 1, ease: "easeInOut" }}
-              />
-            ))}
-          </motion.div>
-        </div>
+          </div>
+          <div className="relative flex min-h-[360px]">
+            <video
+              ref={aboutVideoRef}
+              className="absolute inset-0 h-full w-full object-cover"
+              src={aboutVideo}
+              muted
+              playsInline
+              preload="metadata"
+            />
+          </div>
+        </motion.div>
 
         <div className="grid gap-8 text-white lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
           <motion.div
@@ -468,14 +524,23 @@ function HomePage({ aboutImages }: { aboutImages: string[] }) {
         </motion.div>
 
         <footer className="flex justify-center pt-6">
-          <button
-            className="inline-flex items-center gap-2 rounded-full border border-white/20 px-5 py-3 text-sm uppercase tracking-[0.3em] text-white/70 transition hover:bg-white/10 hover:text-white"
-            onClick={scrollToTop}
-            type="button"
-          >
-            Back To Top
-            <ArrowRight className="h-4 w-4 rotate-[-90deg]" />
-          </button>
+          <div className="flex flex-col items-center gap-4">
+            <Link
+              className="inline-flex items-center gap-2 rounded-full border border-white/20 px-5 py-3 text-sm uppercase tracking-[0.3em] text-white/80 transition hover:bg-white/10 hover:text-white"
+              to="/projects"
+            >
+              My Projects
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+            <button
+              className="inline-flex items-center gap-2 rounded-full border border-white/20 px-5 py-3 text-sm uppercase tracking-[0.3em] text-white/70 transition hover:bg-white/10 hover:text-white"
+              onClick={scrollToTop}
+              type="button"
+            >
+              Back To Top
+              <ArrowRight className="h-4 w-4 rotate-[-90deg]" />
+            </button>
+          </div>
         </footer>
       </section>
     </>
@@ -510,8 +575,7 @@ function ProjectCard({ project, delay }: { project: Project; delay: number }) {
   return (
     <motion.article
       initial={{ opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.3 }}
+      animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut", delay }}
       className="group relative h-[320px] overflow-hidden rounded-[3rem] border border-white/10 bg-[#1d2027]/75 shadow-[0_30px_100px_-70px_rgba(0,0,0,0.6)] backdrop-blur-xl"
       onMouseMove={(event) => {
@@ -538,7 +602,9 @@ function ProjectCard({ project, delay }: { project: Project; delay: number }) {
         <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/20 to-black/50 opacity-0 transition group-hover:opacity-100" />
         <div className="relative flex h-full flex-col items-center justify-center px-8 text-center">
           <h3 className="text-2xl font-semibold tracking-tight text-shadow-soft transition-opacity duration-300 group-hover:opacity-0">
-            {project.title}
+            <span className="inline-flex rounded-full border border-white/15 bg-[#20242c]/65 px-4 py-2 backdrop-blur-sm">
+              {project.title}
+            </span>
           </h3>
           <div className="absolute inset-x-0 bottom-0 translate-y-6 px-8 pb-8 text-sm leading-relaxed text-white/85 opacity-0 transition-all duration-400 group-hover:translate-y-0 group-hover:opacity-100">
             {project.description}
@@ -576,43 +642,71 @@ function ProjectDetailPage({ projects }: { projects: Project[] }) {
   }
 
   return (
-    <section className="mt-16 grid flex-1 gap-8 text-white lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-      <motion.div
-        initial={{ opacity: 0, y: 32 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
-        className="overflow-hidden rounded-[3.5rem] border border-white/10 bg-[#14171d]/70 shadow-[0_40px_120px_-70px_rgba(0,0,0,0.6)] backdrop-blur-xl"
-      >
-        <img alt={project.title} className="h-full w-full object-cover" src={project.image} />
-      </motion.div>
-      <motion.div
-        initial={{ opacity: 0, y: 32 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: "easeOut", delay: 0.1 }}
-        className="flex flex-col justify-between rounded-[3.5rem] border border-white/10 bg-[#1d2027]/85 px-10 py-12 shadow-[0_40px_120px_-70px_rgba(0,0,0,0.6)] backdrop-blur-xl sm:px-16"
-      >
-        <div className="space-y-6">
-          <p className="text-xs uppercase tracking-[0.5em] text-white/45">Project</p>
-          <h1 className="font-display text-4xl font-semibold leading-tight sm:text-5xl">{project.title}</h1>
-          <p className="text-base leading-relaxed text-white/75">{project.description}</p>
-          {project.content && <p className="text-base leading-relaxed text-white/70">{project.content}</p>}
-        </div>
-        <div className="mt-10 flex flex-wrap gap-4 text-sm">
-          <Link
-            className="inline-flex items-center gap-2 rounded-full border border-white/20 px-4 py-2 text-white/80 transition hover:bg-white/10"
-            to="/projects"
+    <>
+      <section className="mt-16 grid flex-1 gap-8 text-white lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+        <motion.div
+          initial={{ opacity: 0, y: 32 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="overflow-hidden rounded-[3.5rem] border border-white/10 bg-[#14171d]/70 shadow-[0_40px_120px_-70px_rgba(0,0,0,0.6)] backdrop-blur-xl"
+        >
+          <img alt={project.title} className="h-full w-full object-cover" src={project.image} />
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 32 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: "easeOut", delay: 0.1 }}
+          className="flex flex-col justify-between rounded-[3.5rem] border border-white/10 bg-[#1d2027]/85 px-10 py-12 shadow-[0_40px_120px_-70px_rgba(0,0,0,0.6)] backdrop-blur-xl sm:px-16"
+        >
+          <div className="space-y-6">
+            <p className="text-xs uppercase tracking-[0.5em] text-white/45">Project</p>
+            <h1 className="font-display text-4xl font-semibold leading-tight sm:text-5xl">{project.title}</h1>
+            <p className="text-base leading-relaxed text-white/75">{project.description}</p>
+            {project.content && <p className="text-base leading-relaxed text-white/70">{project.content}</p>}
+          </div>
+          <div className="mt-10 flex flex-wrap gap-4 text-sm">
+            <Link
+              className="inline-flex items-center gap-2 rounded-full border border-white/20 px-4 py-2 text-white/80 transition hover:bg-white/10"
+              to="/projects"
+            >
+              ← Back to projects
+            </Link>
+            <Link
+              className="inline-flex items-center gap-2 rounded-full border border-white/20 px-4 py-2 text-white/80 transition hover:bg-white/10"
+              to="/"
+            >
+              ← Home
+            </Link>
+          </div>
+        </motion.div>
+      </section>
+      {project.slug === "polysynth-x-mpe-synth-keyboard" && (
+        <>
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            className="relative mt-8 overflow-hidden rounded-[3.5rem] border border-white/10 bg-[#14171d]/70 shadow-[0_40px_120px_-70px_rgba(0,0,0,0.6)] backdrop-blur-xl"
           >
-            ← Back to projects
-          </Link>
-          <Link
-            className="inline-flex items-center gap-2 rounded-full border border-white/20 px-4 py-2 text-white/80 transition hover:bg-white/10"
-            to="/"
+            <div className="pointer-events-none absolute left-6 top-6 z-10 rounded-full border border-white/15 bg-[#1d2027]/70 px-4 py-2 text-xs uppercase tracking-[0.35em] text-white/80 backdrop-blur-sm">
+              First Electrical Prototype
+            </div>
+            <video className="h-full w-full" controls playsInline preload="metadata" src={polysynthVideo} />
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: "easeOut", delay: 0.05 }}
+            className="relative mt-8 overflow-hidden rounded-[3.5rem] border border-white/10 bg-[#14171d]/70 shadow-[0_40px_120px_-70px_rgba(0,0,0,0.6)] backdrop-blur-xl"
           >
-            ← Home
-          </Link>
-        </div>
-      </motion.div>
-    </section>
+            <div className="pointer-events-none absolute left-6 top-6 z-10 rounded-full border border-white/15 bg-[#1d2027]/70 px-4 py-2 text-xs uppercase tracking-[0.35em] text-white/80 backdrop-blur-sm">
+              Compliant Mechanism Showcase
+            </div>
+            <video className="h-full w-full" controls playsInline preload="metadata" src={compliantShowcaseVideo} />
+          </motion.div>
+        </>
+      )}
+    </>
   );
 }
 
