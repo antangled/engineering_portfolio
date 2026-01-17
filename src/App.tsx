@@ -193,7 +193,7 @@ function Header() {
 
 function HomePage() {
   const { scrollY } = useScroll();
-  const imageOffset = useTransform(scrollY, (value) => value * 0.1);
+  const imageOffset = useTransform(scrollY, (value) => value * 0.3);
   const contentOffset = useTransform(scrollY, (value) => value * -0.1);
   const location = useLocation();
   const navigate = useNavigate();
@@ -262,11 +262,12 @@ function HomePage() {
           initial={{ opacity: 0, x: -48 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.7, ease: "easeOut" }}
-          className="relative flex-[0.9] overflow-hidden rounded-[3.5rem] bg-[#1d2027]/70 shadow-[0_50px_120px_-70px_rgba(0,0,0,0.75)] lg:-ml-6"
+          className="relative flex-[0.9] overflow-hidden rounded-[3.5rem] bg-[#78797c] shadow-[0_50px_120px_-70px_rgba(0,0,0,0.75)] lg:-ml-6"
         >
           <motion.div style={{ y: imageOffset }} className="absolute inset-0">
             <div
-              className="h-full w-full bg-cover bg-center"style={{ backgroundImage: `url(${heroImage})` }}
+              className="h-full w-full bg-cover"
+              style={{ backgroundImage: `url(${heroImage})`, backgroundPosition: "30% 50%" }}
             />
             <div className="absolute inset-0 bg-black/15" />
           </motion.div>
