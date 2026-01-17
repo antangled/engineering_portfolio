@@ -34,7 +34,7 @@ const navLinks = [
 const aboutVideo = withBase("/videos/video_2026-01-11_15-31-58.mov");
 const polysynthVideo = withBase("/videos/polysynthshowcase.mp4");
 const compliantShowcaseVideo = withBase("/videos/compliantshowcase.mp4");
-const heroImage = withBase("/images/feature.jpg");
+const heroImage = withBase("/images/feature-v2.jpg");
 const heroFeatureImage = withBase("/images/feature2.jpg");
 const resumeFile = withBase("/AdamTang_Resume.pdf");
 
