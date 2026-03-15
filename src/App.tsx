@@ -40,11 +40,20 @@ const resumeFile = withBase("/AdamTang_Resume.pdf");
 
 const projects: Project[] = [
   {
+    slug: "eldaeon-passive-radar-system",
+    title: "Eldaeon Passive Radar System",
+    description:
+      "Developing a passive radar system for low-cost, wide-area detection and tracking using ambient RF signals.",
+    image: withBase("/images/projects/Eldaeon/Eldaeon.jpg"),
+    content:
+      "Project details coming soon. This page is a placeholder — check back for a full write-up on the Eldaeon Passive Radar System."
+  },
+  {
     slug: "polysynth-x-mpe-synth-keyboard",
     title: "PolySynth X",
     description:
       "Designed and built a fully custom hyper-expressive MPE keyboard, integrating real-time embedded firmware with hand-engineered compliant key mechanisms.",
-    image: withBase("/images/projects/polysynthx.jpg"),
+    image: withBase("/images/projects/PolysynthX/polysynthx.jpg"),
     content:
       "Led end-to-end R&D of a fully custom hyper-expressive MPE keyboard, using subtractive hall sensors to measure key velocity, side-to-side pitch bend, and polyphonic aftertouch. Designed compliant mechanisms for each key to mimic the hammer action of upright pianos. Developed low-latency firmware on the Daisy Seed microcontroller (ARM Cortex-M7) to perform high-rate sensor readings and synthesizer outputs. Custom-built PCBs for precise hall sensor positioning and laser-cut acrylic light-up keys (in development still) for flashier performance. All in a super compact, portable package."
   },
@@ -53,7 +62,7 @@ const projects: Project[] = [
     title: "Low-Cost AI-Powered Biodiversity-Sensing Module",
     description:
       "Designed fully-custom, modular, low-cost biodiversity sensor nodes, utilizing on-device AI to optimize data collection.",
-    image: withBase("/images/projects/BiodiversityTech.jpg"),
+    image: withBase("/images/projects/BiodiversityTech/BiodiversityTech.jpg"),
     content:
       "Led hardware design and firmware for a distributed sensor network that identifies wildlife activity using edge AI. Optimized power delivery with custom buck converters, added solar recharging, and trained lightweight audio models to run on an ESP32-S3."
   },
@@ -62,7 +71,7 @@ const projects: Project[] = [
     title: "Solar Array Optimization",
     description:
       "Designed array telemetry and bypass-diode placement experiments for a solar race car; improved partial-shade output by 12%.",
-    image: withBase("/images/projects/CalSol_Excalibur.jpg"),
+    image: withBase("/images/projects/CalSol/CalSol_Excalibur.jpg"),
     content:
       "Collaborated with the CalSol race team to instrument the Excalibur array with custom telemetry, mapping cell mismatch under dynamic shading. Simulated bypass-diode placements, validated the best layout in a controlled track environment, and raised partial-shade efficiency by 12% while keeping thermal loads in check."
   },
@@ -71,7 +80,7 @@ const projects: Project[] = [
     title: "Compact Automated Aquaponics System",
     description:
       "Designed (CAD) and manufactured a fully automated aquaponics system that supplied our dining hall with fresh lettuce and fish, serving as multidisciplinary educational tool.",
-    image: withBase("/images/projects/AquaponicsDLab.jpg"),
+    image: withBase("/images/projects/Aquaponics/AquaponicsDLab.jpg"),
     content:
       "Architected an intelligent aquaponics platform with modular grow towers, nutrient balancing, and automated fish feeding. Designed the structure in Fusion 360, CNC-milled the frame, and built a sensor + control stack with Node-RED dashboards. The system now supplies produce to the dining hall and serves as a living lab."
   },
@@ -80,7 +89,7 @@ const projects: Project[] = [
     title: "Flume-Simulated + Field Microplastics Dynamics Research",
     description:
       "Investigated the movement and behavior of microscopic particles within the vertical water table and quantified the levels of microplastic pollution in local rivers.",
-    image: withBase("/images/projects/Microplastics.jpg"),
+    image: withBase("/images/projects/Microplastics/Microplastics.jpg"),
     content:
       "Designed flume experiments and in-situ sampling campaigns to map microplastic transport across hydrologic zones. Built image-processing pipelines for particle classification, calibrated sensors for salinity and turbidity, and created open-access datasets that informed local mitigation policies."
   }
@@ -118,6 +127,16 @@ const skillCategories: SkillCategory[] = [
 ];
 
 function App() {
+  useEffect(() => {
+    [heroImage, heroFeatureImage].forEach((href) => {
+      const link = document.createElement("link");
+      link.rel = "preload";
+      link.as = "image";
+      link.href = href;
+      document.head.appendChild(link);
+    });
+  }, []);
+
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#15181d] text-white">
       <div className="absolute inset-0 -z-20 bg-gradient-to-br from-[#1a1d23] via-[#161921] to-[#12141a]" />
@@ -265,9 +284,12 @@ function HomePage() {
           className="relative flex-[0.9] overflow-hidden rounded-[3.5rem] bg-[#78797c] shadow-[0_50px_120px_-70px_rgba(0,0,0,0.75)] lg:-ml-6"
         >
           <motion.div style={{ y: imageOffset }} className="absolute inset-0">
-            <div
-              className="h-full w-full bg-cover"
-              style={{ backgroundImage: `url(${heroImage})`, backgroundPosition: "30% 50%" }}
+            <img
+              alt="Hero"
+              src={heroImage}
+              fetchPriority="high"
+              className="h-full w-full object-cover"
+              style={{ objectPosition: "30% 50%" }}
             />
             <div className="absolute inset-0 bg-black/15" />
           </motion.div>
@@ -692,7 +714,9 @@ function ProjectDetailPage({ projects }: { projects: Project[] }) {
             <div className="pointer-events-none absolute left-6 top-6 z-10 rounded-full border border-white/15 bg-[#1d2027]/70 px-4 py-2 text-xs uppercase tracking-[0.35em] text-white/80 backdrop-blur-sm">
               First Electrical Prototype
             </div>
-            <video className="h-full w-full" controls playsInline preload="metadata" src={polysynthVideo} />
+            <video className="w-full" controls playsInline preload="metadata">
+              <source src={polysynthVideo} type="video/mp4" />
+            </video>
           </motion.div>
           <motion.div
             initial={{ opacity: 0, y: 24 }}
@@ -703,7 +727,9 @@ function ProjectDetailPage({ projects }: { projects: Project[] }) {
             <div className="pointer-events-none absolute left-6 top-6 z-10 rounded-full border border-white/15 bg-[#1d2027]/70 px-4 py-2 text-xs uppercase tracking-[0.35em] text-white/80 backdrop-blur-sm">
               Compliant Mechanism Showcase
             </div>
-            <video className="h-full w-full" controls playsInline preload="metadata" src={compliantShowcaseVideo} />
+            <video className="w-full" controls playsInline preload="metadata">
+              <source src={compliantShowcaseVideo} type="video/mp4" />
+            </video>
           </motion.div>
         </>
       )}
