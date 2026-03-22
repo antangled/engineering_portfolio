@@ -10,6 +10,7 @@ export type Project = {
   tags: string[];
   status: "active" | "completed";
   year: number;
+  order: number;
   images?: { src: string; caption: string }[];
   videos?: { src: string; caption: string }[];
   problem?: string;
@@ -52,6 +53,7 @@ export const projects: Project[] = [
     tags: ["RF Engineering", "Signal Processing", "Python"],
     status: "active",
     year: 2025,
+    order: 1,
     images: [
       { src: withBase("/images/projects/Eldaeon/Eldaeon.jpg"), caption: "Passive radar system overview" },
       { src: withBase("/images/projects/Eldaeon/Eldaeon1.jpg"), caption: "Signal processing prototype" },
@@ -70,6 +72,7 @@ export const projects: Project[] = [
     tags: ["Embedded Systems", "PCB Design", "C++", "CAD"],
     status: "active",
     year: 2024,
+    order: 3,
     images: [
       { src: withBase("/images/projects/PolysynthX/polysynthx.jpg"), caption: "PolySynth X assembled prototype" },
     ],
@@ -91,6 +94,7 @@ export const projects: Project[] = [
     tags: ["Edge AI", "IoT", "Power Electronics", "ESP32"],
     status: "active",
     year: 2024,
+    order: 2,
     images: [
       { src: withBase("/images/projects/BiodiversityTech/BiodiversityTech.jpg"), caption: "Sensor node assembly" },
       { src: withBase("/images/projects/BiodiversityTech/BiodiversityTech1.jpg"), caption: "Field deployment setup" },
@@ -110,6 +114,7 @@ export const projects: Project[] = [
     tags: ["Solar Engineering", "Telemetry", "MATLAB", "Simulation"],
     status: "active",
     year: 2025,
+    order: 4,
     images: [
       { src: withBase("/images/projects/CalSol/CalSol_Excalibur.jpg"), caption: "Excalibur solar race car" },
     ],
@@ -127,6 +132,7 @@ export const projects: Project[] = [
     tags: ["CAD", "CNC", "Node-RED", "Sensors"],
     status: "completed",
     year: 2022,
+    order: 5,
     images: [
       { src: withBase("/images/projects/Aquaponics/AquaponicsDLab.jpg"), caption: "Aquaponics system in lab" },
       { src: withBase("/images/projects/Aquaponics/AquaponicsDHall.jpg"), caption: "Deployed in dining hall" },
@@ -145,6 +151,7 @@ export const projects: Project[] = [
     tags: ["Research", "Image Processing", "Python", "Environmental"],
     status: "completed",
     year: 2022,
+    order: 6,
     images: [
       { src: withBase("/images/projects/Microplastics/Microplastics.jpg"), caption: "Flume experiment setup" },
     ],

@@ -1,10 +1,18 @@
 import { useEffect } from "react";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 import { Header } from "./components/Header";
 import { HomePage } from "./components/HomePage";
 import { ProjectsPage } from "./components/ProjectsPage";
 import { ProjectDetailPage } from "./components/ProjectDetailPage";
 import { projects, heroImage, heroFeatureImage } from "./data/projects";
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+}
 
 function App() {
   useEffect(() => {
@@ -25,6 +33,7 @@ function App() {
 
       <div className="relative mx-auto flex min-h-screen w-full max-w-[1300px] flex-col px-4 pb-20 pt-6 sm:px-8 lg:px-10">
         <Header />
+        <ScrollToTop />
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/projects" element={<ProjectsPage projects={projects} />} />

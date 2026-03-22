@@ -16,8 +16,47 @@ export function TimelineCard({ project, index, isLeft }: TimelineCardProps) {
       whileInView={{ opacity: 1, x: 0 }}
       viewport={{ once: true, amount: 0.25 }}
       transition={{ duration: 0.6, ease: "easeOut", delay: 0.05 }}
-      className="group"
+      className="group relative"
     >
+      {/* Connector line from card edge to timeline — desktop only */}
+      <div
+        className="pointer-events-none absolute top-10 hidden lg:flex items-center"
+        style={{
+          width: 50,
+          ...(isLeft ? { right: -50 } : { left: -50 }),
+        }}
+      >
+        {/* Line + arrowhead pointing toward timeline */}
+        <svg
+          width="50"
+          height="12"
+          viewBox="0 0 50 12"
+          fill="none"
+          className="w-full"
+          style={isLeft ? undefined : { transform: "scaleX(-1)" }}
+        >
+          {/* Horizontal line */}
+          <line
+            x1="0"
+            y1="6"
+            x2="40"
+            y2="6"
+            stroke="rgba(255,255,255,0.15)"
+            strokeWidth="1"
+            strokeDasharray="3 3"
+          />
+          {/* Arrowhead */}
+          <path
+            d="M 38 2 L 48 6 L 38 10"
+            fill="none"
+            stroke="rgba(255,255,255,0.25)"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </div>
+
       <Link
         to={`/projects/${project.slug}`}
         className="block overflow-hidden rounded-[2rem] border border-white/10 bg-[#1d2027]/75 shadow-[0_30px_100px_-70px_rgba(0,0,0,0.6)] backdrop-blur-xl transition-all duration-300 hover:border-white/20 hover:shadow-[0_30px_100px_-50px_rgba(0,0,0,0.7)]"

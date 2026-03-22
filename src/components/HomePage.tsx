@@ -84,15 +84,15 @@ export function HomePage() {
           initial={{ opacity: 0, x: -48 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.7, ease: "easeOut" }}
-          className="relative flex-[0.9] overflow-hidden rounded-[3.5rem] bg-[#78797c] shadow-[0_50px_120px_-70px_rgba(0,0,0,0.75)] lg:-ml-6"
+          className="relative flex-[1] overflow-hidden rounded-[3.5rem] bg-[#838586] shadow-[0_50px_120px_-70px_rgba(0,0,0,0.75)] lg:-ml-6"
         >
-          <motion.div style={{ y: innerImageY }} className="absolute inset-[-20%_0_0_0]">
+          <motion.div style={{ y: innerImageY }} className="absolute inset-[0_0_-80px_0]">
             <img
               alt="Hero"
               src={heroImage}
               fetchPriority="high"
               className="h-full w-full object-cover"
-              style={{ objectPosition: "30% 50%" }}
+              style={{ objectPosition: "25% 50%" }}
             />
             <div className="absolute inset-0 bg-black/15" />
           </motion.div>

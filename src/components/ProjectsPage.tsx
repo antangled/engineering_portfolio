@@ -4,10 +4,10 @@ import { TimelineCard } from "./timeline/TimelineCard";
 import { motion } from "framer-motion";
 
 export function ProjectsPage({ projects }: { projects: Project[] }) {
-  const segmentHeight = 480;
+  const segmentHeight = 260;
 
-  // Sort projects by year descending (most recent first), preserving order within same year
-  const sorted = [...projects].sort((a, b) => b.year - a.year);
+  // Sort projects by explicit display order
+  const sorted = [...projects].sort((a, b) => a.order - b.order);
 
   return (
     <section id="projects" className="mt-16 flex flex-1 flex-col text-white">
