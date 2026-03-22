@@ -29,9 +29,9 @@ export function ProjectsPage({ projects }: { projects: Project[] }) {
       <div className="relative">
         {/* Desktop: 3-column grid with SVG path in center */}
         <div className="hidden lg:block">
-          <div className="relative" style={{ minHeight: sorted.length * segmentHeight }}>
+          <div className="relative" style={{ minHeight: sorted.length * segmentHeight + 400 }}>
             {/* SVG wavy line in center */}
-            <div className="absolute left-1/2 top-0 -translate-x-1/2" style={{ height: sorted.length * segmentHeight }}>
+            <div className="absolute left-1/2 top-0 -translate-x-1/2" style={{ height: sorted.length * segmentHeight + 400 }}>
               <TimelinePath segmentCount={sorted.length} segmentHeight={segmentHeight} />
             </div>
 

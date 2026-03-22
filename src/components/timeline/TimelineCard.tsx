@@ -92,7 +92,7 @@ export function TimelineCard({ project, index, isLeft }: TimelineCardProps) {
           <p className="text-xs uppercase tracking-[0.3em] text-white/45">{project.duration}</p>
 
           {/* Description */}
-          <p className="line-clamp-2 text-sm leading-relaxed text-white/65">{project.description}</p>
+          <p className="text-sm leading-relaxed text-white/65">{project.description}</p>
 
           {/* Tags */}
           <div className="flex flex-wrap gap-1.5">
