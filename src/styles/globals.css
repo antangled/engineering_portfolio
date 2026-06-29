@@ -1,0 +1,82 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply bg-paper font-sans text-ink-900;
+    font-feature-settings: "ss01", "cv01";
+  }
+
+  ::selection {
+    background: #ff5a1f;
+    color: #fff;
+  }
+
+  /* Hide the native cursor on pointer-capable devices; custom cursor takes over */
+  @media (hover: hover) and (pointer: fine) {
+    * {
+      cursor: none;
+    }
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: "Clash Display", system-ui, sans-serif;
+  }
+
+  /* Per-line mask reveal used by the hero entrance */
+  .reveal-mask {
+    overflow: hidden;
+    display: block;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .text-pretty {
+    text-wrap: pretty;
+  }
+
+  /* Subtle blueprint grid for dark gallery backgrounds */
+  .bp-grid {
+    background-image:
+      linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+}
+
+/* Lenis smooth scroll */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    * {
+      cursor: auto;
+    }
+  }
+}
