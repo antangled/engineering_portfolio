@@ -30,17 +30,18 @@ export function Hero() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.9, ease }}
         className="relative overflow-hidden rounded-[2.5rem]"
-        style={{ minHeight: "clamp(520px, 78vh, 680px)" }}
+        style={{ minHeight: "clamp(520px, 78vh, 680px)", background: "#878a8d" }}
       >
-        {/* Hero photo — person on the left, gray backdrop carries to the right */}
+        {/* Hero photo — smaller + anchored left so more of the subject shows;
+            the studio gray backdrop carries to the right for the white type */}
         <motion.img
           src={withBase("/images/feature-v3.jpg")}
           alt="Adam Tang"
           initial={{ scale: 1.06 }}
           animate={{ scale: 1 }}
           transition={{ duration: 1.3, ease }}
-          className="absolute inset-0 h-full w-full object-cover"
-          style={{ objectPosition: "center 22%" }}
+          className="absolute inset-y-0 left-0 h-full w-full object-cover lg:w-[72%]"
+          style={{ objectPosition: "center 30%" }}
         />
 
         {/* Scrim — bottom-dark on mobile, right-dark on desktop, so white type reads */}
