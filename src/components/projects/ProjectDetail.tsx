@@ -86,19 +86,41 @@ export function ProjectDetail() {
           <p className="mt-4 max-w-2xl text-pretty text-lg text-mist-dim">{project.tagline}</p>
         </Reveal>
 
-        {/* Cover */}
+        {/* Cover — with the reel to its left when a project has one */}
         <Reveal delay={0.1}>
-          <div className="mt-10 overflow-hidden rounded-4xl border border-mist/10">
-            {hasCover ? (
-              <img src={project.cover} alt={project.title} className="max-h-[560px] w-full object-cover" />
-            ) : (
-              <div className="bp-grid flex aspect-[16/9] w-full items-center justify-center bg-gradient-to-br from-night-700 to-night-800">
-                <p className="font-mono text-xs uppercase tracking-widest text-mist-faint">
-                  Visuals coming soon
-                </p>
+          {reelEmbed ? (
+            <div className="mt-10 grid gap-5 lg:h-[540px] lg:grid-cols-[300px_1fr]">
+              <div className="order-2 h-[520px] overflow-hidden rounded-3xl border border-mist/10 bg-night-900 lg:order-1 lg:h-full">
+                <iframe
+                  src={reelEmbed}
+                  title={`${project.title} reel`}
+                  loading="lazy"
+                  allow="encrypted-media; clipboard-write; picture-in-picture; web-share"
+                  allowFullScreen
+                  className="h-full w-full"
+                />
               </div>
-            )}
-          </div>
+              <div className="order-1 overflow-hidden rounded-4xl border border-mist/10 lg:order-2 lg:h-full">
+                {hasCover ? (
+                  <img src={project.cover} alt={project.title} className="h-[300px] w-full object-cover lg:h-full" />
+                ) : (
+                  <div className="bp-grid flex h-[300px] w-full items-center justify-center bg-gradient-to-br from-night-700 to-night-800 lg:h-full">
+                    <p className="font-mono text-xs uppercase tracking-widest text-mist-faint">Main visual — coming soon</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="mt-10 overflow-hidden rounded-4xl border border-mist/10">
+              {hasCover ? (
+                <img src={project.cover} alt={project.title} className="max-h-[560px] w-full object-cover" />
+              ) : (
+                <div className="bp-grid flex aspect-[16/9] w-full items-center justify-center bg-gradient-to-br from-night-700 to-night-800">
+                  <p className="font-mono text-xs uppercase tracking-widest text-mist-faint">Visuals coming soon</p>
+                </div>
+              )}
+            </div>
+          )}
         </Reveal>
 
         {/* Impact metrics */}
@@ -174,25 +196,6 @@ export function ProjectDetail() {
               </Reveal>
             )}
           </div>
-        )}
-
-        {/* Instagram reel embed (cycloidal) */}
-        {reelEmbed && (
-          <Reveal>
-            <div className="mt-14">
-              <p className="font-mono text-xs uppercase tracking-[0.3em] text-signal-glow">Watch it run</p>
-              <div className="mt-5 flex justify-center">
-                <iframe
-                  src={reelEmbed}
-                  title={`${project.title} reel`}
-                  loading="lazy"
-                  allow="encrypted-media; clipboard-write; picture-in-picture; web-share"
-                  allowFullScreen
-                  className="h-[680px] w-full max-w-[420px] rounded-3xl border border-mist/10 bg-night-800"
-                />
-              </div>
-            </div>
-          </Reveal>
         )}
 
         {/* Media */}
