@@ -32,17 +32,29 @@ export function Hero() {
         className="relative overflow-hidden rounded-[2.5rem]"
         style={{ minHeight: "clamp(520px, 78vh, 680px)", background: "#878a8d" }}
       >
-        {/* Hero photo — smaller + anchored left so more of the subject shows;
-            the studio gray backdrop carries to the right for the white type */}
-        <motion.img
-          src={withBase("/images/feature-v3.jpg")}
-          alt="Adam Tang"
-          initial={{ scale: 1.06 }}
-          animate={{ scale: 1 }}
-          transition={{ duration: 1.3, ease }}
-          className="absolute inset-y-0 left-0 h-full w-full object-cover lg:w-[72%]"
-          style={{ objectPosition: "center 30%" }}
-        />
+        {/* Hero photo (left) + a horizontally-mirrored copy (right). Because the
+            mirror's edge pixels match the original's exactly, the studio-gray
+            backdrop continues with no seam — and only the mirrored gray shows. */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1.1, ease }}
+          className="absolute inset-0"
+        >
+          <img
+            src={withBase("/images/feature-v3.jpg")}
+            alt="Adam Tang"
+            className="absolute inset-y-0 left-0 h-full w-full object-cover lg:w-[72%]"
+            style={{ objectPosition: "center 30%" }}
+          />
+          <img
+            src={withBase("/images/feature-v3.jpg")}
+            alt=""
+            aria-hidden
+            className="absolute inset-y-0 left-[72%] hidden h-full w-[72%] object-cover lg:block"
+            style={{ objectPosition: "center 30%", transform: "scaleX(-1)" }}
+          />
+        </motion.div>
 
         {/* Scrim — bottom-dark on mobile, right-dark on desktop, so white type reads */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent lg:bg-gradient-to-r lg:from-transparent lg:via-black/20 lg:to-black/75" />
