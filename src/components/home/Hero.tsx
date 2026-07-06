@@ -44,6 +44,7 @@ export function Hero() {
           <img
             src={withBase("/images/feature-v3.jpg")}
             alt="Adam Tang"
+            decoding="async"
             className="absolute inset-y-0 left-0 h-full w-full object-cover lg:w-[72%]"
             style={{ objectPosition: "center 30%" }}
           />
@@ -51,6 +52,7 @@ export function Hero() {
             src={withBase("/images/feature-v3.jpg")}
             alt=""
             aria-hidden
+            decoding="async"
             className="absolute inset-y-0 left-[72%] hidden h-full w-[72%] object-cover lg:block"
             style={{ objectPosition: "center 30%", transform: "scaleX(-1)" }}
           />

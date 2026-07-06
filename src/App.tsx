@@ -1,12 +1,18 @@
-import { useEffect } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { MotionConfig } from "framer-motion";
 import { Route, Routes, useLocation } from "react-router-dom";
 import { SmoothScroll } from "./components/SmoothScroll";
 import { Cursor } from "./components/Cursor";
 import { Nav } from "./components/Nav";
 import { Home } from "./components/home/Home";
-import { ProjectsGallery } from "./components/projects/ProjectsGallery";
-import { ProjectDetail } from "./components/projects/ProjectDetail";
+
+// Code-split the dark /projects routes so the landing page doesn't ship them.
+const ProjectsGallery = lazy(() =>
+  import("./components/projects/ProjectsGallery").then((m) => ({ default: m.ProjectsGallery }))
+);
+const ProjectDetail = lazy(() =>
+  import("./components/projects/ProjectDetail").then((m) => ({ default: m.ProjectDetail }))
+);
 
 function RouteEffects() {
   const { pathname } = useLocation();
@@ -34,11 +40,13 @@ export default function App() {
         <Cursor />
         <Nav />
         <RouteEffects />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/projects" element={<ProjectsGallery />} />
-          <Route path="/projects/:slug" element={<ProjectDetail />} />
-        </Routes>
+        <Suspense fallback={<div className="min-h-screen bg-night-900" />}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/projects" element={<ProjectsGallery />} />
+            <Route path="/projects/:slug" element={<ProjectDetail />} />
+          </Routes>
+        </Suspense>
       </SmoothScroll>
     </MotionConfig>
   );
