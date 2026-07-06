@@ -31,7 +31,7 @@ export function Home() {
   }, [location, navigate]);
 
   return (
-    <div className="bg-paper">
+    <div className="paper-grid">
       <Hero />
       <FeaturedWork />
       <AboutSection />
