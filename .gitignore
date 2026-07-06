@@ -1,6 +1,9 @@
 node_modules
 dist
 .DS_Store
+# Installed AI design skills (local tooling, reinstall via their CLIs) — see skills-lock.json
+.claude/skills/
+.agents/
 # Never commit emitted TS artifacts next to source
 src/**/*.js
 src/**/*.d.ts
