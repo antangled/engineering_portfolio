@@ -258,7 +258,7 @@ const software: Project[] = [
       "MapLibre geospatial search + total-cost calculators",
       "Trust scoring, verification & scam detection",
     ],
-    cover: withBase("/images/software/oski-campanile.jpg"),
+    cover: withBase("/images/software/oski.jpg"),
     duration: "2025",
     year: 2025,
     order: 1,
@@ -272,9 +272,6 @@ const software: Project[] = [
     results:
       "A full flow — search on a live map, vet a lister, calculate true monthly cost, and generate an agreement — with the trust layer Berkeley's group-chat market lacks. The largest build in my software set at 75+ source files.",
     links: [{ label: "GitHub", href: "https://github.com/antangled/Oski-Leases" }],
-    media: [
-      { type: "image", src: withBase("/images/software/oski-website.webp"), caption: "App preview" },
-    ],
   },
   {
     slug: "builddash",
@@ -284,12 +281,11 @@ const software: Project[] = [
     summary:
       "Full-stack Next.js 16 marketplace where buyers upload 3D models, get instant 3D previews and automated price quotes, and match to nearby fabricators by distance — backed by a Python pricing engine for platform unit economics.",
     impact: [
-      "16+ machine types: FDM, SLA, CNC, laser, waterjet",
+      "330+ machines across 6 processes: FDM, SLA, CNC, laser, plasma, waterjet",
       "Three.js STL viewer + Leaflet distance matching",
       "Python pricing/commission engine",
     ],
-    cover: "",
-    placeholder: true,
+    cover: withBase("/images/software/builddash.jpg"),
     duration: "2026",
     year: 2026,
     order: 2,
@@ -301,7 +297,7 @@ const software: Project[] = [
     approach:
       "Built a two-sided Next.js 16 marketplace: buyers upload an STL, get an instant Three.js preview and an automated quote, and are matched to nearby fabricators by distance (Leaflet). A standalone Python engine models per-process cost and platform commission for the unit economics.",
     results:
-      "An end-to-end flow — upload → preview → quote → match — spanning 16+ machine types (FDM, SLA, CNC, laser, waterjet, metal), with separate buyer and seller earnings dashboards.",
+      "An end-to-end flow — upload → preview → quote → match — spanning 330+ machines across 6 processes (FDM, SLA, CNC, laser, plasma, waterjet), with separate buyer and seller earnings dashboards.",
     links: [{ label: "GitHub", href: "https://github.com/antangled/BuildDash" }],
   },
   {
@@ -316,8 +312,7 @@ const software: Project[] = [
       "$0 hosting — static + localStorage only",
       "Clobber + curve (z-score) grade math",
     ],
-    cover: "",
-    placeholder: true,
+    cover: withBase("/images/software/graded.jpg"),
     duration: "2025",
     year: 2025,
     order: 3,
