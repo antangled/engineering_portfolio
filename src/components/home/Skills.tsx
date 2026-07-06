@@ -13,9 +13,9 @@ export function Skills() {
         transition={{ duration: 0.7, ease }}
       >
         <p className="font-mono text-xs uppercase tracking-[0.3em] text-signal-ink">Toolchain</p>
-        <h3 className="mt-3 text-balance font-display text-3xl font-semibold tracking-tight text-ink-900">
+        <h2 className="mt-3 text-balance font-display text-3xl font-semibold tracking-tight text-ink-900">
           What I work with.
-        </h3>
+        </h2>
       </motion.div>
 
       <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -28,7 +28,7 @@ export function Skills() {
             transition={{ duration: 0.6, ease, delay: i * 0.06 }}
             className="rounded-3xl border border-ink-900/10 bg-surface p-6"
           >
-            <p className="font-mono text-[0.7rem] uppercase tracking-widest text-ink-400">{group.title}</p>
+            <p className="font-mono text-[0.7rem] uppercase tracking-widest text-ink-500">{group.title}</p>
             <ul className="mt-4 space-y-2">
               {group.items.map((item) => (
                 <li key={item} className="text-[0.95rem] text-ink-700">

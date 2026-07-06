@@ -13,8 +13,8 @@ const config: Config = {
         ink: {
           900: "#15171B",
           700: "#3B3F46",
-          500: "#6A6F77",
-          400: "#8A8F97",
+          500: "#5E636B", // darkened → WCAG AA (≥4.5:1) on paper AND paper-grid
+          400: "#767C85", // darkened → ≥3:1 for icons/decor on light
         },
         line: "#E3E5E8",
         // Dark register (gallery, project detail) — near-black, slightly cool
@@ -27,7 +27,7 @@ const config: Config = {
         mist: {
           DEFAULT: "#F1F2F4",
           dim: "#9CA1A8",
-          faint: "#6E737B",
+          faint: "#8B9099", // lifted → WCAG AA (≥4.5:1) on the dark registers
         },
         // Signal-orange accent (CAD-highlight energy) — one committed accent
         signal: {

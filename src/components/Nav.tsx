@@ -17,7 +17,9 @@ export function Nav() {
     document.getElementById("about")?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  const linkBase = "text-sm transition-colors duration-300 data-[active=true]:font-medium";
+  // inline-flex + py give a ≥40px tap target without shifting the layout.
+  const linkBase =
+    "inline-flex items-center py-2 text-sm transition-colors duration-300 data-[active=true]:font-medium";
   const linkColor = dark
     ? "text-mist-dim hover:text-mist data-[active=true]:text-mist"
     : "text-ink-500 hover:text-ink-900 data-[active=true]:text-ink-900";

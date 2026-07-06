@@ -18,7 +18,17 @@
     color: #fff;
   }
 
-  /* Hide the native cursor on pointer-capable devices; custom cursor takes over */
+  /* Visible keyboard focus everywhere (works on both light and dark registers).
+     The custom cursor hides the native pointer, so this is the only focus cue
+     keyboard users get — it must never be suppressed. */
+  :focus-visible {
+    outline: 2px solid #ff5a1f;
+    outline-offset: 3px;
+    border-radius: 3px;
+  }
+
+  /* Hide the native cursor on pointer-capable devices; custom cursor takes over.
+     Keyboard focus still renders the ring above. */
   @media (hover: hover) and (pointer: fine) {
     * {
       cursor: none;

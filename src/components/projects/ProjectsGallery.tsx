@@ -37,18 +37,24 @@ export function ProjectsGallery() {
           </div>
 
           {/* Hardware / Software toggle */}
-          <div className="inline-flex rounded-full border border-mist/15 bg-night-800/60 p-1 font-mono text-xs uppercase tracking-wider backdrop-blur">
+          <div
+            role="group"
+            aria-label="Filter work by type"
+            className="inline-flex rounded-full border border-mist/15 bg-night-800/60 p-1 font-mono text-xs uppercase tracking-wider backdrop-blur"
+          >
             {(["hardware", "software"] as Category[]).map((c) => (
               <button
                 key={c}
                 type="button"
                 data-cursor="link"
+                aria-pressed={category === c}
+                aria-label={`Show ${c} projects`}
                 onClick={() => {
                   setCategory(c);
                   setHovered(null);
                 }}
                 className={cn(
-                  "relative rounded-full px-5 py-2.5 transition-colors duration-300",
+                  "relative rounded-full px-5 py-3 transition-colors duration-300",
                   category === c ? "text-night-900" : "text-mist-dim hover:text-mist"
                 )}
               >

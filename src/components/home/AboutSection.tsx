@@ -27,7 +27,7 @@ export function AboutSection() {
           <div className="relative mb-6 aspect-[4/3] w-full overflow-hidden rounded-3xl bg-ink-900/5 lg:aspect-square">
             <img
               src={withBase("/images/about-1.jpg")}
-              alt="Adam Tang"
+              alt="Adam Tang standing at a red torii gate"
               loading="lazy"
               className="h-full w-full object-cover"
             />
@@ -52,9 +52,9 @@ export function AboutSection() {
         <div className="mt-16 lg:mt-0 lg:w-[66%]">
           <Reveal>
             <p className="font-mono text-xs uppercase tracking-[0.3em] text-signal-ink">About</p>
-            <h3 className="mt-3 text-balance font-display text-3xl font-semibold leading-tight tracking-tight text-ink-900 sm:text-[2.6rem]">
+            <h2 className="mt-3 text-balance font-display text-3xl font-semibold leading-tight tracking-tight text-ink-900 sm:text-[2.6rem]">
               Built to ship — from the gearbox to the field.
-            </h3>
+            </h2>
           </Reveal>
 
           <div className="mt-8 space-y-5">
@@ -75,7 +75,7 @@ export function AboutSection() {
                 <div className="group grid gap-2 py-6 sm:grid-cols-[1fr_2fr] sm:gap-8">
                   <div>
                     <p className="font-medium text-ink-900">{exp.org}</p>
-                    <p className="font-mono text-xs uppercase tracking-wider text-ink-400">{exp.period}</p>
+                    <p className="font-mono text-xs uppercase tracking-wider text-ink-500">{exp.period}</p>
                   </div>
                   <div>
                     <p className="text-sm font-medium text-signal-ink">{exp.role}</p>

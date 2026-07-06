@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { MotionConfig } from "framer-motion";
 import { Route, Routes, useLocation } from "react-router-dom";
 import { SmoothScroll } from "./components/SmoothScroll";
 import { Cursor } from "./components/Cursor";
@@ -25,15 +26,20 @@ function RouteEffects() {
 
 export default function App() {
   return (
-    <SmoothScroll>
-      <Cursor />
-      <Nav />
-      <RouteEffects />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/projects" element={<ProjectsGallery />} />
-        <Route path="/projects/:slug" element={<ProjectDetail />} />
-      </Routes>
-    </SmoothScroll>
+    // reducedMotion="user" makes every framer-motion component honor
+    // prefers-reduced-motion (disables transform/layout moves, keeps fades) —
+    // the CSS media block alone can't gate JS-driven animation.
+    <MotionConfig reducedMotion="user">
+      <SmoothScroll>
+        <Cursor />
+        <Nav />
+        <RouteEffects />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/projects" element={<ProjectsGallery />} />
+          <Route path="/projects/:slug" element={<ProjectDetail />} />
+        </Routes>
+      </SmoothScroll>
+    </MotionConfig>
   );
 }
