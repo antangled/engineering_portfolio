@@ -24,7 +24,7 @@ function StageCard({ n, title, body }: { n: string; title: string; body: string 
   return (
     <div className="rounded-3xl border border-mist/10 bg-night-800/60 p-7">
       <p className="font-mono text-xs text-signal-glow">{n}</p>
-      <h3 className="mt-2 font-display text-lg font-semibold text-mist">{title}</h3>
+      <h2 className="mt-2 font-display text-lg font-semibold text-mist">{title}</h2>
       <p className="mt-3 text-sm leading-relaxed text-mist-dim">{body}</p>
     </div>
   );

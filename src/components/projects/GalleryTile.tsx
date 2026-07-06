@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Play } from "lucide-react";
 import type { Project } from "../../data/projects";
 import { cn } from "../../lib/utils";
 
@@ -109,6 +109,14 @@ export function GalleryTile({
               </span>
             )}
           </div>
+
+          {/* Signals a hover-to-play demo (and tells touch users a video exists) */}
+          {project.coverVideo && (
+            <span className="pointer-events-none absolute right-4 top-4 flex items-center gap-1.5 rounded-full bg-night-900/70 px-2.5 py-1 font-mono text-[0.6rem] uppercase tracking-wider text-mist backdrop-blur">
+              <Play className="h-2.5 w-2.5 fill-current" aria-hidden />
+              Demo
+            </span>
+          )}
         </div>
 
         {/* caption row */}

@@ -17,6 +17,9 @@ const config: Config = {
           400: "#767C85", // darkened → ≥3:1 for icons/decor on light
         },
         line: "#E3E5E8",
+        // Hero studio-gray — matches the headshot backdrop so the mirrored copy
+        // extends it seamlessly (see Hero.tsx).
+        studio: "#878a8d",
         // Dark register (gallery, project detail) — near-black, slightly cool
         night: {
           900: "#0C0D10",

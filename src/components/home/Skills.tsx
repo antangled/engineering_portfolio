@@ -6,36 +6,38 @@ const ease = [0.22, 1, 0.36, 1] as const;
 export function Skills() {
   return (
     <section className="mx-auto max-w-[1400px] px-[5vw] pb-8">
-      <motion.div
+      <motion.h2
         initial={{ opacity: 0, y: 24 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.3 }}
         transition={{ duration: 0.7, ease }}
+        className="text-balance font-display text-3xl font-semibold tracking-tight text-ink-900"
       >
-        <p className="font-mono text-xs uppercase tracking-[0.3em] text-signal-ink">Toolchain</p>
-        <h2 className="mt-3 text-balance font-display text-3xl font-semibold tracking-tight text-ink-900">
-          What I work with.
-        </h2>
-      </motion.div>
+        What I work with.
+      </motion.h2>
 
-      <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      {/* Spec-sheet rows (not a card grid): category label + skill chips, hairline-divided. */}
+      <div className="mt-10 divide-y divide-ink-900/10 border-y border-ink-900/10">
         {skillGroups.map((group, i) => (
           <motion.div
             key={group.title}
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.6, ease, delay: i * 0.06 }}
-            className="rounded-3xl border border-ink-900/10 bg-surface p-6"
+            initial={{ opacity: 0, x: -16 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, amount: 0.4 }}
+            transition={{ duration: 0.55, ease, delay: i * 0.05 }}
+            className="grid gap-4 py-6 sm:grid-cols-[minmax(0,0.26fr)_1fr] sm:items-center sm:gap-10"
           >
-            <p className="font-mono text-[0.7rem] uppercase tracking-widest text-ink-500">{group.title}</p>
-            <ul className="mt-4 space-y-2">
+            <p className="font-mono text-xs uppercase tracking-widest text-ink-500">{group.title}</p>
+            <div className="flex flex-wrap gap-2.5">
               {group.items.map((item) => (
-                <li key={item} className="text-[0.95rem] text-ink-700">
+                <span
+                  key={item}
+                  className="rounded-full border border-ink-900/12 bg-surface px-3.5 py-1.5 text-sm text-ink-700"
+                >
                   {item}
-                </li>
+                </span>
               ))}
-            </ul>
+            </div>
           </motion.div>
         ))}
       </div>

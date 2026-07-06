@@ -29,8 +29,8 @@ export function Hero() {
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.9, ease }}
-        className="relative overflow-hidden rounded-[2.5rem]"
-        style={{ minHeight: "clamp(520px, 78vh, 680px)", background: "#878a8d" }}
+        className="relative overflow-hidden rounded-[2.5rem] bg-studio"
+        style={{ minHeight: "clamp(520px, 78vh, 680px)" }}
       >
         {/* Hero photo (left) + a horizontally-mirrored copy (right). Because the
             mirror's edge pixels match the original's exactly, the studio-gray

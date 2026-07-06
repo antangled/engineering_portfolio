@@ -37,7 +37,7 @@ export function Footer() {
               target={l.kind === "email" ? undefined : "_blank"}
               rel="noreferrer"
               data-cursor="link"
-              className="font-mono text-xs uppercase tracking-wider text-mist-dim transition-colors hover:text-signal"
+              className="inline-flex items-center py-2 font-mono text-xs uppercase tracking-wider text-mist-dim transition-colors hover:text-signal"
             >
               {l.label}
             </a>

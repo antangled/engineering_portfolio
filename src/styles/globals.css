@@ -24,7 +24,7 @@
   :focus-visible {
     outline: 2px solid #ff5a1f;
     outline-offset: 3px;
-    border-radius: 3px;
+    border-radius: 4px;
   }
 
   /* Hide the native cursor on pointer-capable devices; custom cursor takes over.

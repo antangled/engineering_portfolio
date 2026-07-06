@@ -51,8 +51,7 @@ export function AboutSection() {
         {/* Scrolling content */}
         <div className="mt-16 lg:mt-0 lg:w-[66%]">
           <Reveal>
-            <p className="font-mono text-xs uppercase tracking-[0.3em] text-signal-ink">About</p>
-            <h2 className="mt-3 text-balance font-display text-3xl font-semibold leading-tight tracking-tight text-ink-900 sm:text-[2.6rem]">
+            <h2 className="text-balance font-display text-3xl font-semibold leading-tight tracking-tight text-ink-900 sm:text-[2.6rem]">
               Built to ship — from the gearbox to the field.
             </h2>
           </Reveal>
@@ -67,7 +66,10 @@ export function AboutSection() {
 
           {/* Experience */}
           <Reveal>
-            <p className="mt-16 font-mono text-xs uppercase tracking-[0.3em] text-signal-ink">Experience</p>
+            <h3 className="mt-16 flex items-center gap-3 font-mono text-xs uppercase tracking-wider text-ink-500">
+              <span className="h-px w-7 bg-ink-900/25" aria-hidden />
+              Experience
+            </h3>
           </Reveal>
           <div className="mt-6 divide-y divide-ink-900/10 border-y border-ink-900/10">
             {experience.map((exp, i) => (
@@ -100,7 +102,10 @@ export function AboutSection() {
 
           {/* Awards */}
           <Reveal>
-            <p className="mt-16 font-mono text-xs uppercase tracking-[0.3em] text-signal-ink">Recognition</p>
+            <h3 className="mt-16 flex items-center gap-3 font-mono text-xs uppercase tracking-wider text-ink-500">
+              <span className="h-px w-7 bg-ink-900/25" aria-hidden />
+              Recognition
+            </h3>
             <ul className="mt-6 grid gap-3 sm:grid-cols-2">
               {awards.map((a) => (
                 <li
