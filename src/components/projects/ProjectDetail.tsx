@@ -123,9 +123,14 @@ export function ProjectDetail() {
           )}
         </Reveal>
 
-        {/* Impact metrics */}
+        {/* Impact metrics — columns match the count so there's never an empty cell */}
         <Reveal delay={0.1}>
-          <div className="mt-10 grid gap-px overflow-hidden rounded-3xl border border-mist/10 bg-mist/10 sm:grid-cols-2 lg:grid-cols-4">
+          <div
+            className={cn(
+              "mt-10 grid gap-px overflow-hidden rounded-3xl border border-mist/10 bg-mist/10 sm:grid-cols-2",
+              project.impact.length >= 4 ? "lg:grid-cols-4" : "lg:grid-cols-3"
+            )}
+          >
             {project.impact.map((m) => (
               <div key={m} className="bg-night-800 p-5">
                 <p className="text-sm font-medium leading-snug text-mist">{m}</p>

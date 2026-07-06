@@ -53,7 +53,7 @@ export function AboutSection() {
           <Reveal>
             <p className="font-mono text-xs uppercase tracking-[0.3em] text-signal-ink">About</p>
             <h3 className="mt-3 text-balance font-display text-3xl font-semibold leading-tight tracking-tight text-ink-900 sm:text-[2.6rem]">
-              Engineering across mechanical, electrical, and software — built to ship.
+              Built to ship — from the gearbox to the field.
             </h3>
           </Reveal>
 

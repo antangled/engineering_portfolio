@@ -9,7 +9,8 @@ export const profile = {
   disciplines: ["Mechatronics", "Embedded Systems", "Sustainability"],
   location: "Berkeley, CA",
   // Concise sticky-column bio — recruiters skim; keep it 2–3 sentences.
-  bio: "I'm an EECS engineer at UC Berkeley who designs across mechanical, electrical, and software — from custom actuators to embedded field hardware. I turn hard, cross-disciplinary problems into things that actually run.",
+  // (Deliberately distinct from the hero supporting line — no overlap.)
+  bio: "EECS at UC Berkeley. Right now I lead hardware for a solar-powered field sensor and Berkeley's solar race car — and build my own actuators and software in between.",
   resume: withBase("/AdamTang_Resume.pdf"),
 };
 
@@ -25,8 +26,8 @@ export const socialLinks: SocialLink[] = [
   { label: "LinkedIn", href: "https://www.linkedin.com/in/adam-tang-2374992a7", kind: "linkedin" },
   { label: "GitHub", href: "https://github.com/antangled", kind: "github" },
   { label: "Studio Instagram", href: "https://www.instagram.com/atangled_studio/", kind: "instagram" },
-  // TODO(adam): replace with your real YouTube channel URL.
-  { label: "YouTube", href: "https://www.youtube.com/", kind: "youtube", note: "placeholder" },
+  // TODO(adam): re-add YouTube here once you have a real channel URL:
+  // { label: "YouTube", href: "https://www.youtube.com/@yourchannel", kind: "youtube" },
   { label: "Email", href: "mailto:adamtang0715@gmail.com", kind: "email" },
 ];
 
@@ -38,9 +39,9 @@ export const contact = {
 
 // Long-form about, broken into skimmable paragraphs.
 export const aboutParagraphs: string[] = [
-  "At UC Berkeley I study Electrical Engineering & Computer Science with a minor in Bioengineering. I lead the engineering for Echeverri Lab's solar-powered Biodiversity Sensing Module — a rugged, satellite-IoT field system for wildlife tracking — and design solar array integration for CalSol, Berkeley's 11th-generation solar race car.",
-  "As much as I love to learn, I love to lead. Before Berkeley I led the mechanical team for MUREX, our 6-DOF underwater ROV that placed 6th at the World Finals, and led a compact aquaponics unit with biofiltration and real-time ammonia/pH sensing — now a permanent food source for our dining hall.",
-  "My engineering DNA is customer-centric builds, system-level thinking, and sustainability by design. I've received awards from NASA, the EPA, and ISEF for environmental-tech research, and represented my work as a youth delegate at the UN Climate Conference (COP28) in Dubai.",
+  "I study EECS at UC Berkeley (minor: Bioengineering). I lead engineering for Echeverri Lab's solar-powered Biodiversity Sensing Module — a satellite-IoT wildlife tracker built to survive the field — and run solar-array integration for CalSol's 11th-gen race car.",
+  "I lead as much as I build. I took MUREX's 6-DOF underwater ROV to a 6th-place World Finals finish as mechanical lead, and led a compact aquaponics unit with real-time ammonia/pH sensing that's now a permanent food source for our dining hall.",
+  "The throughline: customer-centric, system-level, sustainable builds. My environmental-tech research has been recognized by NASA, the EPA, and ISEF — and I represented it as a youth delegate at COP28 in Dubai.",
 ];
 
 export type ExperienceEntry = {

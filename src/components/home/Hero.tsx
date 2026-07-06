@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRight, Linkedin } from "lucide-react";
+import { ArrowRight, Download, Linkedin } from "lucide-react";
 import { profile } from "../../data/profile";
 import { withBase } from "../../lib/withBase";
 
@@ -90,8 +90,8 @@ export function Hero() {
             >
               <p className="mt-5 text-balance text-xl font-medium">{profile.role}</p>
               <p className="mt-3 max-w-md text-pretty text-[0.95rem] leading-relaxed text-white/85">
-                From custom actuators to embedded field hardware to full-stack software — I turn hard
-                problems into things that actually run.
+                From custom actuators to satellite-IoT field systems — with research recognized by
+                NASA, the EPA &amp; ISEF.
               </p>
 
               <div className="mt-7 flex flex-wrap items-center gap-3">
@@ -103,6 +103,16 @@ export function Hero() {
                   View my work
                   <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
                 </Link>
+                <a
+                  href={profile.resume}
+                  download
+                  rel="noopener"
+                  data-cursor="link"
+                  className="group inline-flex items-center gap-2 rounded-full border border-white/45 px-5 py-3 text-sm font-medium text-white transition-colors duration-300 hover:border-signal hover:text-signal"
+                >
+                  <Download className="h-4 w-4" />
+                  Résumé
+                </a>
                 <a
                   href="https://www.linkedin.com/in/adam-tang-2374992a7"
                   target="_blank"

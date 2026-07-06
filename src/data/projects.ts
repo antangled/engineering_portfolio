@@ -265,6 +265,12 @@ const software: Project[] = [
     status: "active",
     tags: ["React 19", "TypeScript", "MapLibre", "Supabase"],
     role: "Solo full-stack developer.",
+    problem:
+      "Berkeley's sublet market runs on scattered group chats and Facebook posts — no pricing transparency, no way to vet a stranger, and constant scam risk for students signing leases from across the country.",
+    approach:
+      "Built a React 19 + TypeScript marketplace with an interactive MapLibre map, smart pricing, rent-compliance checks, and total-cost calculators — plus a deep trust layer (verification badges, trust scores, vouching, shared-affiliation matching, and scam detection) on a Supabase backend.",
+    results:
+      "A full flow — search on a live map, vet a lister, calculate true monthly cost, and generate an agreement — with the trust layer Berkeley's group-chat market lacks. The largest build in my software set at 75+ source files.",
     links: [{ label: "GitHub", href: "https://github.com/antangled/Oski-Leases" }],
     media: [
       { type: "image", src: withBase("/images/software/oski-website.webp"), caption: "App preview" },
@@ -290,6 +296,12 @@ const software: Project[] = [
     status: "active",
     tags: ["Next.js 16", "Three.js", "Supabase", "Python"],
     role: "Solo full-stack developer.",
+    problem:
+      "Getting one custom part made means cold-emailing shops, guessing at price, and waiting days for a quote — while capable printers and CNC machines sit idle a few blocks away.",
+    approach:
+      "Built a two-sided Next.js 16 marketplace: buyers upload an STL, get an instant Three.js preview and an automated quote, and are matched to nearby fabricators by distance (Leaflet). A standalone Python engine models per-process cost and platform commission for the unit economics.",
+    results:
+      "An end-to-end flow — upload → preview → quote → match — spanning 16+ machine types (FDM, SLA, CNC, laser, waterjet, metal), with separate buyer and seller earnings dashboards.",
     links: [{ label: "GitHub", href: "https://github.com/antangled/BuildDash" }],
   },
   {
@@ -312,6 +324,12 @@ const software: Project[] = [
     status: "active",
     tags: ["Svelte", "Vite", "Applied Math"],
     role: "Solo developer & product designer.",
+    problem:
+      "Every time a score posts, students recompute their grade by hand — and still can't answer the one question that matters: what do I actually need on the final?",
+    approach:
+      "A Svelte SPA that recomputes weighted grades on every keystroke and back-solves the score needed for each letter-grade cutoff — with Berkeley-specific exam clobber and curved (z-score) test support. It runs entirely client-side (localStorage), so it costs $0 to operate at any scale.",
+    results:
+      "A ~10 KB app that answers 'what do I need on the final' instantly — no login, no backend, and free to run for any number of students.",
     links: [{ label: "GitHub", href: "https://github.com/antangled/Graded" }],
   },
   {
@@ -334,6 +352,12 @@ const software: Project[] = [
     status: "active",
     tags: ["TypeScript", "Node", "LLM", "Tauri / Rust"],
     role: "Solo developer — backend, extension & desktop.",
+    problem:
+      "Tech news is a scroll trap: high noise, low signal, and a time sink. I wanted the day's real headlines delivered passively — not another feed to doom-scroll.",
+    approach:
+      "A multi-surface system — Node/Express + SQLite backend, a Chrome MV3 extension, and a Tauri/Rust desktop app — running a scheduled pipeline that ingests a curated whitelist of high-signal accounts, then clusters, scores, and LLM-summarizes them into 3–7 ranked one-line headlines a day.",
+    results:
+      "One passive daily digest across three surfaces, distilling 30–75 curated sources down to a handful of ranked headlines — read in seconds, no scrolling.",
     links: [{ label: "GitHub", href: "https://github.com/antangled/NewsFlash" }],
   },
 ];

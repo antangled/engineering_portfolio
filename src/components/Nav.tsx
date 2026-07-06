@@ -56,10 +56,10 @@ export function Nav() {
             rel="noreferrer"
             data-cursor="link"
             className={cn(
-              "group inline-flex items-center gap-1 rounded-full border px-4 py-1.5 text-sm transition-colors duration-300",
+              "group inline-flex items-center gap-1 rounded-full px-4 py-2 text-sm font-medium transition-colors duration-300",
               dark
-                ? "border-mist/20 text-mist hover:border-signal hover:text-signal"
-                : "border-ink-900/15 text-ink-900 hover:border-signal hover:text-signal-ink"
+                ? "bg-mist text-night-900 hover:bg-signal hover:text-white"
+                : "bg-ink-900 text-paper hover:bg-signal"
             )}
           >
             Resume
