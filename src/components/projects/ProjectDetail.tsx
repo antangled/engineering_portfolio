@@ -53,6 +53,56 @@ export function ProjectDetail() {
   const hasCover = !project.placeholder && project.cover;
   const featureMedia = (project.media ?? []).filter((m) => m.feature);
   const rowMedia = (project.media ?? []).filter((m) => !m.feature);
+  // When mediaFirst, the media rows lead the page (replacing the cover hero) instead of trailing it.
+  const mediaFirst = Boolean(project.mediaFirst) && rowMedia.length > 0;
+
+  const mediaRows = rowMedia.length > 0 && (
+    <div className={cn("space-y-14 lg:space-y-20", mediaFirst ? "mt-10" : "mt-16")}>
+      {rowMedia.map((m, i) => {
+        const flip = i % 2 === 1;
+        const label = m.type === "video" ? "Demo" : "Detail";
+        return (
+          <Reveal key={i}>
+            <figure
+              className={cn(
+                "grid items-center gap-6 lg:gap-12",
+                flip ? "lg:grid-cols-[1fr_1.6fr]" : "lg:grid-cols-[1.6fr_1fr]"
+              )}
+            >
+              <div
+                className={cn(
+                  "overflow-hidden rounded-4xl border border-mist/10",
+                  m.type === "image" && "bg-night-800/40",
+                  flip && "lg:order-2"
+                )}
+              >
+                {m.type === "video" ? (
+                  <video className="w-full" controls playsInline preload="metadata">
+                    <source src={m.src} type="video/mp4" />
+                  </video>
+                ) : (
+                  <img
+                    src={m.src}
+                    alt={m.caption || project.title}
+                    loading="lazy"
+                    className="max-h-[440px] w-full object-cover"
+                  />
+                )}
+              </div>
+              {m.caption && (
+                <figcaption className={cn(flip && "lg:order-1 lg:text-right")}>
+                  <span className="font-mono text-xs text-signal-glow">
+                    {String(i + 1).padStart(2, "0")} · {label}
+                  </span>
+                  <p className="mt-3 text-pretty text-lg leading-relaxed text-mist/90">{m.caption}</p>
+                </figcaption>
+              )}
+            </figure>
+          </Reveal>
+        );
+      })}
+    </div>
+  );
 
   return (
     <main className="relative min-h-screen bg-night-900 text-mist">
@@ -88,7 +138,11 @@ export function ProjectDetail() {
           <p className="mt-4 max-w-2xl text-pretty text-lg text-mist-dim">{project.tagline}</p>
         </Reveal>
 
+        {/* Media-first projects lead with their photo+caption rows in place of a standalone cover hero */}
+        {mediaFirst && mediaRows}
+
         {/* Cover — with the reel to its left when a project has one */}
+        {!mediaFirst && (
         <Reveal delay={0.1}>
           {reelEmbed ? (
             <div className="mt-10 grid gap-5 lg:h-[540px] lg:grid-cols-[300px_1fr]">
@@ -124,6 +178,7 @@ export function ProjectDetail() {
             </div>
           )}
         </Reveal>
+        )}
 
         {/* Impact metrics — columns match the count so there's never an empty cell */}
         <Reveal delay={0.1}>
@@ -227,54 +282,8 @@ export function ProjectDetail() {
           </div>
         )}
 
-        {/* Media — alternating figure + caption rows, sized to role (not full-bleed) */}
-        {rowMedia.length > 0 && (
-          <div className="mt-16 space-y-14 lg:space-y-20">
-            {rowMedia.map((m, i) => {
-              const flip = i % 2 === 1;
-              const label = m.type === "video" ? "Demo" : "Detail";
-              return (
-                <Reveal key={i}>
-                  <figure
-                    className={cn(
-                      "grid items-center gap-6 lg:gap-12",
-                      flip ? "lg:grid-cols-[1fr_1.6fr]" : "lg:grid-cols-[1.6fr_1fr]"
-                    )}
-                  >
-                    <div
-                      className={cn(
-                        "overflow-hidden rounded-4xl border border-mist/10",
-                        m.type === "image" && "bg-night-800/40",
-                        flip && "lg:order-2"
-                      )}
-                    >
-                      {m.type === "video" ? (
-                        <video className="w-full" controls playsInline preload="metadata">
-                          <source src={m.src} type="video/mp4" />
-                        </video>
-                      ) : (
-                        <img
-                          src={m.src}
-                          alt={m.caption || project.title}
-                          loading="lazy"
-                          className="max-h-[440px] w-full object-cover"
-                        />
-                      )}
-                    </div>
-                    {m.caption && (
-                      <figcaption className={cn(flip && "lg:order-1 lg:text-right")}>
-                        <span className="font-mono text-xs text-signal-glow">
-                          {String(i + 1).padStart(2, "0")} · {label}
-                        </span>
-                        <p className="mt-3 text-pretty text-lg leading-relaxed text-mist/90">{m.caption}</p>
-                      </figcaption>
-                    )}
-                  </figure>
-                </Reveal>
-              );
-            })}
-          </div>
-        )}
+        {/* Media — alternating figure + caption rows (unless the project already led with them) */}
+        {!mediaFirst && mediaRows}
 
         {/* Prev / Next */}
         <div className="mt-20 grid gap-4 border-t border-mist/10 pt-10 sm:grid-cols-2">

@@ -39,6 +39,8 @@ export type Project = {
   links?: ProjectLink[];
   /** True when `cover` is a styled placeholder rather than a real asset. */
   placeholder?: boolean;
+  /** Lead the detail page with the media rows (photos + captions) in place of the standalone cover hero. */
+  mediaFirst?: boolean;
 };
 
 // ── Hardware ─────────────────────────────────────────────────────────────────
@@ -343,6 +345,7 @@ const software: Project[] = [
   {
     slug: "this-portfolio",
     category: "software",
+    mediaFirst: true,
     title: "This Portfolio",
     tagline: "The site you're reading — rebuilt from scratch three times.",
     summary:
