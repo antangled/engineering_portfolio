@@ -203,41 +203,52 @@ export function ProjectDetail() {
           </div>
         )}
 
-        {/* Media */}
+        {/* Media — alternating figure + caption rows, sized to role (not full-bleed) */}
         {project.media && project.media.length > 0 && (
-          <div className="mt-14 space-y-6">
-            {project.media.map((m, i) =>
-              m.type === "video" ? (
+          <div className="mt-16 space-y-14 lg:space-y-20">
+            {project.media.map((m, i) => {
+              const flip = i % 2 === 1;
+              const label = m.type === "video" ? "Demo" : "Detail";
+              return (
                 <Reveal key={i}>
-                  <figure className="overflow-hidden rounded-4xl border border-mist/10 bg-night-800/60">
-                    <video className="w-full" controls playsInline preload="metadata">
-                      <source src={m.src} type="video/mp4" />
-                    </video>
+                  <figure
+                    className={cn(
+                      "grid items-center gap-6 lg:gap-12",
+                      flip ? "lg:grid-cols-[1fr_1.6fr]" : "lg:grid-cols-[1.6fr_1fr]"
+                    )}
+                  >
+                    <div
+                      className={cn(
+                        "overflow-hidden rounded-4xl border border-mist/10",
+                        m.type === "image" && "bg-night-800/40",
+                        flip && "lg:order-2"
+                      )}
+                    >
+                      {m.type === "video" ? (
+                        <video className="w-full" controls playsInline preload="metadata">
+                          <source src={m.src} type="video/mp4" />
+                        </video>
+                      ) : (
+                        <img
+                          src={m.src}
+                          alt={m.caption || project.title}
+                          loading="lazy"
+                          className="max-h-[440px] w-full object-cover"
+                        />
+                      )}
+                    </div>
                     {m.caption && (
-                      <figcaption className="px-6 py-4 font-mono text-xs uppercase tracking-wider text-mist-faint">
-                        {m.caption}
+                      <figcaption className={cn(flip && "lg:order-1 lg:text-right")}>
+                        <span className="font-mono text-xs text-signal-glow">
+                          {String(i + 1).padStart(2, "0")} · {label}
+                        </span>
+                        <p className="mt-3 text-pretty text-lg leading-relaxed text-mist/90">{m.caption}</p>
                       </figcaption>
                     )}
                   </figure>
                 </Reveal>
-              ) : (
-                <Reveal key={i}>
-                  <figure className="group overflow-hidden rounded-4xl border border-mist/10">
-                    <img
-                      src={m.src}
-                      alt={m.caption || project.title}
-                      loading="lazy"
-                      className="w-full object-cover transition-transform duration-700 ease-expo group-hover:scale-[1.02]"
-                    />
-                    {m.caption && (
-                      <figcaption className="bg-night-800/60 px-6 py-4 font-mono text-xs uppercase tracking-wider text-mist-faint">
-                        {m.caption}
-                      </figcaption>
-                    )}
-                  </figure>
-                </Reveal>
-              )
-            )}
+              );
+            })}
           </div>
         )}
 
