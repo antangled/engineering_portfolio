@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import { getProjects, type Project } from "../../data/projects";
 import { GalleryTile } from "./GalleryTile";
@@ -14,15 +14,16 @@ export function ProjectsGallery() {
   const [showScrollCue, setShowScrollCue] = useState(false);
   const list: Project[] = getProjects(category);
 
-  // First-visit-only "scroll to explore" cue; fades out once the user scrolls.
+  // First-visit-only "scroll to explore" cue; dissipates as the user scrolls.
   useEffect(() => {
     if (localStorage.getItem("seenProjectsScroll")) return;
     setShowScrollCue(true);
     localStorage.setItem("seenProjectsScroll", "1");
-    const onScroll = () => window.scrollY > 60 && setShowScrollCue(false);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  // Full orange at rest → fades out over the first ~140px of scroll.
+  const { scrollY } = useScroll();
+  const cueOpacity = useTransform(scrollY, [0, 40, 140], [1, 1, 0]);
 
   return (
     <main className="min-h-screen bg-night-900 text-mist">
@@ -100,26 +101,21 @@ export function ProjectsGallery() {
         </div>
       </div>
 
-      {/* First-visit scroll cue */}
-      <AnimatePresence>
-        {showScrollCue && (
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 8 }}
-            transition={{ duration: 0.5, ease }}
-            className="pointer-events-none fixed inset-x-0 bottom-8 z-40 flex flex-col items-center gap-2 text-mist-dim"
+      {/* First-visit scroll cue — orange, dissipates as you scroll */}
+      {showScrollCue && (
+        <motion.div
+          style={{ opacity: cueOpacity }}
+          className="pointer-events-none fixed inset-x-0 bottom-8 z-40 flex flex-col items-center gap-2 text-signal"
+        >
+          <span className="font-mono text-[0.65rem] uppercase tracking-[0.3em]">Scroll to explore</span>
+          <motion.span
+            animate={{ y: [0, 6, 0] }}
+            transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
           >
-            <span className="font-mono text-[0.65rem] uppercase tracking-[0.3em]">Scroll to explore</span>
-            <motion.span
-              animate={{ y: [0, 6, 0] }}
-              transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
-            >
-              <ChevronDown className="h-4 w-4" />
-            </motion.span>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            <ChevronDown className="h-4 w-4" />
+          </motion.span>
+        </motion.div>
+      )}
     </main>
   );
 }
