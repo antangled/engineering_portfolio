@@ -68,9 +68,19 @@ const hardware: Project[] = [
     approach:
       "Engineered an internal cycloidal reduction with the motor, bearings, eccentric cam, cycloidal disc, and output stage packaged coaxially. Designed every component in CAD with DFM and tolerance stack-up in mind, integrated an absolute encoder for closed-loop control, and tuned position-control firmware. Iterated through printed and machined prototypes.",
     results:
-      "A working, self-contained actuator running under closed-loop control (see the reel). Validates the integrated-cycloidal approach for compact, high-torque robotic joints. Currently characterizing torque, backlash, and thermal limits.",
-    // TODO(adam): drop real renders / exploded-view animations / demo clips into
-    // public/images/projects/Cycloidal/ and add them to a `media: [...]` array here.
+      "A working, self-contained actuator running under closed-loop control (see the reel). Validates the integrated-cycloidal approach for compact, high-torque robotic joints. Next: this becomes the first joint of a 6-DOF cinema arm — six of these, rated to lift a 1 kg camera payload.",
+    media: [
+      {
+        type: "image",
+        src: withBase("/images/projects/Cycloidal/cycloidal-exploded.jpg"),
+        caption: "Exploded CAD of the coaxial stack — output housing, cycloidal discs, eccentric cam, and cross-roller output bearing",
+      },
+      {
+        type: "video",
+        src: withBase("/videos/cycloidal-pid.mp4"),
+        caption: "Tuning the PID loop on the moteus r4.11 controller",
+      },
+    ],
   },
   {
     slug: "eldaeon-passive-radar-system",
