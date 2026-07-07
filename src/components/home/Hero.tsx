@@ -73,8 +73,9 @@ export function Hero() {
               <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/95 p-[3px] shadow-sm">
                 <img src={withBase("/images/berkeley-seal.svg")} alt="UC Berkeley seal" className="h-full w-full" />
               </span>
-              <span className="font-mono text-xs uppercase tracking-[0.25em] text-white/85">
-                {profile.affiliation}
+              <span className="font-mono text-xs uppercase tracking-[0.25em]">
+                <span className="font-semibold text-white">{profile.name}</span>
+                <span className="text-white/55"> · {profile.affiliation}</span>
               </span>
             </motion.div>
 
