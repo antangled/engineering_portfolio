@@ -4,6 +4,8 @@ export type Media = {
   type: "image" | "video";
   src: string;
   caption?: string;
+  /** Render as a mid-page feature (above Problem→Approach→Result) instead of in the media row. */
+  feature?: boolean;
 };
 
 export type ProjectLink = { label: string; href: string };
@@ -74,6 +76,7 @@ const hardware: Project[] = [
         type: "image",
         src: withBase("/images/projects/Cycloidal/cycloidal-exploded.jpg"),
         caption: "Exploded CAD of the coaxial stack — output housing, cycloidal discs, eccentric cam, and cross-roller output bearing",
+        feature: true,
       },
       {
         type: "video",

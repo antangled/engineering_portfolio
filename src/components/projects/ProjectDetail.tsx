@@ -51,6 +51,8 @@ export function ProjectDetail() {
     ? `${project.embedReel.replace(/\/$/, "")}/embed`
     : null;
   const hasCover = !project.placeholder && project.cover;
+  const featureMedia = (project.media ?? []).filter((m) => m.feature);
+  const rowMedia = (project.media ?? []).filter((m) => !m.feature);
 
   return (
     <main className="relative min-h-screen bg-night-900 text-mist">
@@ -182,6 +184,25 @@ export function ProjectDetail() {
           )}
         </div>
 
+        {/* Feature visual — breaks the text run before the narrative */}
+        {featureMedia.map((m, i) => (
+          <Reveal key={`feature-${i}`}>
+            <figure className="mt-14 overflow-hidden rounded-4xl border border-mist/10 bg-night-800/40">
+              <img
+                src={m.src}
+                alt={m.caption || project.title}
+                loading="lazy"
+                className="mx-auto max-h-[460px] w-full object-contain"
+              />
+              {m.caption && (
+                <figcaption className="border-t border-mist/10 px-6 py-4 font-mono text-xs uppercase tracking-wider text-mist-faint">
+                  {m.caption}
+                </figcaption>
+              )}
+            </figure>
+          </Reveal>
+        ))}
+
         {/* Problem → Approach → Result */}
         {hasStages && (
           <div className="mt-14 grid gap-5 lg:grid-cols-3">
@@ -204,9 +225,9 @@ export function ProjectDetail() {
         )}
 
         {/* Media — alternating figure + caption rows, sized to role (not full-bleed) */}
-        {project.media && project.media.length > 0 && (
+        {rowMedia.length > 0 && (
           <div className="mt-16 space-y-14 lg:space-y-20">
-            {project.media.map((m, i) => {
+            {rowMedia.map((m, i) => {
               const flip = i % 2 === 1;
               const label = m.type === "video" ? "Demo" : "Detail";
               return (
