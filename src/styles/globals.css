@@ -63,15 +63,19 @@
     background-size: 48px 48px;
   }
 
-  /* Light-register backdrop: a faint dot grid + soft tint so white cards lift
-     off the page instead of sitting on flat white (echoes the dark bp-grid). */
+  /* Light-register backdrop: cool off-white (never cream — that's the AI tell),
+     a faint 48px blueprint grid that echoes the dark gallery's bp-grid, and a
+     soft signal-orange wash up top. The base sits just below pure white so the
+     white cards lift off it. */
   .paper-grid {
-    background-color: #eff1f3;
+    background-color: #ecEEF1;
     background-image:
-      radial-gradient(circle at 1px 1px, rgba(21, 23, 27, 0.045) 1px, transparent 0),
-      radial-gradient(120% 80% at 50% 0%, rgba(255, 122, 69, 0.05), transparent 60%);
+      linear-gradient(to right, rgba(21, 23, 27, 0.032) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(21, 23, 27, 0.032) 1px, transparent 1px),
+      radial-gradient(115% 70% at 50% 0%, rgba(255, 122, 69, 0.06), transparent 55%);
     background-size:
-      24px 24px,
+      48px 48px,
+      48px 48px,
       100% 100%;
   }
 }
