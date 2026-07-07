@@ -341,6 +341,53 @@ const software: Project[] = [
     links: [{ label: "GitHub", href: "https://github.com/antangled/Graded" }],
   },
   {
+    slug: "this-portfolio",
+    category: "software",
+    title: "This Portfolio",
+    tagline: "The site you're reading — rebuilt from scratch three times.",
+    summary:
+      "Designed and built this portfolio in React — three ground-up rebuilds, from a Next.js template to a dark-glass phase to this custom light-hero / dark-gallery system. Iterated with an audit-driven workflow for accessibility, performance, and the ever-important 'does this look AI-made' test.",
+    impact: [
+      "3 ground-up rebuilds (Next.js → dark glass → this)",
+      "Custom design system, audited to WCAG AA",
+      "React + Vite + Framer Motion, live on GitHub Pages",
+    ],
+    cover: withBase("/images/software/portfolio-v3.jpg"),
+    duration: "2025 — Present",
+    year: 2026,
+    order: 4,
+    status: "active",
+    tags: ["React", "Vite", "TypeScript", "Framer Motion"],
+    role: "Sole designer & developer — design system, every component, content, and deploy.",
+    problem:
+      "My first portfolio was a Next.js template: a circle-cropped candid from a hiking trip, a friendly 'Hi, I'm Adam Tang!', and two buttons. Honest work — but recruiters decide in about five seconds, and a template doesn't win those seconds.",
+    approach:
+      "So I rebuilt it. v2 went all-in on dark mode, glassmorphism, and a Playfair serif — ambitious, but it leaned generic-dark and somehow every noun became Title Case. v3 — this site — is a ground-up rebuild: a custom hero, one cohesive light-to-dark system, a single signal-orange accent, and a design process I actually audited against UX heuristics, accessibility, and performance.",
+    results:
+      "The site you're on right now. Built in React + Vite + Framer Motion, deployed on GitHub Pages, and iterated with an audit-driven workflow (WCAG AA, Core Web Vitals, and a hard look at whether any of it reads as AI-made). Three versions — each one a lesson in restraint.",
+    media: [
+      {
+        type: "image",
+        src: withBase("/images/software/portfolio-v1.jpg"),
+        caption:
+          "v1 — 'Hi, I'm Adam Tang!' A circle-cropped hiking photo and a Next.js template. Wow, this pic is from so long ago it got chopped. We all start somewhere.",
+      },
+      {
+        type: "image",
+        src: withBase("/images/software/portfolio-v2.jpg"),
+        caption:
+          "v2 — the dark-glass era. Discovered glassmorphism, a Playfair serif, and the conviction that Every Word Deserves Capital Letters. At least I got a real headshot.",
+      },
+      {
+        type: "image",
+        src: withBase("/images/software/portfolio-v3.jpg"),
+        caption:
+          "v3 — the one you're reading. Custom mirror-hero, cohesive system, one orange accent, and the hard-won lesson that restraint is a feature.",
+      },
+    ],
+    links: [{ label: "GitHub", href: "https://github.com/antangled/engineering_portfolio" }],
+  },
+  {
     slug: "newsflash",
     category: "software",
     title: "NewsFlash",
@@ -356,7 +403,7 @@ const software: Project[] = [
     placeholder: true,
     duration: "2026",
     year: 2026,
-    order: 4,
+    order: 5,
     status: "active",
     tags: ["TypeScript", "Node", "LLM", "Tauri / Rust"],
     role: "Solo developer — backend, extension & desktop.",
