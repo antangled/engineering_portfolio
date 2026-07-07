@@ -184,19 +184,22 @@ export function ProjectDetail() {
           )}
         </div>
 
-        {/* Feature visual — breaks the text run before the narrative */}
+        {/* Feature visual — image on the right, text on the left; breaks the text run */}
         {featureMedia.map((m, i) => (
           <Reveal key={`feature-${i}`}>
-            <figure className="mt-14 overflow-hidden rounded-4xl border border-mist/10 bg-night-800/40">
-              <img
-                src={m.src}
-                alt={m.caption || project.title}
-                loading="lazy"
-                className="mx-auto max-h-[460px] w-full object-contain"
-              />
+            <figure className="mt-14 grid items-center gap-6 lg:grid-cols-[1fr_1.6fr] lg:gap-12">
+              <div className="overflow-hidden rounded-4xl border border-mist/10 bg-night-800/40 lg:order-2">
+                <img
+                  src={m.src}
+                  alt={m.caption || project.title}
+                  loading="lazy"
+                  className="max-h-[460px] w-full object-contain"
+                />
+              </div>
               {m.caption && (
-                <figcaption className="border-t border-mist/10 px-6 py-4 font-mono text-xs uppercase tracking-wider text-mist-faint">
-                  {m.caption}
+                <figcaption className="lg:order-1">
+                  <span className="font-mono text-xs text-signal-glow">Detail</span>
+                  <p className="mt-3 text-pretty text-lg leading-relaxed text-mist/90">{m.caption}</p>
                 </figcaption>
               )}
             </figure>
