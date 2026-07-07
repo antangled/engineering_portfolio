@@ -10,10 +10,14 @@ export function SmoothScroll({ children }: { children: React.ReactNode }) {
     const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (prefersReduced) return;
 
+    // lerp-based (not duration-based) so the viewport tracks input closely and
+    // settles fast — avoids the long post-input "glide" that reads as scroll lag,
+    // especially on macOS trackpads where it stacks on the trackpad's own momentum.
     const lenis = new Lenis({
-      duration: 1.1,
-      easing: (t) => 1 - Math.pow(1 - t, 4), // ease-out-quart
+      lerp: 0.14,
       smoothWheel: true,
+      wheelMultiplier: 1,
+      touchMultiplier: 1.6,
     });
 
     let raf = 0;

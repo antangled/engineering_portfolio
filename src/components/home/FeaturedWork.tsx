@@ -43,7 +43,7 @@ function Card({ project, large }: { project: Project; large?: boolean }) {
           <LightMonogram title={project.title} />
         )}
         {project.placeholder && (
-          <span className="absolute left-4 top-4 rounded-full bg-surface/90 px-2.5 py-1 font-mono text-[0.6rem] uppercase tracking-wider text-signal-ink backdrop-blur">
+          <span className="absolute left-4 top-4 rounded-full bg-surface/95 px-2.5 py-1 font-mono text-[0.6rem] uppercase tracking-wider text-signal-ink">
             Preview soon
           </span>
         )}

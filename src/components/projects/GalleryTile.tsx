@@ -94,17 +94,17 @@ export function GalleryTile({
           {/* gradient + meta overlays */}
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-night-900/70 via-transparent to-transparent opacity-80" />
           <div className="pointer-events-none absolute left-4 top-4 flex items-center gap-2">
-            <span className="rounded-full bg-night-900/70 px-2.5 py-1 font-mono text-[0.65rem] text-mist-dim backdrop-blur">
+            <span className="rounded-full bg-night-900/85 px-2.5 py-1 font-mono text-[0.65rem] text-mist-dim">
               {String(index + 1).padStart(2, "0")}
             </span>
             {project.status === "active" && (
-              <span className="flex items-center gap-1.5 rounded-full bg-night-900/70 px-2.5 py-1 font-mono text-[0.65rem] text-mist-dim backdrop-blur">
+              <span className="flex items-center gap-1.5 rounded-full bg-night-900/85 px-2.5 py-1 font-mono text-[0.65rem] text-mist-dim">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
                 Active
               </span>
             )}
             {project.placeholder && (
-              <span className="rounded-full bg-night-900/70 px-2.5 py-1 font-mono text-[0.6rem] uppercase tracking-wider text-signal-glow backdrop-blur">
+              <span className="rounded-full bg-night-900/85 px-2.5 py-1 font-mono text-[0.6rem] uppercase tracking-wider text-signal-glow">
                 Preview soon
               </span>
             )}
@@ -112,7 +112,7 @@ export function GalleryTile({
 
           {/* Signals a hover-to-play demo (and tells touch users a video exists) */}
           {project.coverVideo && (
-            <span className="pointer-events-none absolute right-4 top-4 flex items-center gap-1.5 rounded-full bg-night-900/70 px-2.5 py-1 font-mono text-[0.6rem] uppercase tracking-wider text-mist backdrop-blur">
+            <span className="pointer-events-none absolute right-4 top-4 flex items-center gap-1.5 rounded-full bg-night-900/85 px-2.5 py-1 font-mono text-[0.6rem] uppercase tracking-wider text-mist">
               <Play className="h-2.5 w-2.5 fill-current" aria-hidden />
               Demo
             </span>
