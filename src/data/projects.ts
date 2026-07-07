@@ -352,7 +352,7 @@ const software: Project[] = [
       "Custom design system, audited to WCAG AA",
       "React + Vite + Framer Motion, live on GitHub Pages",
     ],
-    cover: withBase("/images/software/portfolio-v3.jpg"),
+    cover: withBase("/images/software/portfolio-triptych.jpg"),
     duration: "2025 — Present",
     year: 2026,
     order: 4,
@@ -384,8 +384,29 @@ const software: Project[] = [
         caption:
           "v3 — the one you're reading. Custom mirror-hero, cohesive system, one orange accent, and the hard-won lesson that restraint is a feature.",
       },
+      {
+        type: "image",
+        src: withBase("/images/software/portfolio-projects-v1.jpg"),
+        caption:
+          "The homepage was only half the story — here's where the work actually lived. v1's projects page: a tidy grid of template cards. Perfectly readable, perfectly forgettable, every card the same and politely waiting its turn.",
+      },
+      {
+        type: "image",
+        src: withBase("/images/software/portfolio-projects-v2.jpg"),
+        caption:
+          "v2 got ambitious — a vertical timeline with year markers and cards zig-zagging down a curvy connector. Looked slick frozen in a screenshot, but your eyes had to slalom left-right-left just to compare two projects.",
+      },
+      {
+        type: "image",
+        src: withBase("/images/software/portfolio-projects-v3.jpg"),
+        caption:
+          "v3 — same work, finally on a single axis. A two-column grid, a Hardware / Software toggle, and tiles that play a demo clip on hover. Turns out you can just… put the projects in a line.",
+      },
     ],
-    links: [{ label: "GitHub", href: "https://github.com/antangled/engineering_portfolio" }],
+    links: [
+      { label: "Live site", href: "https://antangled.github.io/engineering_portfolio/" },
+      { label: "GitHub", href: "https://github.com/antangled/engineering_portfolio" },
+    ],
   },
   {
     slug: "newsflash",
