@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { ChevronDown } from "lucide-react";
 import { getProjects, type Project } from "../../data/projects";
 import { GalleryTile } from "./GalleryTile";
 import { cn } from "../../lib/utils";
@@ -10,7 +11,18 @@ type Category = "hardware" | "software";
 export function ProjectsGallery() {
   const [category, setCategory] = useState<Category>("hardware");
   const [hovered, setHovered] = useState<string | null>(null);
+  const [showScrollCue, setShowScrollCue] = useState(false);
   const list: Project[] = getProjects(category);
+
+  // First-visit-only "scroll to explore" cue; fades out once the user scrolls.
+  useEffect(() => {
+    if (localStorage.getItem("seenProjectsScroll")) return;
+    setShowScrollCue(true);
+    localStorage.setItem("seenProjectsScroll", "1");
+    const onScroll = () => window.scrollY > 60 && setShowScrollCue(false);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
     <main className="min-h-screen bg-night-900 text-mist">
@@ -77,17 +89,37 @@ export function ProjectsGallery() {
           onMouseLeave={() => setHovered(null)}
         >
           {list.map((project, index) => (
-            <div key={project.slug} className={cn(index % 2 === 1 && "lg:mt-24")}>
-              <GalleryTile
-                project={project}
-                index={index}
-                dimmed={hovered !== null && hovered !== project.slug}
-                onHover={setHovered}
-              />
-            </div>
+            <GalleryTile
+              key={project.slug}
+              project={project}
+              index={index}
+              dimmed={hovered !== null && hovered !== project.slug}
+              onHover={setHovered}
+            />
           ))}
         </div>
       </div>
+
+      {/* First-visit scroll cue */}
+      <AnimatePresence>
+        {showScrollCue && (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 8 }}
+            transition={{ duration: 0.5, ease }}
+            className="pointer-events-none fixed inset-x-0 bottom-8 z-40 flex flex-col items-center gap-2 text-mist-dim"
+          >
+            <span className="font-mono text-[0.65rem] uppercase tracking-[0.3em]">Scroll to explore</span>
+            <motion.span
+              animate={{ y: [0, 6, 0] }}
+              transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <ChevronDown className="h-4 w-4" />
+            </motion.span>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </main>
   );
 }
