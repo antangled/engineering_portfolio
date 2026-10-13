@@ -262,6 +262,78 @@ const hardware: Project[] = [
 // ── Software ─────────────────────────────────────────────────────────────────
 const software: Project[] = [
   {
+    slug: "envoy",
+    category: "software",
+    title: "Envoy",
+    tagline:
+      "An AI outreach assistant that turns a plain-English goal into researched companies, the right contacts, and source-linked emails you approve before they send.",
+    summary:
+      "Built with Jiwoo Jung in about two days at UC Berkeley SCET's Innovation Intelligence Hackathon, where it won Best Enterprise Reinvention in the AI-Native Enterprise track. Envoy turns a goal like \"who do I want to work with?\" into researched organizations, the right contacts, and a personalized email where every claim about the company links to its source — sent from the user's own Gmail only after they approve each one. I owned the full technical stack; Jiwoo led the pitch.",
+    impact: [
+      "Winner — Best Enterprise Reinvention, AI-Native Enterprise track (UC Berkeley SCET)",
+      "Grounded briefs: every quoted phrase verified word-for-word against its source",
+      "Cost ledger cut needless model escalations from 9/10 to 0/5 (~$0.05 per company)",
+      "Full stack, built in ~2 days, with a live public demo",
+    ],
+    cover: withBase("/images/software/envoy-award.jpg"),
+    duration: "October 2026",
+    year: 2026,
+    order: 0,
+    status: "active",
+    tags: ["Next.js 16", "TypeScript", "Claude API", "Exa", "Hunter", "Gmail API", "Drizzle + Postgres", "Vercel"],
+    role:
+      "Owned the full technical stack — backend and frontend — and wired the whole research-to-send pipeline together with Claude Code: Exa for company and people search, Hunter for email finding, and Google OAuth for Gmail sending. Built it human-first, with an approve-before-send flow at every step. Jiwoo Jung led the pitch.",
+    problem:
+      "Running client outreach for my student consulting club (BEACN at UC Berkeley) took more than an hour per company — spread across Apollo, spreadsheets, Claude, and GMass: research the company, find the right person, tailor the email, mail-merge it. The same loop hits consultants, agencies, and founders chasing clients or partners.",
+    approach:
+      "Envoy turns a goal into checkable criteria, runs discovery with Exa, reads each company's site and recent news, then writes a fit brief and the email's personalized parts in one structured-output Claude call whose evidence IDs are restricted to the documents actually supplied — so it can't cite a page it wasn't given. Code verifies that every citation exists and every quote appears word for word; a second model pass checks that each passage supports its claim, downgrading unsupported claims to \"inferred\" or \"unknown,\" and only failing briefs escalate to a stronger model.",
+    results:
+      "Won Best Enterprise Reinvention in the AI-Native Enterprise track at the Innovation Intelligence Hackathon (UC Berkeley SCET, October 2026), built in about two days. A per-campaign cost ledger (via AsyncLocalStorage) exposed 9 of 10 briefs escalating to the more expensive model unnecessarily; after the fix, 0 of 5 escalated in a measured run, holding cost at about $0.05 per company researched and drafted, shown to users as a live \"spent so far\" readout. The public demo runs in demo-only mode on fictional sample companies with simulated sending.",
+    media: [
+      {
+        type: "image",
+        src: withBase("/images/software/envoy-hero.jpg"),
+        feature: true,
+        caption:
+          "The product in one line: describe who you want to reach, and Envoy finds organizations that fit, reads their sites and news, finds the right people, and drafts an email with a source behind every sentence.",
+      },
+      {
+        type: "image",
+        src: withBase("/images/software/envoy-brief.jpg"),
+        caption:
+          "Each company gets a fit score and a brief checked against your criteria. Every supported claim carries a superscript citation to the exact page it came from.",
+      },
+      {
+        type: "image",
+        src: withBase("/images/software/envoy-verify.jpg"),
+        caption:
+          "Grounding over generation: claims are labeled Supported, Evidenced, or Inferred, and anything the sources don't back is moved to \"Still unknown\" instead of being kept.",
+      },
+      {
+        type: "image",
+        src: withBase("/images/software/envoy-draft.jpg"),
+        caption:
+          "A personalized draft per recipient, with the AI-written, company-specific lines highlighted — each traceable to a source. Every draft is editable, and nothing sends until the user approves it.",
+      },
+      {
+        type: "image",
+        src: withBase("/images/software/envoy-send.jpg"),
+        caption:
+          "Sending runs through the user's own Gmail with send-only permission: one email per recipient, randomized spacing, hourly and daily caps, business hours, an opt-out footer, and no tracking pixels.",
+      },
+      {
+        type: "image",
+        src: withBase("/images/software/envoy-demo.jpg"),
+        caption:
+          "Demoing Envoy at the Innovation Intelligence Hackathon, Berkeley SCET.",
+      },
+    ],
+    links: [
+      { label: "Live demo", href: "https://envoy-one-brown.vercel.app" },
+      { label: "GitHub", href: "https://github.com/antangled/Envoy" },
+    ],
+  },
+  {
     slug: "oski-leases",
     category: "software",
     title: "Oski Leases",
