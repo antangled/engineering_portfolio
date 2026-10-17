@@ -24,6 +24,30 @@ function LightMonogram({ title }: { title: string }) {
 
 function Card({ project, large }: { project: Project; large?: boolean }) {
   const hasImage = !project.placeholder && project.cover;
+  const extras = large ? project.previewImages ?? [] : [];
+  const cover = (
+    <div
+      className={`relative overflow-hidden rounded-3xl border border-ink-900/10 bg-surface ${
+        extras.length ? "col-span-2 aspect-[16/10] lg:col-span-1 lg:row-span-2 lg:aspect-auto" : large ? "aspect-[16/10]" : "aspect-[4/3]"
+      }`}
+    >
+      {hasImage ? (
+        <img
+          src={project.cover}
+          alt={project.title}
+          loading="lazy"
+          className="h-full w-full object-cover transition-transform duration-700 ease-expo group-hover:scale-[1.04]"
+        />
+      ) : (
+        <LightMonogram title={project.title} />
+      )}
+      {project.placeholder && (
+        <span className="absolute left-4 top-4 rounded-full bg-surface/95 px-2.5 py-1 font-mono text-[0.6rem] uppercase tracking-wider text-signal-ink">
+          Preview soon
+        </span>
+      )}
+    </div>
+  );
   return (
     <Link
       to={`/projects/${project.slug}`}
@@ -31,23 +55,29 @@ function Card({ project, large }: { project: Project; large?: boolean }) {
       data-cursor-label="View"
       className="group block"
     >
-      <div className={`relative overflow-hidden rounded-3xl border border-ink-900/10 bg-surface ${large ? "aspect-[16/10]" : "aspect-[4/3]"}`}>
-        {hasImage ? (
-          <img
-            src={project.cover}
-            alt={project.title}
-            loading="lazy"
-            className="h-full w-full object-cover transition-transform duration-700 ease-expo group-hover:scale-[1.04]"
-          />
-        ) : (
-          <LightMonogram title={project.title} />
-        )}
-        {project.placeholder && (
-          <span className="absolute left-4 top-4 rounded-full bg-surface/95 px-2.5 py-1 font-mono text-[0.6rem] uppercase tracking-wider text-signal-ink">
-            Preview soon
-          </span>
-        )}
-      </div>
+      {extras.length ? (
+        // Anchor collage: cover left, supporting shots stacked right (2-up row under the cover on small screens)
+        <div className="grid grid-cols-2 gap-3 lg:aspect-[16/8] lg:grid-cols-[1.7fr_1fr] lg:grid-rows-2">
+          {cover}
+          {extras.slice(0, 2).map((img) => (
+            <div
+              key={img.src}
+              className="aspect-[4/3] overflow-hidden rounded-3xl border border-ink-900/10 bg-white lg:aspect-auto"
+            >
+              <img
+                src={img.src}
+                alt={img.alt}
+                loading="lazy"
+                className={`h-full w-full transition-transform duration-700 ease-expo group-hover:scale-[1.04] ${
+                  img.fit === "contain" ? "object-contain p-3" : "object-cover"
+                }`}
+              />
+            </div>
+          ))}
+        </div>
+      ) : (
+        cover
+      )}
       <div className="mt-4 flex items-start justify-between gap-4">
         <div>
           <h3 className="font-display text-xl font-semibold tracking-tight text-ink-900 transition-colors group-hover:text-signal-ink">

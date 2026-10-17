@@ -41,6 +41,8 @@ export type Project = {
   placeholder?: boolean;
   /** Lead the detail page with the media rows (photos + captions) in place of the standalone cover hero. */
   mediaFirst?: boolean;
+  /** Extra images shown beside the cover in the home-page "Recent builds" anchor card. */
+  previewImages?: { src: string; alt: string; fit?: "cover" | "contain" }[];
 };
 
 // ── Hardware ─────────────────────────────────────────────────────────────────
@@ -60,6 +62,10 @@ const hardware: Project[] = [
       "Closed-loop position control with absolute encoding",
     ],
     cover: withBase("/images/projects/Cycloidal/cycloidal-main.jpg"),
+    previewImages: [
+      { src: withBase("/images/projects/Cycloidal/cycloidal-proto-v2.jpg"), alt: "Cycloidal actuator prototype v2, assembled" },
+      { src: withBase("/images/projects/Cycloidal/cycloidal-exploded.jpg"), alt: "Exploded CAD of the cycloidal actuator", fit: "contain" },
+    ],
     embedReel: "https://www.instagram.com/reel/DaE58a3O0D8/",
     duration: "2026 — Present",
     year: 2026,
@@ -79,6 +85,11 @@ const hardware: Project[] = [
         src: withBase("/images/projects/Cycloidal/cycloidal-exploded.jpg"),
         caption: "Exploded CAD of the coaxial stack — output housing, cycloidal discs, eccentric cam, and cross-roller output bearing",
         feature: true,
+      },
+      {
+        type: "image",
+        src: withBase("/images/projects/Cycloidal/cycloidal-proto-v2.jpg"),
+        caption: "Prototype v2, assembled — the next housing iteration after the white v1 print.",
       },
       {
         type: "video",
@@ -514,6 +525,16 @@ const software: Project[] = [
 ];
 
 export const projects: Project[] = [...hardware, ...software];
+
+/** Home-page proof strip: one hands-on photo per build, shown directly under the hero. */
+export const buildStrip: { slug: string; label: string; alt: string; src: string }[] = [
+  { slug: "internal-cycloidal-actuator", label: "Cycloidal actuator", alt: "Cycloidal actuator prototype v2 held in hand", src: withBase("/images/strip/cycloidal.jpg") },
+  { slug: "eldaeon-passive-radar-system", label: "Passive radar", alt: "Eldaeon passive radar rig on a tripod in the lab", src: withBase("/images/strip/radar.jpg") },
+  { slug: "biodiversity-sensing-module", label: "Sensing module", alt: "Custom biodiversity sensing PCB held in hand", src: withBase("/images/strip/biodiversity.jpg") },
+  { slug: "polysynth-x", label: "PolySynth X", alt: "PolySynth X circuit board and 3D-printed keybed", src: withBase("/images/strip/polysynth.jpg") },
+  { slug: "solar-array-optimization", label: "Solar race car", alt: "CalSol solar race car on track", src: withBase("/images/strip/calsol.jpg") },
+  { slug: "compact-automated-aquaponics", label: "Aquaponics", alt: "Automated aquaponics system in a dining hall", src: withBase("/images/strip/aquaponics.jpg") },
+];
 
 export function getProjects(category: "hardware" | "software"): Project[] {
   return projects.filter((p) => p.category === category).sort((a, b) => a.order - b.order);

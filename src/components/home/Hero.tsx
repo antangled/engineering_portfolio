@@ -24,13 +24,14 @@ function Line({ children, delay = 0 }: { children: React.ReactNode; delay?: numb
 
 export function Hero() {
   return (
-    <section className="mx-auto max-w-[1400px] px-[5vw] pt-28 lg:pt-32">
+    <section className="mx-auto max-w-[1400px] px-[5vw] pt-[4.5rem] lg:pt-24">
+      {/* Height leaves room for the build strip below to land in the first viewport */}
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.9, ease }}
         className="relative overflow-hidden rounded-[2.5rem] bg-studio"
-        style={{ minHeight: "clamp(520px, 78vh, 680px)" }}
+        style={{ minHeight: "clamp(460px, 62vh, 600px)" }}
       >
         {/* Hero photo (left) + a horizontally-mirrored copy (right). Because the
             mirror's edge pixels match the original's exactly, the studio-gray
@@ -62,7 +63,7 @@ export function Hero() {
         <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent lg:bg-gradient-to-r lg:from-transparent lg:via-black/20 lg:to-black/75" />
 
         {/* Text — bottom on mobile, right-of-center on desktop */}
-        <div className="relative z-10 flex h-full min-h-[inherit] items-end p-8 sm:p-10 lg:items-center lg:justify-end lg:p-14 xl:p-16">
+        <div className="relative z-10 flex h-full min-h-[inherit] items-end px-6 pb-7 pt-8 sm:p-10 lg:items-center lg:justify-end lg:px-14 lg:py-10 xl:px-16 xl:py-12">
           <div className="w-full text-white [text-shadow:0_2px_18px_rgba(0,0,0,0.35)] lg:w-[52%]">
             <motion.div
               initial={{ opacity: 0 }}
@@ -97,7 +98,7 @@ export function Hero() {
                 NASA, the EPA &amp; ISEF.
               </p>
 
-              <div className="mt-7 flex flex-wrap items-center gap-3">
+              <div className="mt-6 flex flex-wrap items-center gap-3">
                 <Link
                   to="/projects"
                   data-cursor="link"
@@ -128,7 +129,7 @@ export function Hero() {
                 </a>
               </div>
 
-              <div className="mt-6 flex flex-wrap gap-2 font-mono text-xs uppercase tracking-widest">
+              <div className="mt-5 flex flex-wrap gap-2 font-mono text-xs uppercase tracking-widest">
                 {profile.disciplines.map((d) => (
                   <span key={d} className="rounded-full border border-white/30 px-3 py-2 text-white/90">
                     {d}

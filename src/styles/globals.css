@@ -55,6 +55,14 @@
     text-wrap: pretty;
   }
 
+  /* Swipeable rows (e.g. the home build strip) without a visible scrollbar */
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
   /* Subtle blueprint grid for dark gallery backgrounds */
   .bp-grid {
     background-image:
