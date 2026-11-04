@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
-import { ArrowUpRight } from "lucide-react";
+import { Link } from "react-router-dom";
+import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { profile, socialLinks, contact } from "../../data/profile";
 import { CopyEmail } from "../CopyEmail";
 
@@ -23,7 +24,15 @@ export function Footer() {
           <p className="mt-5 max-w-xl text-pretty text-lg leading-relaxed text-mist-dim">
             I'm looking for a Spring + Summer 2027 co-op or internship in hardware, robotics or embedded systems.
           </p>
-          <div className="mt-8 flex flex-wrap items-center gap-4">
+          <Link
+            to="/projects"
+            data-cursor="link"
+            className="group mt-8 inline-flex items-center gap-2 rounded-full bg-mist px-6 py-3 text-sm font-medium text-night-900 transition-colors duration-300 hover:bg-signal hover:text-white"
+          >
+            See all projects
+            <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+          </Link>
+          <div className="mt-6 flex flex-wrap items-center gap-4">
             <a
               href={`mailto:${contact.email}`}
               data-cursor="link"
