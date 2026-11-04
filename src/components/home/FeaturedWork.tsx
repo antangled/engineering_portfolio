@@ -27,7 +27,7 @@ function Card({ project, large }: { project: Project; large?: boolean }) {
   const extras = large ? project.previewImages ?? [] : [];
   const cover = (
     <div
-      className={`relative overflow-hidden rounded-3xl border border-ink-900/10 bg-surface ${
+      className={`relative overflow-hidden rounded-[1.25rem] bg-paper ${
         extras.length ? "col-span-2 aspect-[16/10] lg:col-span-1 lg:row-span-2 lg:aspect-auto" : large ? "aspect-[16/10]" : "aspect-[4/3]"
       }`}
     >
@@ -53,16 +53,16 @@ function Card({ project, large }: { project: Project; large?: boolean }) {
       to={`/projects/${project.slug}`}
       data-cursor="view"
       data-cursor-label="View"
-      className="group block"
+      className="group block rounded-[1.75rem] border border-line bg-surface p-2.5 shadow-[0_1px_0_rgba(21,23,27,0.04),0_30px_70px_-55px_rgba(21,23,27,0.4)] transition-[box-shadow,transform] duration-500 ease-expo hover:-translate-y-1 hover:shadow-[0_1px_0_rgba(21,23,27,0.04),0_40px_80px_-50px_rgba(21,23,27,0.5)]"
     >
       {extras.length ? (
         // Anchor collage: cover left, supporting shots stacked right (2-up row under the cover on small screens)
-        <div className="grid grid-cols-2 gap-3 lg:aspect-[16/8] lg:grid-cols-[1.7fr_1fr] lg:grid-rows-2">
+        <div className="grid grid-cols-2 gap-2.5 lg:aspect-[16/8] lg:grid-cols-[1.7fr_1fr] lg:grid-rows-2">
           {cover}
           {extras.slice(0, 2).map((img) => (
             <div
               key={img.src}
-              className="aspect-[4/3] overflow-hidden rounded-3xl border border-ink-900/10 bg-white lg:aspect-auto"
+              className="aspect-[4/3] overflow-hidden rounded-[1.25rem] border border-line bg-white lg:aspect-auto"
             >
               <img
                 src={img.src}
@@ -78,7 +78,7 @@ function Card({ project, large }: { project: Project; large?: boolean }) {
       ) : (
         cover
       )}
-      <div className="mt-4 flex items-start justify-between gap-4">
+      <div className="mt-4 flex items-start justify-between gap-4 px-2.5">
         <div>
           <h3 className="font-display text-xl font-semibold tracking-tight text-ink-900 transition-colors group-hover:text-signal-ink">
             {project.title}
@@ -87,9 +87,12 @@ function Card({ project, large }: { project: Project; large?: boolean }) {
         </div>
         <ArrowUpRight className="mt-1 h-5 w-5 shrink-0 text-ink-400 transition-all duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-signal-ink" />
       </div>
-      <div className="mt-3 flex flex-wrap gap-2">
+      <div className="mt-3 flex flex-wrap gap-2 px-2.5 pb-2.5">
+        {project.badge && (
+          <span className="rounded-full bg-signal/10 px-2.5 py-1 font-mono text-xs text-signal-ink">{project.badge}</span>
+        )}
         {project.impact.slice(0, large ? 3 : 1).map((m) => (
-          <span key={m} className="rounded-full bg-ink-900/[0.04] px-2.5 py-1 font-mono text-[0.65rem] text-ink-500">
+          <span key={m} className="rounded-full bg-ink-900/[0.04] px-2.5 py-1 font-mono text-xs text-ink-500">
             {m}
           </span>
         ))}
@@ -110,8 +113,7 @@ export function FeaturedWork() {
         className="flex flex-wrap items-end justify-between gap-6"
       >
         <div>
-          <p className="font-mono text-xs uppercase tracking-[0.3em] text-signal-ink">Selected work</p>
-          <h2 className="mt-3 text-balance font-display text-[clamp(2.2rem,5vw,3.4rem)] font-semibold leading-[0.98] tracking-tight text-ink-900">
+          <h2 className="text-balance font-display text-[clamp(2.2rem,5vw,3.4rem)] font-semibold leading-[0.98] tracking-tight text-ink-900">
             Recent builds.
           </h2>
         </div>

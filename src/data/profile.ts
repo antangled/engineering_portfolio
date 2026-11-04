@@ -133,11 +133,13 @@ export const skillGroups: SkillGroup[] = [
   },
 ];
 
-export const awards: string[] = [
-  "Winner, Best Enterprise Reinvention — Berkeley SCET Innovation Intelligence Hackathon (2026)",
-  "Tau Beta Pi and Eta Kappa Nu (IEEE-HKN) engineering honor societies (2026)",
-  "$1.5k Jacobs Ignite grant and CubeMars sponsorship for Kinema",
-  "6th globally at MATE 2024 with MUREX",
-  "U.S. youth delegate, COP28 (Dubai)",
-  "Research recognized by NASA, the EPA and ISEF",
+export type Award = { kind: string; text: string; year?: string };
+
+export const awards: Award[] = [
+  { kind: "Award", text: "Winner, Best Enterprise Reinvention — Berkeley SCET Innovation Intelligence Hackathon", year: "2026" },
+  { kind: "Honor", text: "Tau Beta Pi and Eta Kappa Nu (IEEE-HKN) engineering honor societies", year: "2026" },
+  { kind: "Grant", text: "$1.5k Jacobs Ignite grant and CubeMars sponsorship for Kinema", year: "2026" },
+  { kind: "Competition", text: "6th globally at the MATE ROV World Championship with MUREX", year: "2024" },
+  { kind: "Delegate", text: "U.S. youth delegate to COP28, Dubai", year: "2023" },
+  { kind: "Research", text: "Microplastics research recognized by NASA, the EPA and ISEF" },
 ];
