@@ -94,8 +94,8 @@ export function Hero() {
             >
               <p className="mt-5 text-balance text-xl font-medium">{profile.role}</p>
               <p className="mt-3 max-w-md text-pretty text-[0.95rem] leading-relaxed text-white/85">
-                From cycloidal actuators to RF drone detection — EECS at Berkeley, open to Spring +
-                Summer 2027 co-ops.
+                From cycloidal actuators to satellite-IoT field sensors and RF drone detection — EECS
+                at Berkeley, open to Spring + Summer 2027 co-ops.
               </p>
 
               <div className="mt-6 flex flex-wrap items-center gap-3">

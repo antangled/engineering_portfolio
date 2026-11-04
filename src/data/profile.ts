@@ -49,7 +49,7 @@ export const contact = {
 
 // Long-form about, broken into skimmable paragraphs.
 export const aboutParagraphs: string[] = [
-  "I'm an EECS student at UC Berkeley who likes building things that move, sense and run on their own. Right now that's Kinema, a 6-DOF camera arm built on cycloidal actuators I designed, and BEACN, where I lead a team evaluating battery storage for a multi-hundred-site rollout.",
+  "I'm an EECS student at UC Berkeley who likes building things that move, sense and run on their own. Right now that's Kinema, a 6-DOF camera arm built on cycloidal actuators I designed, and BEACN, where I lead a team evaluating battery storage for a multi-hundred-site rollout. I also led hardware for Echeverri Lab's solar-powered, satellite-IoT biodiversity sensor.",
   "Most recently I interned at Eldaeon, an RF-sensing startup, building the drone-detection pipeline, antenna mount and power plan for a passive radar node. Before Berkeley, I was mechanical lead on MUREX, whose ROV placed 6th in the world at MATE 2024.",
   "Outside engineering, I founded a climate nonprofit that became a UNFCCC observer organization and sent me to COP28 in Dubai as a U.S. youth delegate. I'm looking for an engineering co-op or internship for Spring and Summer 2027.",
 ];
@@ -79,9 +79,9 @@ export const experience: ExperienceEntry[] = [
     role: "Technical Project Manager & Systems Modeling Engineer",
     period: "Feb 2026 — Present",
     blurb:
-      "Lead a 5-person team evaluating LFP, NMC and sodium-ion battery storage for GridPoint's multi-hundred-site rollout. Built a statistical energy model and GIS analysis that set efficiency targets against PUE for data-center firm Vigilent, and the club's outreach tooling.",
+      "Lead a 5-person team evaluating LFP, NMC and sodium-ion battery storage for GridPoint's multi-hundred-site rollout. Built a statistical energy model and GIS analysis that set efficiency targets against PUE for data-center firm Vigilent. Built BeacnReach, the form the club's PMs use for weekly client outreach.",
     tags: ["Energy modeling", "GIS", "Battery storage", "Team lead"],
-    slug: "beacn-outreach",
+    slug: "beacnreach",
   },
   {
     org: "CalSol — Berkeley Solar Racing",
@@ -99,6 +99,7 @@ export const experience: ExperienceEntry[] = [
     blurb:
       "Led a 6-person team building a 6-DOF underwater ROV and 7-DOF manipulator. Cut manufacturing cost 88% by moving outsourced parts to in-house CNC machining and 3D printing; placed 6th globally at MATE 2024 and set 10 records.",
     tags: ["CAD", "CNC", "Robotics", "Leadership"],
+    slug: "murex-rov",
   },
 ];
 
