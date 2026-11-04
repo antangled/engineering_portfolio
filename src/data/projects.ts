@@ -131,6 +131,14 @@ const hardware: Project[] = [
       },
       {
         type: "image",
+        src: withBase("/images/projects/Cycloidal/cycloidal-v2-cad.jpg"),
+        label: "v2 CAD",
+        fit: "contain",
+        onWhite: true,
+        caption: "Actuator v2 in CAD: the redesigned housing, with the output flange in orange.",
+      },
+      {
+        type: "image",
         src: withBase("/images/projects/Cycloidal/cycloidal-proto-v2.jpg"),
         label: "Prototype v2",
         caption: "Prototype v2, assembled: the next housing iteration after the white print.",
@@ -222,6 +230,14 @@ const hardware: Project[] = [
       "Each key is a 3D-printed compliant flexure that mimics hammer action. Two hall-effect sensors read its motion, and the firmware differences them into a per-key pitch-bend signal.",
     results: "A working 12-key keyboard with an onboard synth where every key bends independently, after 7+ key iterations and 3+ PCB revisions.",
     media: [
+      {
+        type: "image",
+        src: withBase("/images/projects/PolysynthX/polysynth-cad.jpg"),
+        label: "12-key CAD",
+        fit: "contain",
+        onWhite: true,
+        caption: "CAD of the 12-key prototype: the compliant keybed above the hall-effect sensor PCB.",
+      },
       { type: "video", src: withBase("/videos/polysynthshowcase.mp4"), label: "First prototype", caption: "The first electrical prototype." },
       { type: "video", src: withBase("/videos/compliantshowcase.mp4"), label: "Compliant keys", caption: "The compliant key mechanism in motion." },
     ],
