@@ -75,7 +75,7 @@ const hardware: Project[] = [
     slug: "internal-cycloidal-actuator",
     badge: "Hardware lead",
     category: "hardware",
-    title: "Kinema Cycloidal Actuator",
+    title: "Kinema: 6-DOF Robotic Camera Arm",
     tagline: "A 10:1 cycloidal actuator packed inside a frameless motor, built as the first joint of a 6-DOF camera arm.",
     summary:
       "Kinema is a 6-DOF camera arm you teach by hand, which then replays the shot smoothly. Its joints need high torque and low backlash at a fraction of industrial-arm cost, so I designed a custom internal cycloidal actuator and have taken it through 7+ machined and printed prototypes to closed-loop control.",
