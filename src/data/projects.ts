@@ -11,6 +11,10 @@ export type Media = {
   fit?: "cover" | "contain";
   /** Render on white (CAD renders exported on a white background). */
   onWhite?: boolean;
+  /** Video only: play inline, muted and looping, with a sound toggle (used for a project's feature video). */
+  autoplay?: boolean;
+  /** Video only: still frame shown before the video loads. */
+  poster?: string;
 };
 
 export type ProjectLink = { label: string; href: string };
@@ -40,8 +44,12 @@ export type Project = {
   coverFit?: "cover" | "contain";
   /** Optional muted loop that cross-fades in on hover (Baptiste pattern). */
   coverVideo?: string;
-  /** Instagram reel embed URL (cycloidal actuator). */
-  embedReel?: string;
+  /** Self-hosted feature video, shown first in the project gallery (autoplays muted, with a sound toggle). */
+  featureVideo?: Media;
+  /** Short ownership badge for gallery cards, e.g. "Solo", "Mechanical lead", "Intern". */
+  badge?: string;
+  /** Smaller project: listed compactly under "More software" instead of as a large card. */
+  minor?: boolean;
   duration: string;
   year: number;
   order: number;
@@ -65,6 +73,7 @@ export type Project = {
 const hardware: Project[] = [
   {
     slug: "internal-cycloidal-actuator",
+    badge: "Hardware lead",
     category: "hardware",
     title: "Kinema Cycloidal Actuator",
     tagline: "A 10:1 cycloidal actuator packed inside a frameless motor, built as the first joint of a 6-DOF camera arm.",
@@ -90,7 +99,14 @@ const hardware: Project[] = [
       { src: withBase("/images/projects/Cycloidal/cycloidal-proto-v2.jpg"), alt: "Cycloidal actuator prototype v2, assembled" },
       { src: withBase("/images/projects/Cycloidal/cycloidal-exploded.jpg"), alt: "Exploded CAD of the cycloidal actuator", fit: "contain" },
     ],
-    embedReel: "https://www.instagram.com/reel/DaE58a3O0D8/",
+    featureVideo: {
+      type: "video",
+      src: withBase("/videos/cycloidal-plays.mp4"),
+      poster: withBase("/images/projects/Cycloidal/cycloidal-plays-poster.jpg"),
+      autoplay: true,
+      label: "Watch it run",
+      caption: "Assembling the actuator, then running it to play a song. Turn the sound on.",
+    },
     duration: "Jun 2026 — Present",
     year: 2026,
     order: 1,
@@ -129,6 +145,7 @@ const hardware: Project[] = [
   },
   {
     slug: "eldaeon-passive-radar-system",
+    badge: "Intern",
     category: "hardware",
     title: "Eldaeon Passive Radar",
     tagline: "A Raspberry Pi pipeline that spots drones in RF Doppler returns and flags anything that isn't a known aircraft or ship.",
@@ -171,6 +188,7 @@ const hardware: Project[] = [
   },
   {
     slug: "polysynth-x",
+    badge: "Solo",
     category: "hardware",
     title: "PolySynth X",
     tagline: "A 12-key MPE keyboard and synth where every key bends its own pitch.",
@@ -210,6 +228,7 @@ const hardware: Project[] = [
   },
   {
     slug: "biodiversity-sensing-module",
+    badge: "Hardware lead",
     category: "hardware",
     title: "Biodiversity Sensing Module",
     tagline: "A weatherproof, solar-powered satellite-IoT field node that identifies species on-device, built for UC Berkeley's Echeverri Lab.",
@@ -259,6 +278,7 @@ const hardware: Project[] = [
   },
   {
     slug: "solar-array-optimization",
+    badge: "Project manager",
     category: "hardware",
     title: "CalSol Solar Array",
     tagline: "Laying out a solar race car's array so it keeps charging in partial shade.",
@@ -290,6 +310,7 @@ const hardware: Project[] = [
   },
   {
     slug: "murex-rov",
+    badge: "Mechanical lead",
     category: "hardware",
     title: "MUREX ROV",
     tagline: "Mechanical lead on a high-school underwater robot that placed 6th in the world at MATE 2024.",
@@ -353,6 +374,7 @@ const hardware: Project[] = [
   },
   {
     slug: "compact-automated-aquaponics",
+    badge: "Design + build lead",
     category: "hardware",
     title: "Automated Aquaponics System",
     tagline: "A compact aquaponics system that grew lettuce and raised fish for a campus dining hall.",
@@ -387,6 +409,7 @@ const hardware: Project[] = [
   },
   {
     slug: "microplastics-research",
+    badge: "Lead researcher",
     category: "hardware",
     title: "Microplastics Dynamics Research",
     tagline: "Research on how microplastics move through water, recognized by NASA and the EPA.",
@@ -417,6 +440,7 @@ const hardware: Project[] = [
 const software: Project[] = [
   {
     slug: "envoy",
+    badge: "Tech lead · team of 2",
     category: "software",
     title: "Envoy",
     tagline: "An AI outreach assistant that turns a plain-English goal into researched companies, the right contacts and source-linked emails you approve before they send.",
@@ -430,7 +454,7 @@ const software: Project[] = [
     stats: [
       { value: "Winner", label: "Best Enterprise Reinvention, AI-Native Enterprise track" },
       { value: "~2 days", label: "from idea to winning demo" },
-      { value: "9/10 → 0/5", label: "needless model escalations, after the cost-ledger fix" },
+      { value: "90% → 0%", label: "of briefs needlessly escalated to the bigger model, before vs. after the cost-ledger fix" },
       { value: "~$0.05", label: "per company researched and drafted" },
     ],
     highlights: [
@@ -506,6 +530,7 @@ const software: Project[] = [
   },
   {
     slug: "fantom-finder",
+    badge: "Software lead · team of 2",
     category: "software",
     title: "Fantom Finder",
     tagline: "Passive radar that checks whether a drone's or ship's broadcast position is real, built from scratch in one hackathon weekend.",
@@ -562,6 +587,7 @@ const software: Project[] = [
   },
   {
     slug: "bommaker",
+    badge: "Solo",
     category: "software",
     title: "BOMMaker",
     tagline: "A Chrome extension that adds any product page to a running bill of materials in one click.",
@@ -622,6 +648,7 @@ const software: Project[] = [
   },
   {
     slug: "beacnreach",
+    badge: "Solo",
     category: "software",
     title: "BeacnReach",
     tagline: "A weekly outreach form for BEACN's project managers that shows the exact email a company will get as they type.",
@@ -659,6 +686,8 @@ const software: Project[] = [
   },
   {
     slug: "oski-leases",
+    badge: "Solo",
+    minor: true,
     category: "software",
     title: "Oski Leases",
     tagline: "A trust-first student-housing marketplace for UC Berkeley.",
@@ -688,6 +717,8 @@ const software: Project[] = [
   },
   {
     slug: "builddash",
+    badge: "Solo",
+    minor: true,
     category: "software",
     title: "BuildDash",
     tagline: "A marketplace matching part designs to local makers.",
@@ -719,6 +750,8 @@ const software: Project[] = [
   },
   {
     slug: "graded",
+    badge: "Solo",
+    minor: true,
     category: "software",
     title: "Graded",
     tagline: "Tells you exactly what you need on the final.",
@@ -749,6 +782,8 @@ const software: Project[] = [
   },
   {
     slug: "this-portfolio",
+    badge: "Solo",
+    minor: true,
     category: "software",
     title: "This Portfolio",
     tagline: "The site you're reading — rebuilt from scratch three times.",
@@ -823,6 +858,8 @@ const software: Project[] = [
   },
   {
     slug: "newsflash",
+    badge: "Solo",
+    minor: true,
     category: "software",
     title: "NewsFlash",
     tagline: "The day's top tech news in a slim bar at the bottom of whatever page you're on.",
@@ -879,8 +916,8 @@ export const buildStrip: { slug: string; label: string; alt: string; src: string
   { slug: "eldaeon-passive-radar-system", label: "Passive radar", alt: "Eldaeon passive radar rig on a tripod in the lab", src: withBase("/images/strip/radar.jpg") },
   { slug: "biodiversity-sensing-module", label: "Sensing module", alt: "Custom biodiversity sensing PCB held in hand", src: withBase("/images/strip/biodiversity.jpg") },
   { slug: "polysynth-x", label: "PolySynth X", alt: "PolySynth X circuit board and 3D-printed keybed", src: withBase("/images/strip/polysynth.jpg") },
-  { slug: "solar-array-optimization", label: "Solar race car", alt: "CalSol solar race car on track", src: withBase("/images/strip/calsol.jpg") },
   { slug: "compact-automated-aquaponics", label: "Aquaponics", alt: "Automated aquaponics system in a dining hall", src: withBase("/images/strip/aquaponics.jpg") },
+  { slug: "murex-rov", label: "Underwater ROV", alt: "MUREX underwater ROV on the pool deck", src: withBase("/images/strip/murex.jpg") },
 ];
 
 export function getProjects(category: "hardware" | "software"): Project[] {

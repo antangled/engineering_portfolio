@@ -6,12 +6,14 @@ import { FeaturedWork } from "./FeaturedWork";
 import { AboutSection } from "./AboutSection";
 import { Skills } from "./Skills";
 import { Footer } from "./Footer";
+import { usePageTitle } from "../../lib/usePageTitle";
 
 type ScrollState = { scrollTarget?: string } | null;
 
 export function Home() {
   const location = useLocation();
   const navigate = useNavigate();
+  usePageTitle();
 
   // Honor "scroll to about" requests coming from the nav on other routes.
   useEffect(() => {

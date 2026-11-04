@@ -1,5 +1,5 @@
-import type { CSSProperties } from "react";
-import { Play } from "lucide-react";
+import { useState, type CSSProperties } from "react";
+import { Play, Volume2, VolumeX } from "lucide-react";
 import type { Media } from "../../data/projects";
 import { cn } from "../../lib/utils";
 
@@ -19,6 +19,68 @@ const THUMB_LAYOUT: Record<number, Placement[]> = {
   ],
   4: Array(4).fill({ gridColumn: "span 1", gridRow: "span 1" }),
 };
+
+/** A project's feature video: plays inline, muted and looping, with its own sound toggle. Click anywhere else to open it in the lightbox. */
+function FeatureVideo({
+  item,
+  index,
+  onOpen,
+  className,
+  style,
+  title,
+}: {
+  item: Media;
+  index: number;
+  onOpen: (i: number) => void;
+  className?: string;
+  style?: CSSProperties;
+  title: string;
+}) {
+  const [muted, setMuted] = useState(true);
+  return (
+    <div
+      style={style}
+      className={cn("group relative overflow-hidden rounded-3xl border border-mist/10 bg-black", className)}
+    >
+      <video
+        src={item.src}
+        poster={item.poster}
+        autoPlay
+        muted={muted}
+        loop
+        playsInline
+        preload="metadata"
+        aria-label={item.caption || `${title} video`}
+        className="h-full w-full object-cover"
+      />
+      <button
+        type="button"
+        onClick={() => onOpen(index)}
+        aria-label={`Open the ${title} video full screen`}
+        data-cursor="view"
+        data-cursor-label="Play"
+        className="absolute inset-0"
+      />
+      <button
+        type="button"
+        onClick={() => setMuted((m) => !m)}
+        aria-pressed={!muted}
+        aria-label={muted ? "Turn sound on" : "Mute"}
+        data-cursor="link"
+        className="absolute bottom-3 right-3 z-10 flex items-center gap-2 rounded-full bg-night-900/85 px-3.5 py-2 font-mono text-xs uppercase tracking-wider text-mist transition-colors hover:bg-signal hover:text-white"
+      >
+        {muted ? <VolumeX className="h-4 w-4" aria-hidden /> : <Volume2 className="h-4 w-4" aria-hidden />}
+        {muted ? "Sound on" : "Mute"}
+      </button>
+      {item.label && (
+        <span className="pointer-events-none absolute left-3 top-3 flex items-center gap-1.5 rounded-full bg-night-900/85 px-2.5 py-1 font-mono text-xs uppercase tracking-wider text-mist">
+          <Play className="h-3 w-3 fill-current" aria-hidden />
+          {item.label}
+        </span>
+      )}
+    </div>
+  );
+}
 
 function Tile({
   item,
@@ -103,21 +165,18 @@ function Tile({
 }
 
 /**
- * Visual-first project header (Airbnb/Instructables pattern): one hero image plus
- * up to four supporting shots, all opening the lightbox. Desktop shows a bento grid
- * (with the Instagram reel as a tall tile on the left when a project has one);
- * mobile shows a swipeable row.
+ * Visual-first project header (Airbnb/Instructables pattern): one hero image (or a
+ * feature video) plus up to four supporting shots, all opening the lightbox. Desktop
+ * shows a bento grid; mobile shows a swipeable row.
  */
 export function ProjectGallery({
   items,
-  reel,
   title,
   onOpen,
   placeholder,
 }: {
-  /** cover first, then supporting media — same order the lightbox uses */
+  /** hero first, then supporting media — same order the lightbox uses */
   items: Media[];
-  reel?: string | null;
   title: string;
   onOpen: (i: number) => void;
   placeholder?: boolean;
@@ -131,64 +190,36 @@ export function ProjectGallery({
   }
 
   const [main, ...rest] = items;
-  const maxThumbs = reel ? 3 : 4;
-  const visible = rest.slice(0, maxThumbs);
+  const visible = rest.slice(0, 4);
   const extra = rest.length - visible.length;
   const n = visible.length;
-
-  const reelFrame = reel && (
-    <iframe
-      src={reel}
-      title={`${title} reel`}
-      loading="lazy"
-      allow="encrypted-media; clipboard-write; picture-in-picture; web-share"
-      allowFullScreen
-      className="h-full w-full"
-    />
-  );
+  const renderMain = (style?: CSSProperties, className?: string) =>
+    main.autoplay ? (
+      <FeatureVideo item={main} index={0} onOpen={onOpen} title={title} style={style} className={className} />
+    ) : (
+      <Tile item={main} index={0} onOpen={onOpen} eager title={title} style={style} className={className} />
+    );
 
   return (
     <>
       {/* Desktop bento */}
-      <div className="hidden gap-3 lg:flex lg:h-[clamp(360px,52vh,490px)]">
-        {reel && (
-          <div className="w-[326px] shrink-0 overflow-hidden rounded-3xl border border-mist/10 bg-night-800">
-            {reelFrame}
-          </div>
-        )}
-        <div
-          className="grid min-w-0 flex-1 gap-3"
-          style={
-            reel
-              ? { gridTemplateColumns: "repeat(3, minmax(0,1fr))", gridTemplateRows: `repeat(${Math.max(n, 1)}, minmax(0,1fr))` }
-              : { gridTemplateColumns: "repeat(4, minmax(0,1fr))", gridTemplateRows: "repeat(2, minmax(0,1fr))" }
-          }
-        >
+      <div
+        className="hidden gap-3 lg:grid lg:h-[clamp(360px,52vh,490px)]"
+        style={{ gridTemplateColumns: "repeat(4, minmax(0,1fr))", gridTemplateRows: "repeat(2, minmax(0,1fr))" }}
+      >
+        {renderMain({ gridColumn: n ? "span 2" : "span 4", gridRow: "span 2" })}
+        {visible.map((m, i) => (
           <Tile
-            item={main}
-            index={0}
+            key={m.src}
+            item={m}
+            index={i + 1}
             onOpen={onOpen}
             eager
             title={title}
-            style={
-              reel
-                ? { gridColumn: n ? "span 2" : "span 3", gridRow: `span ${Math.max(n, 1)}` }
-                : { gridColumn: n ? "span 2" : "span 4", gridRow: "span 2" }
-            }
+            extra={i === n - 1 ? extra : 0}
+            style={THUMB_LAYOUT[n][i]}
           />
-          {visible.map((m, i) => (
-            <Tile
-              key={m.src}
-              item={m}
-              index={i + 1}
-              onOpen={onOpen}
-              eager
-              title={title}
-              extra={i === n - 1 ? extra : 0}
-              style={reel ? { gridColumn: "span 1", gridRow: "span 1" } : THUMB_LAYOUT[n][i]}
-            />
-          ))}
-        </div>
+        ))}
       </div>
 
       {/* Mobile: swipeable row */}
@@ -197,22 +228,27 @@ export function ProjectGallery({
           data-lenis-prevent
           className="no-scrollbar -mx-[5vw] flex snap-x snap-mandatory scroll-px-[5vw] gap-3 overflow-x-auto px-[5vw]"
         >
-          {items.map((m, i) => (
-            <Tile
-              key={m.src}
-              item={m}
-              index={i}
-              onOpen={onOpen}
-              eager={i < 2}
-              title={title}
-              className="aspect-[4/3] w-[86%] shrink-0 snap-start"
-            />
-          ))}
+          {items.map((m, i) =>
+            i === 0 && m.autoplay ? (
+              <div key={m.src} className="aspect-[4/3] w-[86%] shrink-0 snap-start">
+                {renderMain(undefined, "h-full w-full")}
+              </div>
+            ) : (
+              <Tile
+                key={m.src}
+                item={m}
+                index={i}
+                onOpen={onOpen}
+                eager={i < 2}
+                title={title}
+                className="aspect-[4/3] w-[86%] shrink-0 snap-start"
+              />
+            ),
+          )}
         </div>
         {items.length > 1 && (
           <p className="mt-2 font-mono text-xs text-mist-faint">Swipe for {items.length} images · tap to enlarge</p>
         )}
-        {/* On small screens the reel is rendered further down the page (ProjectDetail) so it doesn't push the key numbers off-screen. */}
       </div>
     </>
   );

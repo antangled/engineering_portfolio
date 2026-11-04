@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { ChevronDown } from "lucide-react";
+import { Link } from "react-router-dom";
+import { ArrowUpRight, ChevronDown } from "lucide-react";
 import { getProjects, type Project } from "../../data/projects";
 import { GalleryTile } from "./GalleryTile";
 import { cn } from "../../lib/utils";
+import { usePageTitle } from "../../lib/usePageTitle";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 type Category = "hardware" | "software";
@@ -13,6 +15,10 @@ export function ProjectsGallery() {
   const [hovered, setHovered] = useState<string | null>(null);
   const [showScrollCue, setShowScrollCue] = useState(false);
   const list: Project[] = getProjects(category);
+  const featured = list.filter((p) => !p.minor);
+  const minor = list.filter((p) => p.minor);
+  const counts = { hardware: getProjects("hardware").length, software: getProjects("software").length };
+  usePageTitle("Projects");
 
   // First-visit-only "scroll to explore" cue; dissipates as the user scrolls.
   useEffect(() => {
@@ -61,7 +67,7 @@ export function ProjectsGallery() {
                 type="button"
                 data-cursor="link"
                 aria-pressed={category === c}
-                aria-label={`Show ${c} projects`}
+                aria-label={`Show ${counts[c]} ${c} projects`}
                 onClick={() => {
                   setCategory(c);
                   setHovered(null);
@@ -78,7 +84,12 @@ export function ProjectsGallery() {
                     className="absolute inset-0 rounded-full bg-signal"
                   />
                 )}
-                <span className="relative">{c}</span>
+                <span className="relative">
+                  {c}
+                  <span className={cn("ml-1.5", category === c ? "text-night-900/70" : "text-mist-faint")}>
+                    {counts[c]}
+                  </span>
+                </span>
               </button>
             ))}
           </div>
@@ -89,7 +100,7 @@ export function ProjectsGallery() {
           className="mt-14 grid grid-cols-1 gap-x-8 gap-y-14 lg:grid-cols-2 lg:gap-x-12"
           onMouseLeave={() => setHovered(null)}
         >
-          {list.map((project, index) => (
+          {featured.map((project, index) => (
             <GalleryTile
               key={project.slug}
               project={project}
@@ -99,6 +110,45 @@ export function ProjectsGallery() {
             />
           ))}
         </div>
+
+        {/* Smaller projects: one compact row each, so the main builds keep the space */}
+        {minor.length > 0 && (
+          <section className="mt-20" aria-labelledby="more-work">
+            <h2 id="more-work" className="font-mono text-xs uppercase tracking-[0.3em] text-signal-glow">
+              More {category}
+            </h2>
+            <ul className="mt-6 divide-y divide-mist/10 border-y border-mist/10">
+              {minor.map((p) => (
+                <li key={p.slug}>
+                  <Link
+                    to={`/projects/${p.slug}`}
+                    data-cursor="link"
+                    className="group grid grid-cols-[96px_1fr_auto] items-center gap-4 py-4 sm:grid-cols-[132px_1fr_auto] sm:gap-6"
+                  >
+                    <span className="aspect-[4/3] overflow-hidden rounded-xl border border-mist/10 bg-night-800">
+                      {p.cover && (
+                        <img src={p.cover} alt="" loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.05]" />
+                      )}
+                    </span>
+                    <span className="min-w-0">
+                      <span className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                        <span className="font-display text-lg font-semibold tracking-tight text-mist transition-colors group-hover:text-signal">
+                          {p.title}
+                        </span>
+                        {p.badge && <span className="font-mono text-[0.65rem] uppercase tracking-wider text-mist-faint">{p.badge}</span>}
+                      </span>
+                      <span className="mt-1 block text-pretty text-sm leading-relaxed text-mist-dim">{p.tagline}</span>
+                    </span>
+                    <span className="flex items-center gap-3 font-mono text-xs text-mist-faint">
+                      <span className="hidden sm:inline">{p.year}</span>
+                      <ArrowUpRight className="h-4 w-4 transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-signal" />
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
       </div>
 
       {/* First-visit scroll cue — orange, dissipates as you scroll */}

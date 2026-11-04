@@ -30,24 +30,24 @@ export function Hero() {
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.9, ease }}
-        className="relative overflow-hidden rounded-[2.5rem] bg-studio"
-        style={{ minHeight: "clamp(460px, 62vh, 600px)" }}
+        className="relative overflow-hidden rounded-[2.5rem] bg-ink-900 lg:min-h-[clamp(460px,62vh,600px)] lg:bg-studio"
       >
         {/* Hero photo (left) + a horizontally-mirrored copy (right). Because the
             mirror's edge pixels match the original's exactly, the studio-gray
-            backdrop continues with no seam — and only the mirrored gray shows. */}
+            backdrop continues with no seam — and only the mirrored gray shows.
+            Below lg the photo is a head-and-shoulders band with the text underneath,
+            so the copy never sits on the face. */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1.1, ease }}
-          className="absolute inset-0"
+          className="relative h-[clamp(210px,31vh,300px)] lg:absolute lg:inset-0 lg:h-auto"
         >
           <img
             src={withBase("/images/feature-v3.jpg")}
             alt="Adam Tang"
             decoding="async"
-            className="absolute inset-y-0 left-0 h-full w-full object-cover lg:w-[72%]"
-            style={{ objectPosition: "center 30%" }}
+            className="absolute inset-y-0 left-0 h-full w-full object-cover object-[34%_22%] lg:w-[72%] lg:object-[center_30%]"
           />
           <img
             src={withBase("/images/feature-v3.jpg")}
@@ -57,24 +57,27 @@ export function Hero() {
             className="absolute inset-y-0 left-[72%] hidden h-full w-[72%] object-cover lg:block"
             style={{ objectPosition: "center 30%", transform: "scaleX(-1)" }}
           />
+
+          {/* Small screens: fade the photo into the text panel below */}
+          <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-ink-900 to-transparent lg:hidden" />
         </motion.div>
 
-        {/* Scrim — bottom-dark on mobile, right-dark on desktop, so white type reads */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent lg:bg-gradient-to-r lg:from-transparent lg:via-black/20 lg:to-black/75" />
+        {/* Desktop scrim — right-dark, so white type reads over the mirrored backdrop */}
+        <div className="absolute inset-0 hidden bg-gradient-to-r from-transparent via-black/20 to-black/75 lg:block" />
 
         {/* Text — bottom on mobile, right-of-center on desktop */}
-        <div className="relative z-10 flex h-full min-h-[inherit] items-end px-6 pb-7 pt-8 sm:p-10 lg:items-center lg:justify-end lg:px-14 lg:py-10 xl:px-16 xl:py-12">
+        <div className="relative z-10 -mt-6 px-6 pb-7 sm:px-10 sm:pb-10 lg:mt-0 lg:flex lg:h-full lg:min-h-[inherit] lg:items-center lg:justify-end lg:px-14 lg:py-10 xl:px-16 xl:py-12">
           <div className="w-full text-white [text-shadow:0_2px_18px_rgba(0,0,0,0.35)] lg:w-[52%]">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.1 }}
-              className="mb-5 flex items-center gap-2.5"
+              className="mb-4 flex items-center gap-2.5 lg:mb-5"
             >
               <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/95 p-[3px] shadow-sm">
                 <img src={withBase("/images/berkeley-seal.svg")} alt="UC Berkeley seal" className="h-full w-full" />
               </span>
-              <span className="font-mono text-xs uppercase tracking-[0.25em]">
+              <span className="font-mono text-[0.65rem] uppercase tracking-[0.14em] sm:text-xs sm:tracking-[0.25em]">
                 <span className="font-semibold text-white">{profile.name}</span>
                 <span className="text-white/55"> · {profile.affiliation}</span>
               </span>
@@ -83,7 +86,7 @@ export function Hero() {
             <h1 className="font-display text-[clamp(2.8rem,7vw,6rem)] font-semibold leading-[0.92] tracking-[-0.03em]">
               <Line delay={0.05}>I build</Line>
               <Line delay={0.14}>
-                products<span className="text-signal">.</span>
+                machines<span className="text-signal">.</span>
               </Line>
             </h1>
 
@@ -92,8 +95,8 @@ export function Hero() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, ease, delay: 0.5 }}
             >
-              <p className="mt-5 text-balance text-xl font-medium">{profile.role}</p>
-              <p className="mt-3 max-w-md text-pretty text-[0.95rem] leading-relaxed text-white/85">
+              <p className="mt-4 text-balance text-xl font-medium lg:mt-5">{profile.role}</p>
+              <p className="mt-2 max-w-md text-pretty text-base leading-relaxed text-white/90 lg:mt-3 lg:text-lg">
                 From cycloidal actuators to satellite-IoT field sensors and RF drone detection — EECS
                 at Berkeley, open to Spring + Summer 2027 co-ops.
               </p>
@@ -109,8 +112,8 @@ export function Hero() {
                 </Link>
                 <a
                   href={profile.resume}
-                  download
-                  rel="noopener"
+                  target="_blank"
+                  rel="noreferrer"
                   data-cursor="link"
                   className="group inline-flex items-center gap-2 rounded-full border border-white/45 px-5 py-3 text-sm font-medium text-white transition-colors duration-300 hover:border-signal hover:text-signal"
                 >
@@ -129,9 +132,9 @@ export function Hero() {
                 </a>
               </div>
 
-              <div className="mt-5 flex flex-wrap gap-2 font-mono text-xs uppercase tracking-widest">
+              <div className="mt-5 flex flex-wrap gap-2 font-mono text-[0.65rem] uppercase tracking-wider sm:text-xs sm:tracking-widest">
                 {profile.disciplines.map((d) => (
-                  <span key={d} className="rounded-full border border-white/30 px-3 py-2 text-white/90">
+                  <span key={d} className="rounded-full border border-white/30 px-2.5 py-1.5 text-white/90 sm:px-3 sm:py-2">
                     {d}
                   </span>
                 ))}

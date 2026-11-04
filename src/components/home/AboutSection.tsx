@@ -1,9 +1,11 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, ChevronDown } from "lucide-react";
 import { profile, education, aboutParagraphs, experience, leadership, awards, contact, type ExperienceEntry } from "../../data/profile";
 import { withBase } from "../../lib/withBase";
 import { SocialLinks } from "./SocialLinks";
+import { CopyEmail } from "../CopyEmail";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -31,6 +33,8 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 }
 
 function ExperienceRow({ exp }: { exp: ExperienceEntry }) {
+  // Phones show org, dates and role; the detail opens on tap. From sm up it's always shown.
+  const [open, setOpen] = useState(false);
   return (
     <div className="grid gap-2 py-6 sm:grid-cols-[1fr_2fr] sm:gap-8">
       <div>
@@ -39,6 +43,16 @@ function ExperienceRow({ exp }: { exp: ExperienceEntry }) {
       </div>
       <div>
         <p className="text-sm font-medium text-signal-ink">{exp.role}</p>
+        <button
+          type="button"
+          onClick={() => setOpen((o) => !o)}
+          aria-expanded={open}
+          className="mt-2 inline-flex items-center gap-1 py-1 font-mono text-xs uppercase tracking-wider text-ink-500 sm:hidden"
+        >
+          {open ? "Hide details" : "Details"}
+          <ChevronDown className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-180" : ""}`} aria-hidden />
+        </button>
+        <div className={open ? "block" : "hidden sm:block"}>
         <p className="mt-1.5 text-pretty text-sm leading-relaxed text-ink-700">{exp.blurb}</p>
         <div className="mt-3 flex flex-wrap items-center gap-2">
           {exp.tags?.map((t) => (
@@ -56,6 +70,7 @@ function ExperienceRow({ exp }: { exp: ExperienceEntry }) {
               <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
             </Link>
           )}
+        </div>
         </div>
       </div>
     </div>
@@ -129,9 +144,12 @@ export function AboutSection() {
           <SocialLinks className="mt-6" />
 
           <div className="mt-6 space-y-1 font-mono text-xs text-ink-500">
-            <a href={`mailto:${contact.email}`} data-cursor="link" className="block py-1 hover:text-signal-ink">
-              {contact.email}
-            </a>
+            <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
+              <a href={`mailto:${contact.email}`} data-cursor="link" className="block py-1 hover:text-signal-ink">
+                {contact.email}
+              </a>
+              <CopyEmail tone="light" className="px-2.5 py-1" />
+            </span>
             <a href={contact.phoneHref} data-cursor="link" className="block py-1 hover:text-signal-ink">
               {contact.phone}
             </a>

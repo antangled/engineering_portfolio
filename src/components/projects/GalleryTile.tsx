@@ -97,6 +97,11 @@ export function GalleryTile({
             <span className="rounded-full bg-night-900/85 px-2.5 py-1 font-mono text-[0.65rem] text-mist-dim">
               {String(index + 1).padStart(2, "0")}
             </span>
+            {project.badge && (
+              <span className="rounded-full bg-night-900/85 px-2.5 py-1 font-mono text-[0.65rem] text-mist">
+                {project.badge}
+              </span>
+            )}
             {project.status === "active" && (
               <span className="flex items-center gap-1.5 rounded-full bg-night-900/85 px-2.5 py-1 font-mono text-[0.65rem] text-mist-dim">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />

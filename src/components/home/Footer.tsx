@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import { profile, socialLinks, contact } from "../../data/profile";
+import { CopyEmail } from "../CopyEmail";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -22,14 +23,17 @@ export function Footer() {
           <p className="mt-5 max-w-xl text-pretty text-lg leading-relaxed text-mist-dim">
             I'm looking for a Spring + Summer 2027 co-op or internship in hardware, robotics or embedded systems.
           </p>
-          <a
-            href={`mailto:${contact.email}`}
-            data-cursor="link"
-            className="group mt-8 inline-flex items-center gap-3 text-xl text-mist transition-colors hover:text-signal sm:text-2xl"
-          >
-            {contact.email}
-            <ArrowUpRight className="h-5 w-5 transition-transform duration-300 group-hover:-translate-y-1 group-hover:translate-x-1" />
-          </a>
+          <div className="mt-8 flex flex-wrap items-center gap-4">
+            <a
+              href={`mailto:${contact.email}`}
+              data-cursor="link"
+              className="group inline-flex items-center gap-3 text-xl text-mist transition-colors hover:text-signal sm:text-2xl"
+            >
+              {contact.email}
+              <ArrowUpRight className="h-5 w-5 transition-transform duration-300 group-hover:-translate-y-1 group-hover:translate-x-1" />
+            </a>
+            <CopyEmail />
+          </div>
         </motion.div>
 
         <div className="mt-16 flex flex-wrap items-center gap-x-8 gap-y-3 border-t border-mist/10 pt-8">

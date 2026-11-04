@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, ArrowRight, ArrowUpRight, Play } from "lucide-react";
+import { ArrowLeft, ArrowRight, ArrowUpRight, Download, Linkedin, Mail, Play } from "lucide-react";
 import {
   getProject,
   adjacentProjects,
@@ -11,6 +11,9 @@ import {
 import { cn } from "../../lib/utils";
 import { ProjectGallery } from "./ProjectGallery";
 import { Lightbox } from "./Lightbox";
+import { CopyEmail } from "../CopyEmail";
+import { contact, profile, socialLinks } from "../../data/profile";
+import { usePageTitle } from "../../lib/usePageTitle";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -245,6 +248,7 @@ export function ProjectDetail() {
   const [lightbox, setLightbox] = useState<number | null>(null);
 
   useEffect(() => setLightbox(null), [slug]);
+  usePageTitle(project?.title ?? "Project not found");
 
   if (!project) {
     return (
@@ -266,6 +270,7 @@ export function ProjectDetail() {
   const media = project.media ?? [];
   // Cover first, then supporting media — one list shared by the gallery, build log and lightbox.
   const items: Media[] = [
+    ...(project.featureVideo ? [project.featureVideo] : []),
     ...(hasCover
       ? [
           {
@@ -278,10 +283,7 @@ export function ProjectDetail() {
       : []),
     ...media,
   ];
-  const mediaOffset = hasCover ? 1 : 0;
-  const reel = project.embedReel
-    ? `${project.embedReel.replace(/\/$/, "")}/embed`
-    : null;
+  const mediaOffset = (project.featureVideo ? 1 : 0) + (hasCover ? 1 : 0);
   const stats = project.stats ?? [];
   const hasStages = project.problem || project.approach || project.results;
 
@@ -355,7 +357,6 @@ export function ProjectDetail() {
           >
             <ProjectGallery
               items={items}
-              reel={reel}
               title={project.title}
               onOpen={setLightbox}
             />
@@ -431,23 +432,6 @@ export function ProjectDetail() {
           </Reveal>
         </div>
 
-        {/* Small screens: the reel lives here instead of in the gallery */}
-        {reel && (
-          <section className="mt-14 lg:hidden">
-            <Eyebrow>Watch it run</Eyebrow>
-            <div className="mx-auto mt-5 h-[560px] w-full max-w-[400px] overflow-hidden rounded-3xl border border-mist/10 bg-night-800">
-              <iframe
-                src={reel}
-                title={`${project.title} reel`}
-                loading="lazy"
-                allow="encrypted-media; clipboard-write; picture-in-picture; web-share"
-                allowFullScreen
-                className="h-full w-full"
-              />
-            </div>
-          </section>
-        )}
-
         {/* Build log: every image with a caption that says what it shows */}
         {media.length >= 2 && (
           <section className="mt-16">
@@ -513,10 +497,58 @@ export function ProjectDetail() {
           </section>
         )}
 
+        {/* Contact, so a convinced reader doesn't have to scroll back up */}
+        <Reveal>
+          <section
+            aria-labelledby="contact-me"
+            className="mt-20 flex flex-col gap-6 rounded-3xl border border-mist/10 bg-night-800/60 p-6 sm:p-8 lg:flex-row lg:items-center lg:justify-between"
+          >
+            <div>
+              <h2 id="contact-me" className="font-display text-2xl font-semibold tracking-tight">
+                Contact me
+              </h2>
+              <p className="mt-2 max-w-md text-pretty text-sm leading-relaxed text-mist-dim">
+                {profile.availability}.
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2.5">
+              <a
+                href={profile.resume}
+                target="_blank"
+                rel="noreferrer"
+                data-cursor="link"
+                className="inline-flex items-center gap-2 rounded-full bg-mist px-5 py-2.5 text-sm font-medium text-night-900 transition-colors hover:bg-signal hover:text-white"
+              >
+                <Download className="h-4 w-4" aria-hidden />
+                Resume
+              </a>
+              <a
+                href={`mailto:${contact.email}`}
+                data-cursor="link"
+                className="inline-flex items-center gap-2 rounded-full border border-mist/20 px-5 py-2.5 text-sm text-mist transition-colors hover:border-signal hover:text-signal"
+              >
+                <Mail className="h-4 w-4" aria-hidden />
+                {contact.email}
+              </a>
+              <CopyEmail />
+              <a
+                href={socialLinks.find((l) => l.kind === "linkedin")?.href}
+                target="_blank"
+                rel="noreferrer"
+                data-cursor="link"
+                className="inline-flex items-center gap-2 rounded-full border border-mist/20 px-5 py-2.5 text-sm text-mist transition-colors hover:border-signal hover:text-signal"
+              >
+                <Linkedin className="h-4 w-4" aria-hidden />
+                LinkedIn
+              </a>
+            </div>
+          </section>
+        </Reveal>
+
         {/* Keep going */}
         <nav
           aria-label="More projects"
-          className="mt-20 grid gap-4 border-t border-mist/10 pt-10 sm:grid-cols-2"
+          className="mt-10 grid gap-4 sm:grid-cols-2"
         >
           {prev ? <NeighborCard project={prev} dir="prev" /> : <span />}
           {next && <NeighborCard project={next} dir="next" />}
