@@ -78,15 +78,10 @@
   .paper-grid {
     background-color: #ecEEF1;
     background-image:
-      /* major rule every 4 cells — real graph paper has two line weights */
-      linear-gradient(to right, rgba(21, 23, 27, 0.055) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(21, 23, 27, 0.055) 1px, transparent 1px),
-      linear-gradient(to right, rgba(21, 23, 27, 0.028) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(21, 23, 27, 0.028) 1px, transparent 1px),
+      linear-gradient(to right, rgba(21, 23, 27, 0.032) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(21, 23, 27, 0.032) 1px, transparent 1px),
       radial-gradient(115% 70% at 50% 0%, rgba(255, 122, 69, 0.06), transparent 55%);
     background-size:
-      192px 192px,
-      192px 192px,
       48px 48px,
       48px 48px,
       100% 100%;

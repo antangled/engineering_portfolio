@@ -86,25 +86,9 @@ function Fact({ label, children }: { label: string; children: React.ReactNode })
   );
 }
 
-/** Faint drafting crop marks pinning the sheet's corners. */
-function CornerMarks() {
-  return (
-    <>
-      <span aria-hidden className="pointer-events-none absolute left-5 top-5 h-3.5 w-3.5 border-l border-t border-ink-900/20" />
-      <span aria-hidden className="pointer-events-none absolute right-5 top-5 h-3.5 w-3.5 border-r border-t border-ink-900/20" />
-      <span aria-hidden className="pointer-events-none absolute bottom-5 left-5 h-3.5 w-3.5 border-b border-l border-ink-900/20" />
-      <span aria-hidden className="pointer-events-none absolute bottom-5 right-5 h-3.5 w-3.5 border-b border-r border-ink-900/20" />
-    </>
-  );
-}
-
 export function AboutSection() {
   return (
-    <section id="about" className="mx-auto max-w-[1400px] scroll-mt-20 px-[5vw] py-24 lg:py-32">
-      {/* The sheet: a light drafting sheet laid over the page grid — the light
-          twin of the dark hero panel, so the page opens and closes on panels. */}
-      <div className="relative rounded-[2.5rem] border border-ink-900/10 bg-surface px-5 py-12 shadow-[0_1px_2px_rgba(21,23,27,0.04),0_32px_80px_-48px_rgba(21,23,27,0.22)] sm:px-8 lg:px-14 lg:py-16">
-        <CornerMarks />
+    <section id="about" className="mx-auto max-w-[1400px] px-[5vw] py-24 lg:py-32">
       <Reveal className="flex flex-wrap items-end justify-between gap-6">
         <div>
           <p className="font-mono text-xs uppercase tracking-[0.3em] text-signal-ink">About</p>
@@ -112,7 +96,7 @@ export function AboutSection() {
             Built to ship — from the gearbox to the field.
           </h2>
         </div>
-        <p className="inline-flex items-center gap-2.5 rounded-full border border-ink-900/10 bg-paper px-4 py-2 text-sm text-ink-700">
+        <p className="inline-flex items-center gap-2.5 rounded-full border border-ink-900/10 bg-surface px-4 py-2 text-sm text-ink-700">
           <span className="relative flex h-2 w-2">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
             <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
@@ -147,8 +131,7 @@ export function AboutSection() {
           <p className="mt-1 text-sm text-ink-500">{profile.role}</p>
           <p className="mt-5 text-pretty leading-relaxed text-ink-700">{profile.bio}</p>
 
-          {/* Title block — the ruled spec cells of an engineering drawing */}
-          <dl className="mt-6 divide-y divide-ink-900/10 rounded-2xl border border-ink-900/10 bg-paper px-4">
+          <dl className="mt-6 divide-y divide-ink-900/10 border-y border-ink-900/10">
             <Fact label="Education">
               {education.degree}, {education.school} · {education.minor} · {education.graduation}
             </Fact>
@@ -178,15 +161,7 @@ export function AboutSection() {
           <div className="space-y-5">
             {aboutParagraphs.map((p, i) => (
               <Reveal key={i} delay={i * 0.05}>
-                <p
-                  className={
-                    i === 0
-                      ? "text-pretty text-xl leading-relaxed text-ink-900"
-                      : "text-pretty text-lg leading-relaxed text-ink-700"
-                  }
-                >
-                  {p}
-                </p>
+                <p className="text-pretty text-lg leading-relaxed text-ink-700">{p}</p>
               </Reveal>
             ))}
           </div>
@@ -215,7 +190,7 @@ export function AboutSection() {
               {awards.map((a) => (
                 <li
                   key={a}
-                  className="flex items-start gap-3 rounded-2xl border border-ink-900/10 bg-paper px-4 py-3 text-sm text-ink-700"
+                  className="flex items-start gap-3 rounded-2xl border border-ink-900/10 bg-surface px-4 py-3 text-sm text-ink-700"
                 >
                   <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-signal" />
                   {a}
@@ -224,7 +199,6 @@ export function AboutSection() {
             </ul>
           </Reveal>
         </div>
-      </div>
       </div>
     </section>
   );
