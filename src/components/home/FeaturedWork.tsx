@@ -6,7 +6,7 @@ import { getProjects, type Project } from "../../data/projects";
 const ease = [0.22, 1, 0.36, 1] as const;
 
 // Anchor first, then a couple of strong supporting builds.
-const FEATURED_SLUGS = ["internal-cycloidal-actuator", "polysynth-x", "biodiversity-sensing-module", "oski-leases"];
+const FEATURED_SLUGS = ["internal-cycloidal-actuator", "envoy", "polysynth-x", "biodiversity-sensing-module"];
 
 function featured(): Project[] {
   const all = [...getProjects("hardware"), ...getProjects("software")];

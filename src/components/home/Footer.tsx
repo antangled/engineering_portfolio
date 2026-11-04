@@ -19,6 +19,9 @@ export function Footer() {
           <h2 className="mt-4 max-w-3xl text-balance font-display text-[clamp(2.4rem,7vw,5.5rem)] font-semibold leading-[0.95] tracking-tight">
             Let's build something that matters.
           </h2>
+          <p className="mt-5 max-w-xl text-pretty text-lg leading-relaxed text-mist-dim">
+            I'm looking for a Spring + Summer 2027 co-op or internship in hardware, robotics or embedded systems.
+          </p>
           <a
             href={`mailto:${contact.email}`}
             data-cursor="link"

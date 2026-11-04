@@ -9,9 +9,19 @@ export const profile = {
   disciplines: ["Mechatronics", "Embedded Systems", "Sustainability"],
   location: "Berkeley, CA",
   // Concise sticky-column bio — recruiters skim; keep it 2–3 sentences.
-  // (Deliberately distinct from the hero supporting line — no overlap.)
-  bio: "EECS at UC Berkeley. Right now I lead hardware for a solar-powered field sensor and Berkeley's solar race car — and build my own actuators and software in between.",
+  bio: "EECS at UC Berkeley. I design and build hardware end to end — actuators, sensor nodes, RF systems — and write the software that runs it.",
+  availability: "Open to Spring + Summer 2027 co-ops and internships (up to 8 months)",
   resume: withBase("/AdamTang_Resume.pdf"),
+};
+
+export const education = {
+  school: "UC Berkeley",
+  degree: "B.S. Electrical Engineering and Computer Sciences",
+  minor: "Minor in Bioengineering",
+  gpa: "3.91 / 4.00",
+  graduation: "May 2028",
+  honors: "Tau Beta Pi · Eta Kappa Nu (IEEE-HKN)",
+  coursework: "EECS 16A/B (signals, circuits) · CS 61C (computer architecture, C) · CS 61A (Python)",
 };
 
 export type SocialLink = {
@@ -39,9 +49,9 @@ export const contact = {
 
 // Long-form about, broken into skimmable paragraphs.
 export const aboutParagraphs: string[] = [
-  "I study EECS at UC Berkeley (minor: Bioengineering). I lead engineering for Echeverri Lab's solar-powered Biodiversity Sensing Module — a satellite-IoT wildlife tracker built to survive the field — and run solar-array integration for CalSol's 11th-gen race car.",
-  "I lead as much as I build. I took MUREX's 6-DOF underwater ROV to a 6th-place World Finals finish as mechanical lead, and led a compact aquaponics unit with real-time ammonia/pH sensing that's now a permanent food source for our dining hall.",
-  "The throughline: customer-centric, system-level, sustainable builds. My environmental-tech research has been recognized by NASA, the EPA, and ISEF — and I represented it as a youth delegate at COP28 in Dubai.",
+  "I'm an EECS student at UC Berkeley who likes building things that move, sense and run on their own. Right now that's Kinema, a 6-DOF camera arm built on cycloidal actuators I designed, and BEACN, where I lead a team evaluating battery storage for a multi-hundred-site rollout.",
+  "Most recently I interned at Eldaeon, an RF-sensing startup, building the drone-detection pipeline, antenna mount and power plan for a passive radar node. Before Berkeley, I was mechanical lead on MUREX, whose ROV placed 6th in the world at MATE 2024.",
+  "Outside engineering, I founded a climate nonprofit that became a UNFCCC observer organization and sent me to COP28 in Dubai as a U.S. youth delegate. I'm looking for an engineering co-op or internship for Spring and Summer 2027.",
 ];
 
 export type ExperienceEntry = {
@@ -50,67 +60,83 @@ export type ExperienceEntry = {
   period: string;
   blurb: string;
   tags?: string[];
+  /** Project page to link to, if there is one. */
+  slug?: string;
 };
 
 export const experience: ExperienceEntry[] = [
   {
     org: "Eldaeon",
-    role: "Embedded / Mechatronics Intern",
-    period: "2025 — Present",
+    role: "Embedded Systems & Hardware Integration Intern",
+    period: "Dec 2025 — Aug 2026",
     blurb:
-      "Build low-cost passive-radar hardware and custom SDR signal-processing pipelines for wide-area detection and tracking using ambient RF signals.",
-    tags: ["Embedded", "RF", "Signal Processing"],
+      "Built a real-time drone-detection pipeline on Raspberry Pi that cross-correlates RF Doppler returns with ADS-B and AIS tracks, designed a self-calibrating antenna pan-tilt, and wrote a power-sequencing daemon that cut projected draw 30.2% to fit a 15.4 W PoE budget.",
+    tags: ["Python", "Raspberry Pi", "SDR", "Mechanism design"],
+    slug: "eldaeon-passive-radar-system",
   },
   {
-    org: "Echeverri Lab — UC Berkeley",
-    role: "Lead Hardware Engineer",
-    period: "2024 — Present",
+    org: "BEACN — UC Berkeley consulting",
+    role: "Technical Project Manager & Systems Modeling Engineer",
+    period: "Feb 2026 — Present",
     blurb:
-      "Lead the embedded + power design of a solar-powered, satellite-IoT biodiversity sensor deployed autonomously in the field, running on-device AI for species classification.",
-    tags: ["Embedded", "Power Electronics", "Edge AI"],
+      "Lead a 5-person team evaluating LFP, NMC and sodium-ion battery storage for GridPoint's multi-hundred-site rollout. Built a statistical energy model and GIS analysis that set efficiency targets against PUE for data-center firm Vigilent, and the club's outreach tooling.",
+    tags: ["Energy modeling", "GIS", "Battery storage", "Team lead"],
+    slug: "beacn-outreach",
   },
   {
-    org: "CalSol — Berkeley Solar Vehicle Team",
-    role: "Solar Engineer",
-    period: "2025 — Present",
+    org: "CalSol — Berkeley Solar Racing",
+    role: "Solar Engineering Project Manager",
+    period: "Sep 2025 — May 2026",
     blurb:
-      "Optimize solar-array layout, telemetry, and bypass-diode placement for the 11th-gen race car — raised partial-shade output by 12%.",
-    tags: ["Solar", "Telemetry", "Simulation"],
+      "Designed the solar array and bypass-diode layout for a projected +12% partial-shade efficiency gain, and the MPPT charge-controller enclosures in SolidWorks.",
+    tags: ["Solar", "MPPT", "SolidWorks"],
+    slug: "solar-array-optimization",
   },
   {
-    org: "MUREX Underwater Robotics",
-    role: "Mechanical Team Lead",
-    period: "2021 — 2023",
+    org: "MUREX Exeter — MATE ROV",
+    role: "Mechanical Lead",
+    period: "Nov 2021 — Jun 2024",
     blurb:
-      "Led mechanical design of a 6-DOF competition ROV to a 6th-place finish at the World Finals.",
-    tags: ["CAD", "Robotics", "Leadership"],
+      "Led a 6-person team building a 6-DOF underwater ROV and 7-DOF manipulator. Cut manufacturing cost 88% by moving outsourced parts to in-house CNC machining and 3D printing; placed 6th globally at MATE 2024 and set 10 records.",
+    tags: ["CAD", "CNC", "Robotics", "Leadership"],
   },
 ];
 
+export const leadership: ExperienceEntry = {
+  org: "Innovation Towards the Future",
+  role: "Founder & President — climate nonprofit",
+  period: "Sep 2020 — Jun 2025",
+  blurb:
+    "Founded and ran the organization for five years: admitted as a UNFCCC observer organization, 3+ corporate partnerships, and selected from 5,000 applicant NGOs as a U.S. youth delegate to COP28 in Dubai.",
+};
+
 export type SkillGroup = { title: string; items: string[] };
 
+// Mirrors the resume's skills block — every item is backed by a project or role on this site.
 export const skillGroups: SkillGroup[] = [
   {
-    title: "Mechanical / CAD",
-    items: ["Onshape", "Fusion 360", "SolidWorks", "ANSYS", "DFM / Tolerancing"],
+    title: "Mechanical",
+    items: ["SolidWorks", "Fusion 360", "Onshape", "FEA", "Tolerance stack-ups", "Actuator design", "Compliant mechanisms", "DFM / DFA"],
   },
   {
-    title: "Electrical / Embedded",
-    items: ["KiCad PCB", "ARM Cortex-M", "ESP32", "Power Electronics", "C / C++"],
+    title: "Electrical",
+    items: ["KiCad PCB design", "Board bring-up", "Analog signal conditioning", "BLDC drivers", "Encoders", "SDR", "MPPT"],
   },
   {
-    title: "Software / Tools",
-    items: ["Python", "TypeScript / React", "MATLAB", "Signal Processing", "Edge AI"],
+    title: "Embedded & software",
+    items: ["C++", "Python", "Java", "Verilog", "TypeScript / React", "STM32H7", "ESP32-S3", "Raspberry Pi", "Real-time DSP", "AWS"],
   },
   {
-    title: "Fabrication",
-    items: ["3D Printing", "CNC Machining", "Soldering / Rework", "Rapid Prototyping"],
+    title: "Fabrication & test",
+    items: ["CNC machining", "3D printing", "Rapid prototyping", "Assembly", "Bench and field testing", "Power budgeting"],
   },
 ];
 
 export const awards: string[] = [
-  "NASA — environmental-tech research award",
-  "U.S. EPA — research recognition",
-  "ISEF — international science & engineering fair",
-  "COP28 — youth delegate, UN Climate Conference (Dubai)",
+  "Winner, Best Enterprise Reinvention — Berkeley SCET Innovation Intelligence Hackathon (2026)",
+  "Tau Beta Pi and Eta Kappa Nu (IEEE-HKN) engineering honor societies (2026)",
+  "$1.5k Jacobs Ignite grant and CubeMars sponsorship for Kinema",
+  "6th globally at MATE 2024 with MUREX",
+  "U.S. youth delegate, COP28 (Dubai)",
+  "Research recognized by NASA, the EPA and ISEF",
 ];

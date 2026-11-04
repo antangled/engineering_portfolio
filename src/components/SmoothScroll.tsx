@@ -20,6 +20,9 @@ export function SmoothScroll({ children }: { children: React.ReactNode }) {
       touchMultiplier: 1.6,
     });
 
+    // Exposed so overlays (the project lightbox) can pause page scrolling.
+    window.__lenis = lenis;
+
     let raf = 0;
     const loop = (time: number) => {
       lenis.raf(time);
@@ -30,6 +33,7 @@ export function SmoothScroll({ children }: { children: React.ReactNode }) {
     return () => {
       cancelAnimationFrame(raf);
       lenis.destroy();
+      window.__lenis = undefined;
     };
   }, []);
 
