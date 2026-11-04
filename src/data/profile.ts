@@ -21,7 +21,7 @@ export const education = {
   gpa: "3.91 / 4.00",
   graduation: "May 2028",
   honors: "Tau Beta Pi · Eta Kappa Nu (IEEE-HKN)",
-  coursework: "EECS 16A/B (signals, circuits) · CS 61C (computer architecture, C) · CS 61A (Python)",
+  coursework: "EECS 16B (circuits, LTspice) · EECS 16A (signals) · CS 61C (computer architecture, C) · CS 61A (Python)",
 };
 
 export type SocialLink = {
