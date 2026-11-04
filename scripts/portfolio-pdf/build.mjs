@@ -126,8 +126,7 @@ const kinema = `
     ${head(k, "Hardware lead · with Jacob Leung (software and ML) · SolidWorks · FEA · tolerance stack-ups · CNC machining · 3D printing · BLDC control")}
     <div class="kgrid">
       ${fig("images/projects/Cycloidal/cycloidal-main.jpg", "Shoulder-joint prototype with the mjbots moteus controller on the rear housing.", "big")}
-      ${fig("images/projects/Cycloidal/cycloidal-exploded.jpg", "Exploded CAD: housing, cycloidal discs, eccentric cam, cross-roller output bearing.", "white")}
-      ${fig("images/projects/Cycloidal/cycloidal-v2-cad.jpg", "Actuator v2 in CAD, output flange in orange.", "white")}
+      ${fig("images/projects/Cycloidal/cycloidal-exploded.jpg", "Exploded CAD: housing, cycloidal discs, eccentric cam, cross-roller output bearing.", "white wide")}
       ${fig("images/projects/Cycloidal/cycloidal-proto-v2.jpg", "Prototype v2, assembled.")}
       <a class="video" href="${url(k.slug)}" style="background-image:url('${img("images/projects/Cycloidal/cycloidal-plays-poster.jpg")}')"><span>▶ Watch it run (with sound)</span></a>
     </div>
@@ -292,6 +291,7 @@ figcaption { position: absolute; left: 6px; right: 6px; bottom: 6px; font-size: 
 /* kinema */
 .kgrid { display: grid; grid-template-columns: 1.55fr 1fr 1fr; grid-template-rows: 2.3in 2.3in; gap: 7px; margin-top: 10px; }
 .kgrid .big { grid-row: span 2; }
+.kgrid .wide { grid-column: span 2; }
 .video { position: relative; border-radius: 10px; overflow: hidden; background-size: cover; background-position: center; display: flex; align-items: flex-end; border: 1px solid var(--line); }
 .video span { margin: 6px; background: var(--ink); color: #fff; font: 500 7pt 'JetBrains Mono', monospace; padding: 4px 8px; border-radius: 99px; }
 .full .stats { margin-top: 10px; } .full .stats dt { font-size: 18pt; }

@@ -131,14 +131,6 @@ const hardware: Project[] = [
       },
       {
         type: "image",
-        src: withBase("/images/projects/Cycloidal/cycloidal-v2-cad.jpg"),
-        label: "v2 CAD",
-        fit: "contain",
-        onWhite: true,
-        caption: "Actuator v2 in CAD: the redesigned housing, with the output flange in orange.",
-      },
-      {
-        type: "image",
         src: withBase("/images/projects/Cycloidal/cycloidal-proto-v2.jpg"),
         label: "Prototype v2",
         caption: "Prototype v2, assembled: the next housing iteration after the white print.",
