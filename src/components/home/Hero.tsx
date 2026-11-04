@@ -86,7 +86,7 @@ export function Hero() {
             <h1 className="font-display text-[clamp(2.8rem,7vw,6rem)] font-semibold leading-[0.92] tracking-[-0.03em]">
               <Line delay={0.05}>I build</Line>
               <Line delay={0.14}>
-                machines<span className="text-signal">.</span>
+                products<span className="text-signal">.</span>
               </Line>
             </h1>
 

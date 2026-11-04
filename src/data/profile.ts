@@ -3,7 +3,7 @@ import { withBase } from "../lib/withBase";
 export const profile = {
   name: "Adam Tang",
   // Pop-out hero line (Julien-style) + scannable role subtitle.
-  heroLine: "I build machines.",
+  heroLine: "I build products.",
   role: "Mechatronics & Embedded Systems Engineer",
   affiliation: "UC Berkeley · EECS",
   disciplines: ["Mechatronics", "Embedded Systems", "Sustainability"],
