@@ -501,45 +501,47 @@ export function ProjectDetail() {
         <Reveal>
           <section
             aria-labelledby="contact-me"
-            className="mt-20 flex flex-col gap-6 rounded-3xl border border-mist/10 bg-night-800/60 p-6 sm:p-8 lg:flex-row lg:items-center lg:justify-between"
+            className="mt-16 flex flex-col gap-4 rounded-2xl border border-mist/10 bg-night-800/60 px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
           >
-            <div>
-              <h2 id="contact-me" className="font-display text-2xl font-semibold tracking-tight">
+            <p className="text-sm text-mist-dim">
+              <span id="contact-me" className="mr-2 font-display text-base font-semibold text-mist">
                 Contact me
-              </h2>
-              <p className="mt-2 max-w-md text-pretty text-sm leading-relaxed text-mist-dim">
-                {profile.availability}.
-              </p>
-            </div>
-            <div className="flex flex-wrap items-center gap-2.5">
+              </span>
+              Open to Spring + Summer 2027 co-ops.
+            </p>
+            <div className="flex items-center gap-2">
               <a
                 href={profile.resume}
                 target="_blank"
                 rel="noreferrer"
                 data-cursor="link"
-                className="inline-flex items-center gap-2 rounded-full bg-mist px-5 py-2.5 text-sm font-medium text-night-900 transition-colors hover:bg-signal hover:text-white"
+                className="inline-flex h-9 items-center gap-1.5 rounded-full bg-mist px-4 text-sm font-medium text-night-900 transition-colors hover:bg-signal hover:text-white"
               >
-                <Download className="h-4 w-4" aria-hidden />
+                <Download className="h-3.5 w-3.5" aria-hidden />
                 Resume
               </a>
-              <a
-                href={`mailto:${contact.email}`}
-                data-cursor="link"
-                className="inline-flex items-center gap-2 rounded-full border border-mist/20 px-5 py-2.5 text-sm text-mist transition-colors hover:border-signal hover:text-signal"
-              >
-                <Mail className="h-4 w-4" aria-hidden />
-                {contact.email}
-              </a>
-              <CopyEmail />
+              <span className="inline-flex h-9 min-w-0 items-center rounded-full border border-mist/15">
+                <a
+                  href={`mailto:${contact.email}`}
+                  title={contact.email}
+                  data-cursor="link"
+                  className="flex h-full min-w-0 items-center gap-1.5 pl-3.5 pr-2.5 text-sm text-mist transition-colors hover:text-signal"
+                >
+                  <Mail className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                  <span className="truncate">Email</span>
+                </a>
+                <span className="h-4 w-px bg-mist/15" aria-hidden />
+                <CopyEmail iconOnly />
+              </span>
               <a
                 href={socialLinks.find((l) => l.kind === "linkedin")?.href}
                 target="_blank"
                 rel="noreferrer"
                 data-cursor="link"
-                className="inline-flex items-center gap-2 rounded-full border border-mist/20 px-5 py-2.5 text-sm text-mist transition-colors hover:border-signal hover:text-signal"
+                aria-label="LinkedIn"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-mist/15 text-mist transition-colors hover:border-signal hover:text-signal"
               >
                 <Linkedin className="h-4 w-4" aria-hidden />
-                LinkedIn
               </a>
             </div>
           </section>

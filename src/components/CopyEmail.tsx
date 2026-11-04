@@ -7,7 +7,16 @@ import { cn } from "../lib/utils";
  * Copies the email address to the clipboard. A mailto: link does nothing for people
  * who read mail in a browser without a default mail app, so this sits beside it.
  */
-export function CopyEmail({ className, tone = "dark" }: { className?: string; tone?: "dark" | "light" }) {
+export function CopyEmail({
+  className,
+  tone = "dark",
+  iconOnly = false,
+}: {
+  className?: string;
+  tone?: "dark" | "light";
+  /** Bare icon button, for sitting inside another pill. */
+  iconOnly?: boolean;
+}) {
   const [copied, setCopied] = useState(false);
   const copy = async () => {
     try {
@@ -23,6 +32,25 @@ export function CopyEmail({ className, tone = "dark" }: { className?: string; to
     setCopied(true);
     window.setTimeout(() => setCopied(false), 1800);
   };
+  const icon = copied ? <Check className="h-3.5 w-3.5" aria-hidden /> : <Copy className="h-3.5 w-3.5" aria-hidden />;
+  if (iconOnly) {
+    return (
+      <button
+        type="button"
+        onClick={copy}
+        data-cursor="link"
+        title={copied ? "Copied" : "Copy email"}
+        aria-label={copied ? "Email address copied" : `Copy email address ${contact.email}`}
+        className={cn(
+          "flex h-full items-center px-3 transition-colors",
+          copied ? "text-emerald-400" : "text-mist-dim hover:text-signal",
+          className
+        )}
+      >
+        {icon}
+      </button>
+    );
+  }
   return (
     <button
       type="button"
@@ -37,7 +65,7 @@ export function CopyEmail({ className, tone = "dark" }: { className?: string; to
         className
       )}
     >
-      {copied ? <Check className="h-3.5 w-3.5" aria-hidden /> : <Copy className="h-3.5 w-3.5" aria-hidden />}
+      {icon}
       <span aria-live="polite">{copied ? "Copied" : "Copy"}</span>
     </button>
   );
