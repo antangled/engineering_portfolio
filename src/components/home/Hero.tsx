@@ -50,16 +50,16 @@ function Products({ reduced, light }: { reduced: boolean; light?: boolean }) {
 }
 
 /**
- * Four builds pinned around the portrait like prints on a board: each tilted,
- * gently bobbing, straightening and lifting on hover (clip plays). Positions
+ * Two builds pinned around the portrait like prints: the cycloidal actuator
+ * (its clip looping) on the left, the MATE ROV top right. Tilted, gently
+ * bobbing, straightening and lifting on hover. Positions
  * come from the hero's CSS geometry (.hero-float--*), so they sit in the open
  * space around the photo and words at every width without resizing either.
  */
-const FLOATS: { slot: "l1" | "l2" | "r1" | "r2"; slug: string; label: string }[] = [
-  { slot: "l1", slug: "internal-cycloidal-actuator", label: "Cycloidal actuator" },
+const FLOATS: { slot: "l1" | "r1"; slug: string; label: string; video?: boolean }[] = [
+  // left: the actuator on its own, its clip looping whenever it's on screen
+  { slot: "l1", slug: "internal-cycloidal-actuator", label: "Cycloidal actuator", video: true },
   { slot: "r1", slug: "murex-rov", label: "MATE ROV" },
-  { slot: "l2", slug: "biodiversity-sensing-module", label: "Biodiversity sensor" },
-  { slot: "r2", slug: "eldaeon-passive-radar-system", label: "Eldaeon passive radar" },
 ];
 
 function FloatCard({ f, i, reduced }: { f: (typeof FLOATS)[number]; i: number; reduced: boolean }) {
@@ -86,7 +86,7 @@ function FloatCard({ f, i, reduced }: { f: (typeof FLOATS)[number]; i: number; r
           className="hero-float-card group"
         >
           <img src={b.src} alt="" width={640} height={480} decoding="async" draggable={false} />
-          {b.clip && <HoverClip src={b.clip} active={hot} />}
+          {b.clip && (f.video ? <HoverClip src={b.clip} mode="inview" /> : <HoverClip src={b.clip} active={hot} />)}
           <span className="hero-float-label">
             {b.clip && <Play aria-hidden className="h-2.5 w-2.5 shrink-0 fill-current" />}
             {f.label}

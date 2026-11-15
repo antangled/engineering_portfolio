@@ -676,12 +676,10 @@ html.lenis-scrolling [data-scroll-inert] {
 
 
 /* ---- Hero floating builds (Hero.tsx FloatCard) ------------------------------
-   Four tilted prints in the open space around the portrait; desktop only.
+   Tilted prints in the open space around the portrait; desktop only.
    Positions use the hero geometry (--F, --pw, --ph, --by, --py, --d):
-     l1  large, under "I build", tilted left
-     l2  smaller, overlapping l1's corner near the photo's bottom-left
-     r1  above "products.", clear of its letter tops (py + 0.10F)
-     r2  under the end of "products.", clear of its descender (py + 0.94F) */
+     l1  the actuator video, alone under "I build", tilted left
+     r1  above "products.", clear of its letter tops (py + 0.10F) */
 .hero-float {
   display: none;
 }
@@ -691,30 +689,20 @@ html.lenis-scrolling [data-scroll-inert] {
     position: absolute;
     z-index: 5;
   }
+  /* alone on the left: larger, centred in the space under "I build"
+     (from its baseline, 0.77F down, to the photo's bottom) */
   .hero-float--l1 {
-    --rot: -7deg;
-    width: calc(var(--F) * 1.45);
-    left: calc(50% - var(--pw) / 2 - var(--g) - var(--F) * 2.2);
-    top: calc(var(--by) + var(--F) * 1.25);
-  }
-  .hero-float--l2 {
-    --rot: 4deg;
-    z-index: 6;
-    width: var(--F);
-    right: calc(50% + var(--pw) / 2 + var(--g) * 1.5);
-    top: calc(var(--ph) - var(--F) * 0.87);
+    --rot: -6deg;
+    --w: calc(var(--F) * 1.75);
+    width: var(--w);
+    left: calc(50% - var(--pw) / 2 - var(--g) - var(--F) * 1.25 - var(--w) / 2);
+    top: calc((var(--by) + var(--F) * 0.77 + var(--ph) - var(--w) * 0.75) / 2);
   }
   .hero-float--r1 {
     --rot: 6deg;
     width: calc(var(--F) * 1.35);
     left: calc(50% + var(--pw) / 2 + var(--F) * 0.85);
     top: calc(var(--by) - var(--F) * 0.18);
-  }
-  .hero-float--r2 {
-    --rot: -5deg;
-    width: var(--F);
-    left: calc(50% + var(--d) + var(--F) * 3.4);
-    top: calc(var(--py) + var(--F) + var(--g));
   }
 }
 .hero-float-bob {
