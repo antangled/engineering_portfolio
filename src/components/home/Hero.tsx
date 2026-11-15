@@ -136,6 +136,19 @@ export function Hero() {
             <div aria-hidden className="hero-photo-scrim" />
           </motion.div>
           <Products reduced={reduced} light />
+
+          {/* scroll cue, inside the photo near its bottom edge */}
+          <motion.div aria-hidden style={{ opacity: cueOpacity }} className="hero-cue pointer-events-none absolute inset-x-0 bottom-[4%] z-[3] flex justify-center">
+            <motion.span
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: DUR.slow, ease: EASE, delay: T.cue }}
+              className="flex flex-col items-center gap-2 font-mono text-[0.68rem] uppercase tracking-[0.25em] text-white/90 [text-shadow:0_1px_8px_rgba(0,0,0,0.4)]"
+            >
+              Scroll
+              <span className="scroll-cue" />
+            </motion.span>
+          </motion.div>
         </div>
       </div>
 
@@ -180,18 +193,6 @@ export function Hero() {
         </a>
       </Rise>
 
-      {/* scroll cue, centred under the buttons */}
-      <motion.div aria-hidden style={{ opacity: cueOpacity }} className="pointer-events-none mt-6 hidden lg:block">
-        <motion.span
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: DUR.slow, ease: EASE, delay: T.cue }}
-          className="flex flex-col items-center gap-2 font-mono text-[0.68rem] uppercase tracking-[0.25em] text-ink-700"
-        >
-          Scroll
-          <span className="scroll-cue" />
-        </motion.span>
-      </motion.div>
     </section>
   );
 }

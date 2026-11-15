@@ -483,7 +483,7 @@ html.lenis-scrolling [data-scroll-inert] {
    Word widths in Clash Display at -0.04em: "I build" 2.50em, "products." 4.55em.
    Phones: "I build" sits above the photo, "products." crosses it, centred. */
 .hero-stage {
-  --pw: min(52vw, 320px);
+  --pw: min(62vw, 340px);
   --ph: calc(var(--pw) / 0.58);
   --g: 0.75rem;
   --F: min(15.5vw, 6rem);
@@ -495,8 +495,8 @@ html.lenis-scrolling [data-scroll-inert] {
 }
 @media (min-width: 1024px) {
   .hero-stage {
-    /* leaves room under the photo for caption, buttons and the scroll cue */
-    --ph: min(calc(100svh - 20.5rem), 64svh, 640px);
+    /* as tall as the screen allows, leaving room under it for caption + buttons */
+    --ph: min(calc(100svh - 15.75rem), 780px);
     --pw: calc(var(--ph) * 0.58);
     --g: clamp(0.75rem, 1.2vw, 1.5rem);
     /* "I build" + gap + half the photo fill ~45% of the page on the left; the
@@ -581,10 +581,13 @@ html.lenis-scrolling [data-scroll-inert] {
 .hero-name::after {
   content: "";
   position: absolute;
+  z-index: -1;
   left: 0;
   right: 0;
-  bottom: -0.1em;
-  height: max(2px, 0.07em);
+  /* just under the baseline (0.82em down in a line-height-1 box for Clash
+     Display), so the loop of the "g" dips into it */
+  top: 0.87em;
+  height: max(2px, 0.075em);
   border-radius: 999px;
   background: var(--color-signal);
   transform-origin: left center;
@@ -638,6 +641,15 @@ html.lenis-scrolling [data-scroll-inert] {
   position: absolute;
   inset: 0;
   background: var(--color-ink-900);
+}
+/* white version, inside the photo */
+.hero-cue .scroll-cue {
+  background: rgba(255, 255, 255, 0.3);
+}
+.hero-cue .scroll-cue::after {
+  background: #fff;
+}
+.scroll-cue::after {
   animation: scroll-cue 2s var(--ease-expo) infinite;
 }
 @keyframes scroll-cue {
