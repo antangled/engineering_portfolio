@@ -23,13 +23,15 @@ import { Linkedin } from "../icons/Linkedin";
  *   300 ms  the name rises in above "I build"
  *   450 ms  "I build" slides out of the photo's left edge
  *   600 ms  "products." rises into its line (both copies, same timing)
- *  1000 ms  caption, then buttons; the scroll cue last
+ *  1000 ms  caption, then buttons
+ *  1450 ms  the two prints are tossed in (left, then top right) and land with a wobble
+ *  2400 ms  scroll cue
  *
  * Every animation is a transform / clip-path / opacity string, so Motion runs it
  * on WAAPI (compositor).
  */
 
-const T = { photo: 0, name: 0.3, cards: 0.85, cardStep: 0.09, build: 0.45, products: 0.6, caption: 1.0, buttons: 1.1, cue: 1.6 };
+const T = { photo: 0, name: 0.3, cards: 1.45, cardStep: 0.22, build: 0.45, products: 0.6, caption: 1.0, buttons: 1.1, cue: 2.4 };
 
 function Products({ reduced, light }: { reduced: boolean; light?: boolean }) {
   return (
@@ -62,6 +64,30 @@ const FLOATS: { slot: "l1" | "r1"; slug: string; label: string; video?: boolean 
   { slot: "r1", slug: "murex-rov", label: "MATE ROV" },
 ];
 
+/**
+ * "Toss and land": after the caption and buttons settle, each print is flung in
+ * from off screen, spinning as it flies, overshoots its resting tilt, wobbles
+ * once and settles (then the idle bob takes over). Transform strings only, so
+ * Motion runs them on WAAPI. The card's own tilt (--rot) sits on an inner
+ * element, so these angles are on top of it.
+ */
+const TOSS: Record<(typeof FLOATS)[number]["slot"], string[]> = {
+  l1: [
+    "translate(-55vw, 35vh) rotate(-38deg) scale(0.85)",
+    "translate(0vw, 0vh) rotate(7deg) scale(1.05)",
+    "translate(0vw, 0vh) rotate(-3deg) scale(0.98)",
+    "translate(0vw, 0vh) rotate(1deg) scale(1.01)",
+    "translate(0vw, 0vh) rotate(0deg) scale(1)",
+  ],
+  r1: [
+    "translate(40vw, -45vh) rotate(42deg) scale(0.85)",
+    "translate(0vw, 0vh) rotate(-8deg) scale(1.05)",
+    "translate(0vw, 0vh) rotate(3deg) scale(0.98)",
+    "translate(0vw, 0vh) rotate(-1deg) scale(1.01)",
+    "translate(0vw, 0vh) rotate(0deg) scale(1)",
+  ],
+};
+
 function FloatCard({ f, i, reduced }: { f: (typeof FLOATS)[number]; i: number; reduced: boolean }) {
   const [hot, setHot] = useState(false);
   const b = buildStrip.find((x) => x.slug === f.slug)!;
@@ -69,9 +95,13 @@ function FloatCard({ f, i, reduced }: { f: (typeof FLOATS)[number]; i: number; r
     <motion.div
       data-reveal
       className={`hero-float hero-float--${f.slot}`}
-      initial={reduced ? { opacity: 0 } : { opacity: 0, transform: "translateY(28px) scale(0.9)" }}
-      animate={reduced ? { opacity: 1 } : { opacity: 1, transform: "translateY(0px) scale(1)" }}
-      transition={{ duration: DUR.slow, ease: EASE, delay: T.cards + i * T.cardStep }}
+      initial={reduced ? { opacity: 0 } : { opacity: 0, transform: TOSS[f.slot][0] }}
+      animate={reduced ? { opacity: 1 } : { opacity: [0, 1, 1, 1, 1], transform: TOSS[f.slot] }}
+      transition={
+        reduced
+          ? { duration: DUR.slow, ease: EASE, delay: T.cards + i * T.cardStep }
+          : { duration: 1.15, times: [0, 0.6, 0.78, 0.9, 1], ease: [EASE, "easeInOut", "easeInOut", "easeOut"], delay: T.cards + i * T.cardStep }
+      }
     >
       <div className="hero-float-bob" style={{ animationDelay: `${-i * 1.7}s` }}>
         <Link
@@ -128,7 +158,7 @@ export function Hero() {
   const cueOpacity = useTransform(scrollY, [0, 120], [1, 0]);
 
   return (
-    <section className="hero relative flex min-h-[100svh] flex-col items-center px-[4vw] pb-24 pt-24 lg:pt-[5.5rem]">
+    <section className="hero relative flex overflow-x-clip min-h-[100svh] flex-col items-center px-[4vw] pb-24 pt-24 lg:pt-[5.5rem]">
       <h1 className="sr-only">I build products.</h1>
 
       <div className="hero-stage relative w-full">
