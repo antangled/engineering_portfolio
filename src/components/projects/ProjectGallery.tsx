@@ -1,0 +1,287 @@
+import { useState, type CSSProperties } from "react";
+import { Play, Volume2, VolumeX } from "lucide-react";
+import type { Media } from "../../data/projects";
+import { cn } from "../../lib/utils";
+
+type Placement = { gridColumn: string; gridRow: string };
+
+/** Where each small tile sits beside the main image, by how many are visible (4-col × 2-row grid). */
+const THUMB_LAYOUT: Record<number, Placement[]> = {
+  1: [{ gridColumn: "span 2", gridRow: "span 2" }],
+  2: [
+    { gridColumn: "span 2", gridRow: "span 1" },
+    { gridColumn: "span 2", gridRow: "span 1" },
+  ],
+  3: [
+    { gridColumn: "span 1", gridRow: "span 1" },
+    { gridColumn: "span 1", gridRow: "span 1" },
+    { gridColumn: "span 2", gridRow: "span 1" },
+  ],
+  4: Array(4).fill({ gridColumn: "span 1", gridRow: "span 1" }),
+};
+
+/** A project's feature video: plays inline, muted and looping, with its own sound toggle. Click anywhere else to open it in the lightbox. */
+function FeatureVideo({
+  item,
+  index,
+  onOpen,
+  className,
+  style,
+  title,
+  vt,
+}: {
+  item: Media;
+  index: number;
+  onOpen: (i: number) => void;
+  className?: string;
+  style?: CSSProperties;
+  title: string;
+  vt?: string;
+}) {
+  const [muted, setMuted] = useState(true);
+  return (
+    <div
+      data-vt={vt}
+      style={style}
+      className={cn("group relative overflow-hidden rounded-3xl border border-mist/10 bg-black", className)}
+    >
+      <video
+        src={item.src}
+        poster={item.poster}
+        autoPlay
+        muted={muted}
+        loop
+        playsInline
+        preload="metadata"
+        aria-label={item.caption || `${title} video`}
+        className="h-full w-full object-cover"
+      />
+      <button
+        type="button"
+        onClick={() => onOpen(index)}
+        aria-label={`Open the ${title} video full screen`}
+        data-cursor="view"
+        data-cursor-label="Play"
+        className="absolute inset-0"
+      />
+      <button
+        type="button"
+        onClick={() => setMuted((m) => !m)}
+        aria-pressed={!muted}
+        aria-label={muted ? "Turn sound on" : "Mute"}
+        data-cursor="link"
+        className="absolute bottom-3 right-3 z-10 flex items-center gap-2 rounded-full bg-night-900/85 px-3.5 py-2 font-mono text-xs uppercase tracking-wider text-mist transition-colors hover:bg-signal hover:text-white"
+      >
+        {muted ? <VolumeX className="h-4 w-4" aria-hidden /> : <Volume2 className="h-4 w-4" aria-hidden />}
+        {muted ? "Sound on" : "Mute"}
+      </button>
+      {item.label && (
+        <span className="pointer-events-none absolute left-3 top-3 flex items-center gap-1.5 rounded-full bg-night-900/85 px-2.5 py-1 font-mono text-xs uppercase tracking-wider text-mist">
+          <Play className="h-3 w-3 fill-current" aria-hidden />
+          {item.label}
+        </span>
+      )}
+    </div>
+  );
+}
+
+function Tile({
+  item,
+  index,
+  onOpen,
+  className,
+  style,
+  extra = 0,
+  eager = false,
+  title,
+  vt,
+}: {
+  item: Media;
+  index: number;
+  onOpen: (i: number) => void;
+  className?: string;
+  style?: CSSProperties;
+  extra?: number;
+  eager?: boolean;
+  title: string;
+  vt?: string;
+}) {
+  const isVideo = item.type === "video";
+  const label = extra > 0 ? `View all ${index + extra + 1} images` : `Enlarge: ${item.label || item.caption || title}`;
+  return (
+    <button
+      type="button"
+      onClick={() => onOpen(index)}
+      aria-label={label}
+      data-cursor="view"
+      data-cursor-label={extra > 0 ? `+${extra}` : isVideo ? "Play" : "View"}
+      data-vt={vt}
+      style={style}
+      className={cn(
+        "group relative overflow-hidden rounded-3xl border border-mist/10",
+        item.onWhite ? "bg-white" : "bg-night-800",
+        className,
+      )}
+      onMouseEnter={(e) =>
+        e.currentTarget
+          .querySelector("video")
+          ?.play()
+          .catch(() => {})
+      }
+      onMouseLeave={(e) => {
+        const v = e.currentTarget.querySelector("video");
+        if (v) v.pause();
+      }}
+    >
+      {isVideo ? (
+        <video
+          src={`${item.src}#t=0.5`}
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          className="h-full w-full object-cover"
+        />
+      ) : (
+        <img
+          src={item.src}
+          alt={item.caption || title}
+          loading={eager ? "eager" : "lazy"}
+          decoding="async"
+          className={cn(
+            "h-full w-full transition-transform duration-700 ease-expo group-hover:scale-[1.03]",
+            item.fit === "contain" ? cn("object-contain", item.onWhite && "p-4") : "object-cover",
+          )}
+        />
+      )}
+
+      {isVideo && (
+        <span className="pointer-events-none absolute right-3 top-3 flex items-center gap-1.5 rounded-full bg-night-900/85 px-2.5 py-1 font-mono text-xs uppercase tracking-wider text-mist">
+          <Play className="h-3 w-3 fill-current" aria-hidden />
+          Video
+        </span>
+      )}
+      {item.label && extra === 0 && (
+        <span className="pointer-events-none absolute inset-x-0 bottom-0 bg-linear-to-t from-black/75 to-transparent px-4 pb-3 pt-8 text-left font-mono text-xs text-white">
+          {item.label}
+        </span>
+      )}
+      {extra > 0 && (
+        <span className="pointer-events-none absolute inset-0 flex items-center justify-center bg-night-900/70 font-display text-3xl font-semibold text-mist">
+          +{extra}
+        </span>
+      )}
+    </button>
+  );
+}
+
+/**
+ * Visual-first project header (Airbnb/Instructables pattern): one hero image (or a
+ * feature video) plus up to four supporting shots, all opening the lightbox. Desktop
+ * shows a bento grid; mobile shows a swipeable row.
+ */
+export function ProjectGallery({
+  items,
+  title,
+  onOpen,
+  placeholder,
+  transitionName,
+}: {
+  /** hero first, then supporting media — same order the lightbox uses */
+  items: Media[];
+  /** v4: view-transition name shared with the home card, so its image morphs into the main tile */
+  transitionName?: string;
+  title: string;
+  onOpen: (i: number) => void;
+  placeholder?: boolean;
+}) {
+  if (placeholder || items.length === 0) {
+    return (
+      <div className="bp-grid flex aspect-16/7 w-full items-center justify-center rounded-4xl border border-mist/10 bg-linear-to-br from-night-700 to-night-800">
+        <p className="font-mono text-xs uppercase tracking-widest text-mist-faint">Visuals coming soon</p>
+      </div>
+    );
+  }
+
+  const [main, ...rest] = items;
+  const visible = rest.slice(0, 4);
+  const extra = rest.length - visible.length;
+  const n = visible.length;
+  const vt: CSSProperties | undefined = transitionName ? { viewTransitionName: transitionName } : undefined;
+  const renderMain = (style?: CSSProperties, className?: string) =>
+    main.autoplay ? (
+      <FeatureVideo
+        item={main}
+        index={0}
+        onOpen={onOpen}
+        title={title}
+        style={{ ...style, ...vt }}
+        className={className}
+        vt={transitionName}
+      />
+    ) : (
+      <Tile
+        item={main}
+        index={0}
+        onOpen={onOpen}
+        eager
+        title={title}
+        style={{ ...style, ...vt }}
+        className={className}
+        vt={transitionName}
+      />
+    );
+
+  return (
+    <>
+      {/* Desktop bento */}
+      <div
+        className="hidden gap-3 lg:grid lg:h-[clamp(360px,52vh,490px)]"
+        style={{ gridTemplateColumns: "repeat(4, minmax(0,1fr))", gridTemplateRows: "repeat(2, minmax(0,1fr))" }}
+      >
+        {renderMain({ gridColumn: n ? "span 2" : "span 4", gridRow: "span 2" })}
+        {visible.map((m, i) => (
+          <Tile
+            key={m.src}
+            item={m}
+            index={i + 1}
+            onOpen={onOpen}
+            eager
+            title={title}
+            extra={i === n - 1 ? extra : 0}
+            style={THUMB_LAYOUT[n][i]}
+          />
+        ))}
+      </div>
+
+      {/* Mobile: swipeable row */}
+      <div className="lg:hidden">
+        <div
+          data-lenis-prevent
+          className="no-scrollbar mx-[-5vw] flex snap-x snap-mandatory scroll-px-[5vw] gap-3 overflow-x-auto px-[5vw]"
+        >
+          {items.map((m, i) =>
+            i === 0 && m.autoplay ? (
+              <div key={m.src} className="aspect-4/3 w-[86%] shrink-0 snap-start">
+                {renderMain(undefined, "h-full w-full")}
+              </div>
+            ) : (
+              <Tile
+                key={m.src}
+                item={m}
+                index={i}
+                onOpen={onOpen}
+                eager={i < 2}
+                title={title}
+                className="aspect-4/3 w-[86%] shrink-0 snap-start"
+              />
+            ),
+          )}
+        </div>
+        {items.length > 1 && (
+          <p className="mt-2 font-mono text-xs text-mist-faint">Swipe for {items.length} images · tap to enlarge</p>
+        )}
+      </div>
+    </>
+  );
+}

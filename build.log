@@ -1,5 +1,0 @@
-
-> adam-website-v2@0.0.1 build
-> tsc && vite build
-
-src/App.tsx(205,60): error TS17001: JSX elements cannot have multiple attributes with the same name.

@@ -1,193 +1,948 @@
 import { withBase } from "../lib/withBase";
 
+export type Media = {
+  type: "image" | "video";
+  src: string;
+  /** Full caption, shown in the lightbox and the build log. State a finding, not just a name. */
+  caption?: string;
+  /** Short tile label (1–3 words) shown over the thumbnail. */
+  label?: string;
+  /** "contain" shows the whole image (diagrams, screenshots, CAD) instead of cropping to fill. */
+  fit?: "cover" | "contain";
+  /** Render on white (CAD renders exported on a white background). */
+  onWhite?: boolean;
+  /** Video only: play inline, muted and looping, with a sound toggle (used for a project's feature video). */
+  autoplay?: boolean;
+  /** Video only: still frame shown before the video loads. */
+  poster?: string;
+};
+
+export type ProjectLink = { label: string; href: string };
+
+/** One headline number for the at-a-glance strip under the gallery. */
+export type Stat = { value: string; label: string };
+
 export type Project = {
-  title: string;
-  description: string;
-  image: string;
   slug: string;
-  content?: string;
+  category: "hardware" | "software";
+  title: string;
+  /** One-line recruiter hook shown on the gallery tile + detail header. */
+  tagline: string;
+  /** Two-to-three sentence overview (the TL;DR). */
+  summary: string;
+  /** Short chips for gallery/home cards. */
+  impact: string[];
+  /** Big numbers shown under the project gallery. */
+  stats?: Stat[];
+  /** "What I did" bullets, resume-style: each starts with a verb. */
+  highlights?: string[];
+  /** Gallery poster image. */
+  cover: string;
+  /** Lightbox caption for the cover image. */
+  coverCaption?: string;
+  /** "contain" for diagram/screenshot covers that must not be cropped on the project page. */
+  coverFit?: "cover" | "contain";
+  /** Optional muted loop that cross-fades in on hover (Baptiste pattern). */
+  coverVideo?: string;
+  /** Self-hosted feature video, shown first in the project gallery (autoplays muted, with a sound toggle). */
+  featureVideo?: Media;
+  /** Short ownership badge for gallery cards, e.g. "Solo", "Mechanical lead", "Intern". */
+  badge?: string;
+  /** Smaller project: listed compactly under "More software" instead of as a large card. */
+  minor?: boolean;
   duration: string;
-  tags: string[];
-  status: "active" | "completed";
   year: number;
   order: number;
-  images?: { src: string; caption: string }[];
-  videos?: { src: string; caption: string }[];
+  status: "active" | "completed" | "concept";
+  /** Tools and skills used (shown as chips). */
+  tags: string[];
+  role?: string;
+  team?: string;
   problem?: string;
   approach?: string;
   results?: string;
+  media?: Media[];
+  links?: ProjectLink[];
+  /** True when `cover` is a styled placeholder rather than a real asset. */
+  placeholder?: boolean;
+  /** Extra images shown beside the cover in the home-page "Recent builds" anchor card. */
+  previewImages?: { src: string; alt: string; fit?: "cover" | "contain" }[];
 };
 
-export type ScrollState = {
-  scrollTarget?: string;
-};
-
-export type SkillCategory = {
-  title: string;
-  skills: {
-    name: string;
-    level: number;
-  }[];
-};
-
-export const aboutVideo = withBase("/videos/video_2026-01-11_15-31-58.mov");
-export const polysynthVideo = withBase("/videos/polysynthshowcase.mp4");
-export const compliantShowcaseVideo = withBase("/videos/compliantshowcase.mp4");
-export const heroImage = withBase("/images/feature-v3.jpg");
-export const heroFeatureImage = withBase("/images/feature2.jpg");
-export const resumeFile = withBase("/AdamTang_Resume.pdf");
-
-export const navLinks = [
-  { label: "Home", to: "/" },
-  { label: "Projects", to: "/projects" },
-];
-
-export const projects: Project[] = [
+// ── Hardware ─────────────────────────────────────────────────────────────────
+const hardware: Project[] = [
+  {
+    slug: "internal-cycloidal-actuator",
+    badge: "Hardware lead",
+    category: "hardware",
+    title: "Kinema: 6-DOF Robotic Camera Arm",
+    tagline: "A 10:1 cycloidal actuator packed inside a frameless motor, built as the first joint of a 6-DOF camera arm.",
+    summary:
+      "Kinema is a 6-DOF camera arm you teach by hand, which then replays the shot smoothly. Its joints need high torque and low backlash at a fraction of industrial-arm cost, so I designed a custom internal cycloidal actuator and have taken it through 7+ machined and printed prototypes to closed-loop control.",
+    impact: ["10:1 cycloidal reduction", "Bench-tested to 2 N·m", "7+ prototypes", "$1.5k Jacobs Ignite grant"],
+    stats: [
+      { value: "10:1", label: "cycloidal reduction" },
+      { value: "2 N·m", label: "bench-tested output torque" },
+      { value: "7+", label: "CNC-machined and 3D-printed prototypes" },
+      { value: "$1.5k", label: "Jacobs Ignite grant, plus a CubeMars sponsorship" },
+    ],
+    highlights: [
+      "Designed a 10:1 internal cycloidal stage packaged coaxially inside a frameless BLDC (10.4 N·m peak motor torque).",
+      "Ran tolerance stack-ups on the cycloid and pin fits, selected the bearings, and validated the housing with FEA in SolidWorks.",
+      "Built 7+ CNC-machined and 3D-printed prototypes, then brought up the motor driver and absolute encoder for closed-loop position control.",
+      "Tuned the position loop on a moteus r4.11 controller and bench-tested the joint to 2 N·m.",
+      "Won a CubeMars motor sponsorship and a $1.5k Jacobs Ignite grant to build the full arm.",
+    ],
+    cover: withBase("/images/projects/Cycloidal/cycloidal-main.jpg"),
+    coverCaption: "Shoulder-joint prototype, with the mjbots moteus controller mounted on the rear housing.",
+    previewImages: [
+      { src: withBase("/images/projects/Cycloidal/cycloidal-proto-v2.jpg"), alt: "Cycloidal actuator prototype v2, assembled" },
+      { src: withBase("/images/projects/Cycloidal/cycloidal-exploded.jpg"), alt: "Exploded CAD of the cycloidal actuator", fit: "contain" },
+    ],
+    featureVideo: {
+      type: "video",
+      src: withBase("/videos/cycloidal-plays.mp4"),
+      poster: withBase("/images/projects/Cycloidal/cycloidal-plays-poster.jpg"),
+      autoplay: true,
+      label: "Watch it run",
+      caption: "Assembling the actuator, then running it to play a song. Turn the sound on.",
+    },
+    duration: "Jun 2026 — Present",
+    year: 2026,
+    order: 1,
+    status: "active",
+    tags: ["SolidWorks", "FEA", "Tolerance stack-ups", "CNC machining", "3D printing", "BLDC control", "Absolute encoders"],
+    role: "Mechanical and electrical design: actuator CAD, FEA, fabrication, motor and encoder bring-up, control tuning.",
+    team: "With Jacob Leung (software and ML)",
+    problem:
+      "Arms smooth enough to film a shot cost $10k–$100k+ and need every keyframe programmed by hand, while cheaper arms flex and vibrate. Kinema needs stiff, high-torque, low-backlash joints a student team can afford to build.",
+    approach:
+      "Nest a cycloidal reduction inside a frameless motor so each joint stays short and stiff. I sized the cycloid, pins and bearings with tolerance stack-ups, checked the housing in FEA, and iterated between printed and machined parts.",
+    results:
+      "The joint runs under closed-loop position control and holds 2 N·m on the bench. Next: scale it to all six joints of an arm with 0.8 m reach carrying a 1 kg camera.",
+    media: [
+      {
+        type: "image",
+        src: withBase("/images/projects/Cycloidal/cycloidal-exploded.jpg"),
+        label: "Exploded CAD",
+        fit: "contain",
+        onWhite: true,
+        caption: "Exploded CAD of the coaxial stack: output housing, cycloidal discs, eccentric cam and cross-roller output bearing.",
+      },
+      {
+        type: "image",
+        src: withBase("/images/projects/Cycloidal/cycloidal-proto-v2.jpg"),
+        label: "Prototype v2",
+        caption: "Prototype v2, assembled: the next housing iteration after the white print.",
+      },
+      {
+        type: "video",
+        src: withBase("/videos/cycloidal-pid.mp4"),
+        label: "PID tuning",
+        caption: "Tuning the position loop on the moteus r4.11 controller.",
+      },
+    ],
+  },
   {
     slug: "eldaeon-passive-radar-system",
-    title: "Eldaeon Passive Radar System",
-    description:
-      "Developing a passive radar system for low-cost, wide-area detection and tracking using ambient RF signals.",
-    image: withBase("/images/projects/Eldaeon/Eldaeon.jpg"),
-    duration: "Jan 2025 – Present",
-    tags: ["RF Engineering", "Signal Processing", "Python"],
-    status: "active",
-    year: 2025,
-    order: 1,
-    images: [
-      { src: withBase("/images/projects/Eldaeon/Eldaeon.jpg"), caption: "Passive radar system overview" },
-      { src: withBase("/images/projects/Eldaeon/Eldaeon1.jpg"), caption: "Signal processing prototype" },
+    badge: "Intern",
+    category: "hardware",
+    title: "Eldaeon Passive Radar",
+    tagline: "A Raspberry Pi pipeline that spots drones in RF Doppler returns and flags anything that isn't a known aircraft or ship.",
+    summary:
+      "At Eldaeon, an RF-sensing startup, I worked across the detection software, antenna mechanism and power system of a passive radar node. It listens to existing transmitters instead of emitting its own, and alerts on targets that don't match public aircraft and ship tracks.",
+    impact: ["Drone detection from RF Doppler + ADS-B/AIS", "Projected 30.2% power cut, under 15.4 W PoE"],
+    stats: [
+      { value: "30.2%", label: "projected power cut, bringing the node under its 15.4 W PoE limit" },
+      { value: "±10°", label: "self-calibrating antenna sweep" },
+      { value: "3+", label: "outdoor field campaigns, plus an SF boat-detection run" },
     ],
-    problem: "Conventional radar systems are expensive, power-hungry, and require dedicated transmitters. There's a need for low-cost, wide-area detection that can leverage existing RF infrastructure.",
-    approach: "Developing a passive radar that exploits ambient RF signals (FM radio, cellular, Wi-Fi) for target detection and tracking. Building custom SDR pipelines for signal acquisition and cross-correlation processing.",
-    results: "Project in active development — check back for results.",
-  },
-  {
-    slug: "polysynth-x-mpe-synth-keyboard",
-    title: "PolySynth X",
-    description:
-      "Designed and built a fully custom hyper-expressive MPE keyboard, integrating real-time embedded firmware with hand-engineered compliant key mechanisms.",
-    image: withBase("/images/projects/PolysynthX/polysynthx.jpg"),
-    duration: "Aug 2024 – Present",
-    tags: ["Embedded Systems", "PCB Design", "C++", "CAD"],
-    status: "active",
-    year: 2024,
-    order: 3,
-    images: [
-      { src: withBase("/images/projects/PolysynthX/polysynthx.jpg"), caption: "PolySynth X assembled prototype" },
+    highlights: [
+      "Built a real-time drone and UAP detection pipeline in Python on Raspberry Pi that cross-correlates RF Doppler returns with ADS-B aircraft and AIS ship tracks.",
+      "Surfaced uncorrelated targets on a live dashboard, with phone alerts through AWS and Twilio.",
+      "Designed the antenna pan-tilt mechanism and wrote calibration firmware that sweeps ±10° to lock onto the strongest local transmitter, for the clearest Doppler signal.",
+      "Mapped each component's power draw from datasheets and wrote a sequencing daemon (DPOL) that keeps servo moves and SDR bursts from overlapping, cutting projected draw 30.2% to fit the 15.4 W PoE budget.",
     ],
-    videos: [
-      { src: polysynthVideo, caption: "First Electrical Prototype" },
-      { src: compliantShowcaseVideo, caption: "Compliant Mechanism Showcase" },
-    ],
-    problem: "Traditional MIDI keyboards lack expressive control — they only capture note-on/off and velocity. Musicians need continuous, per-key control over pitch, pressure, and timbre in a portable package.",
-    approach: "Designed compliant mechanisms mimicking piano hammer action, using subtractive hall sensors for velocity, pitch bend, and polyphonic aftertouch. Built low-latency ARM Cortex-M7 firmware and custom PCBs for precise sensor positioning.",
-    results: "Working prototype with full MPE output. Compliant key mechanisms validated. Laser-cut acrylic light-up keys in development for live performance use.",
-  },
-  {
-    slug: "low-cost-biodiversity-sensing-module",
-    title: "Low-Cost AI-Powered Biodiversity-Sensing Module",
-    description:
-      "Designed fully-custom, modular, low-cost biodiversity sensor nodes, utilizing on-device AI to optimize data collection.",
-    image: withBase("/images/projects/BiodiversityTech/BiodiversityTech.jpg"),
-    duration: "Sep 2024 – Present",
-    tags: ["Edge AI", "IoT", "Power Electronics", "ESP32"],
-    status: "active",
-    year: 2024,
+    cover: withBase("/images/projects/Eldaeon/Eldaeon.jpg"),
+    coverCaption: "A radar node on its tripod: weatherproof case below, antenna on the pan-tilt mount.",
+    duration: "Dec 2025 — Aug 2026",
+    year: 2026,
     order: 2,
-    images: [
-      { src: withBase("/images/projects/BiodiversityTech/BiodiversityTech.jpg"), caption: "Sensor node assembly" },
-      { src: withBase("/images/projects/BiodiversityTech/BiodiversityTech1.jpg"), caption: "Field deployment setup" },
-      { src: withBase("/images/projects/BiodiversityTech/BiodiversityTech2.jpg"), caption: "PCB and enclosure design" },
+    status: "completed",
+    tags: ["Python", "Raspberry Pi", "SDR", "ADS-B / AIS", "AWS", "Twilio", "Mechanism design", "Power budgeting"],
+    role: "Embedded Systems and Hardware Integration Intern: detection software, antenna mechanism, calibration firmware, power budgeting.",
+    problem:
+      "Drones are small and slow, and a detector that alarms on every airliner is useless. The node also had to run on the 15.4 W a single PoE cable supplies.",
+    approach:
+      "Use ambient transmitters as the illuminator, cross-correlate Doppler returns against public ADS-B and AIS feeds, and alert only on what's left. A pan-tilt mount calibrates itself to the strongest transmitter, and a daemon schedules power-hungry tasks so they never overlap.",
+    results:
+      "Field-tested over 3+ outdoor campaigns and an SF boat-detection run, with uncorrelated targets reaching a live dashboard and phones. The power plan projects a 30.2% cut, enough to stay under the PoE limit (projected from datasheets, not measured on the bench).",
+    media: [
+      {
+        type: "image",
+        src: withBase("/images/projects/Eldaeon/Eldaeon1.jpg"),
+        label: "Pan-tilt mount",
+        caption: "The antenna on its pan-tilt mount, above the node's weatherproof case.",
+      },
     ],
-    problem: "Wildlife monitoring requires sensor networks that are affordable, solar-powered, and capable of on-device species classification to reduce data transmission costs in remote areas.",
-    approach: "Led hardware design with custom buck converters for power delivery, solar recharging circuits, and trained lightweight audio classification models to run inference directly on an ESP32-S3 microcontroller.",
-    results: "Deployed sensor nodes operating autonomously in field conditions. Edge AI models achieving reliable species classification with minimal power draw.",
+  },
+  {
+    slug: "polysynth-x",
+    badge: "Solo",
+    category: "hardware",
+    title: "PolySynth X",
+    tagline: "A 12-key MPE keyboard and synth where every key bends its own pitch.",
+    summary:
+      "A playable 12-key MPE (MIDI Polyphonic Expression) keyboard with its own synth engine. Two hall-effect sensors sit under each key, so every key reports its own pitch bend, which a standard keyboard can't do.",
+    impact: ["12 keys, per-key pitch bend", "7+ key iterations, 3+ PCB revisions"],
+    stats: [
+      { value: "12", label: "MPE keys with independent pitch bend" },
+      { value: "7+", label: "iterations of the compliant hammer-action key" },
+      { value: "3+", label: "hall-effect sensor PCB revisions" },
+      { value: "STM32H7", label: "real-time C++ DSP on a Daisy Seed" },
+    ],
+    highlights: [
+      "Iterated compliant hammer-action keys 7+ times in Onshape and 3D print until the touch was accurate.",
+      "Designed hall-effect sensor PCBs in KiCad over 3+ revisions.",
+      "Wrote real-time C++ DSP firmware on an STM32H7 (Daisy Seed) that differences the two hall-effect sensors under each key through the ADC, giving every key independent pitch bend.",
+      "Built an onboard synth engine into the keyboard.",
+    ],
+    cover: withBase("/images/projects/PolysynthX/polysynthx.jpg"),
+    coverCaption: "The sensor PCB, display and 3D-printed compliant keybed.",
+    coverVideo: withBase("/videos/polysynthshowcase.mp4"),
+    duration: "Nov 2025 — Jun 2026",
+    year: 2025,
+    order: 3,
+    status: "completed",
+    tags: ["STM32H7", "C++", "Real-time DSP", "KiCad", "Onshape", "Compliant mechanisms", "3D printing"],
+    role: "Solo: key mechanism, PCB layout, firmware and assembly.",
+    problem:
+      "A standard MIDI keyboard sends note-on, note-off and velocity. Bending one note inside a chord, the way a guitarist can, isn't possible.",
+    approach:
+      "Each key is a 3D-printed compliant flexure that mimics hammer action. Two hall-effect sensors read its motion, and the firmware differences them into a per-key pitch-bend signal.",
+    results: "A working 12-key keyboard with an onboard synth where every key bends independently, after 7+ key iterations and 3+ PCB revisions.",
+    media: [
+      {
+        type: "image",
+        src: withBase("/images/projects/PolysynthX/polysynth-cad.jpg"),
+        label: "12-key CAD",
+        fit: "contain",
+        onWhite: true,
+        caption: "CAD of the 12-key prototype: the compliant keybed above the hall-effect sensor PCB.",
+      },
+      { type: "video", src: withBase("/videos/polysynthshowcase.mp4"), label: "First prototype", caption: "The first electrical prototype." },
+      { type: "video", src: withBase("/videos/compliantshowcase.mp4"), label: "Compliant keys", caption: "The compliant key mechanism in motion." },
+    ],
+  },
+  {
+    slug: "biodiversity-sensing-module",
+    badge: "Hardware lead",
+    category: "hardware",
+    title: "Biodiversity Sensing Module",
+    tagline: "A weatherproof, solar-powered satellite-IoT field node that identifies species on-device, built for UC Berkeley's Echeverri Lab.",
+    summary:
+      "As hardware lead for UC Berkeley's Echeverri Lab, I designed a modular satellite-IoT sensor node that runs entirely on solar power and identifies wildlife with an on-device AI model, reporting each species with a confidence score. The first node is deployed in the field.",
+    impact: ["Solar-powered satellite-IoT node", "On-device species ID with confidence scores", "Echeverri Lab, UC Berkeley"],
+    stats: [
+      { value: "100%", label: "solar powered" },
+      { value: "3", label: "sensing modes: camera, acoustic, thermal" },
+      { value: "1st", label: "node deployed in the field" },
+    ],
+    highlights: [
+      "Designed the buck-converter power system so the node runs entirely on solar.",
+      "Integrated camera, acoustic and thermal sensors into a weatherproof, modular build.",
+      "Ran an on-device AI model on an ESP32-S3 that identifies species and reports a confidence score for each.",
+      "Sent results off-site over a satellite-IoT link, so the node works far from cell coverage.",
+      "Deployed the first node in the field.",
+    ],
+    cover: withBase("/images/projects/BiodiversityTech/BiodiversityTech.jpg"),
+    coverCaption: "Prototype sensing board, built around a Seeed XIAO ESP32-S3.",
+    duration: "Oct 2025 — Jun 2026",
+    year: 2025,
+    order: 4,
+    status: "completed",
+    tags: ["ESP32-S3", "Edge AI", "Satellite IoT", "Solar power", "Buck converters", "Sensor integration"],
+    role: "Hardware lead: power system, sensor integration, enclosure.",
+    team: "Echeverri Lab, UC Berkeley",
+    problem:
+      "Ecologists want to know what lives where, but sending raw camera and audio data from remote sites is expensive, and swapping batteries means repeat trips.",
+    approach:
+      "Do the work on the node: an ESP32-S3 runs the species-ID model locally so only small results leave the site over satellite IoT, and solar power removes battery swaps.",
+    results: "A weatherproof node with camera, acoustic and thermal sensing that identifies species on-device. The first unit is deployed in the field.",
+    media: [
+      {
+        type: "image",
+        src: withBase("/images/projects/BiodiversityTech/BiodiversityTech1.jpg"),
+        label: "At the bench",
+        caption: "Holding the sensing board at my bench.",
+      },
+      {
+        type: "image",
+        src: withBase("/images/projects/BiodiversityTech/BiodiversityTech2.jpg"),
+        label: "ESP32-S3",
+        caption: "The Seeed XIAO ESP32-S3 module that runs the species-ID model.",
+      },
+    ],
   },
   {
     slug: "solar-array-optimization",
-    title: "Solar Array Optimization",
-    description:
-      "Designed array telemetry and bypass-diode placement experiments for a solar race car; improved partial-shade output by 12%.",
-    image: withBase("/images/projects/CalSol/CalSol_Excalibur.jpg"),
-    duration: "Jan 2025 – Present",
-    tags: ["Solar Engineering", "Telemetry", "MATLAB", "Simulation"],
-    status: "active",
+    badge: "Project manager",
+    category: "hardware",
+    title: "CalSol Solar Array",
+    tagline: "Laying out a solar race car's array so it keeps charging in partial shade.",
+    summary:
+      "As Solar Engineering Project Manager on CalSol, UC Berkeley's solar racing team, I designed the array and bypass-diode layout so the battery keeps charging when some panels are shaded, a projected +12% partial-shade efficiency gain. I also designed the MPPT charge-controller enclosures.",
+    impact: ["Projected +12% partial-shade efficiency", "MPPT enclosures in SolidWorks"],
+    stats: [
+      { value: "+12%", label: "projected partial-shade efficiency" },
+      { value: "MPPT", label: "charge-controller enclosures, designed in SolidWorks" },
+    ],
+    highlights: [
+      "Designed the solar array and bypass-diode layout so the battery keeps charging when panels are partially shaded, a projected +12% partial-shade efficiency gain.",
+      "Designed the MPPT charge-controller enclosures in SolidWorks.",
+      "Integrated the enclosures into the car's wiring layout alongside the batteries.",
+    ],
+    cover: withBase("/images/projects/CalSol/CalSol_Excalibur.jpg"),
+    coverCaption: "CalSol's solar car on track.",
+    duration: "Sep 2025 — May 2026",
     year: 2025,
-    order: 4,
-    images: [
-      { src: withBase("/images/projects/CalSol/CalSol_Excalibur.jpg"), caption: "Excalibur solar race car" },
-    ],
-    problem: "Solar race cars lose significant energy under partial shading. Suboptimal bypass-diode placement leads to cascading power losses across the entire array.",
-    approach: "Instrumented the Excalibur array with custom telemetry to map cell mismatch under dynamic shading. Simulated multiple bypass-diode configurations and validated the best layout on a controlled track.",
-    results: "Raised partial-shade efficiency by 12% while keeping thermal loads in check. Telemetry system now integrated into CalSol's 11th-gen vehicle.",
-  },
-  {
-    slug: "compact-automated-aquaponics-system",
-    title: "Compact Automated Aquaponics System",
-    description:
-      "Designed (CAD) and manufactured a fully automated aquaponics system that supplied our dining hall with fresh lettuce and fish, serving as multidisciplinary educational tool.",
-    image: withBase("/images/projects/Aquaponics/AquaponicsDLab.jpg"),
-    duration: "Sep 2022 – Jun 2024",
-    tags: ["CAD", "CNC", "Node-RED", "Sensors"],
-    status: "completed",
-    year: 2022,
     order: 5,
-    images: [
-      { src: withBase("/images/projects/Aquaponics/AquaponicsDLab.jpg"), caption: "Aquaponics system in lab" },
-      { src: withBase("/images/projects/Aquaponics/AquaponicsDHall.jpg"), caption: "Deployed in dining hall" },
-    ],
-    problem: "Our school dining hall wanted a sustainable, local food source. Traditional farming wasn't viable indoors, and existing aquaponics systems were too large and manual.",
-    approach: "Designed a compact platform in Fusion 360 with modular grow towers, CNC-milled the frame, and built a sensor + control stack with Node-RED dashboards for automated nutrient balancing and fish feeding.",
-    results: "System deployed and supplying fresh produce to the dining hall. Now serves as a living lab for biology and engineering students.",
+    status: "completed",
+    tags: ["Solar arrays", "Bypass diodes", "MPPT", "SolidWorks", "Wiring layout"],
+    role: "Solar Engineering Project Manager: array layout, bypass diodes, MPPT enclosures.",
+    problem:
+      "On a solar car, one shaded cell can drag down a whole string of panels, so a tree or building on the course costs far more power than the area it covers.",
+    approach:
+      "Lay out the strings and bypass diodes so a shaded section is routed around instead of limiting the rest, and package the MPPT controllers to fit cleanly into the wiring with the batteries.",
+    results: "A layout projected to raise partial-shade efficiency by 12%, plus MPPT enclosures designed in SolidWorks and integrated into the car's wiring.",
   },
   {
-    slug: "microplastics-dynamics-research",
-    title: "Flume-Simulated + Field Microplastics Dynamics Research",
-    description:
-      "Investigated the movement and behavior of microscopic particles within the vertical water table and quantified the levels of microplastic pollution in local rivers.",
-    image: withBase("/images/projects/Microplastics/Microplastics.jpg"),
-    duration: "Jan 2022 – May 2023",
-    tags: ["Research", "Image Processing", "Python", "Environmental"],
-    status: "completed",
-    year: 2022,
-    order: 6,
-    images: [
-      { src: withBase("/images/projects/Microplastics/Microplastics.jpg"), caption: "Flume experiment setup" },
+    slug: "murex-rov",
+    badge: "Mechanical lead",
+    category: "hardware",
+    title: "MUREX ROV",
+    tagline: "Mechanical lead on a high-school underwater robot that placed 6th in the world at MATE 2024.",
+    summary:
+      "MUREX is Phillips Exeter Academy's team in the MATE ROV Competition (Ranger division). As mechanical lead, I led a 6-person team through the design of a 6-DOF underwater ROV and a 7-DOF manipulator, and moved our outsourced parts to in-house CNC machining and 3D printing, cutting manufacturing cost 88%. The team placed 6th in the world at MATE 2024.",
+    impact: ["6th globally at MATE 2024", "88% lower manufacturing cost", "6-DOF ROV + 7-DOF manipulator"],
+    stats: [
+      { value: "6th", label: "in the world at the 2024 MATE ROV World Championship" },
+      { value: "88%", label: "lower manufacturing cost, from moving outsourced parts in-house" },
+      { value: "6 + 7", label: "DOF: the ROV, and its manipulator arm" },
+      { value: "113/100", label: "team engineering presentation score, the highest in MATE ROV history" },
     ],
-    problem: "The movement patterns of microplastics in natural water systems were poorly understood, limiting the effectiveness of mitigation strategies in local waterways.",
-    approach: "Designed flume experiments and field sampling campaigns. Built image-processing pipelines for particle classification, and calibrated sensors for salinity and turbidity measurement.",
-    results: "Created open-access datasets that informed local mitigation policies. Research recognized with awards from NASA and EPA.",
+    highlights: [
+      "Led a 6-person mechanical team designing a 6-DOF underwater ROV and a 7-DOF manipulator.",
+      "Cut manufacturing cost 88% by moving outsourced parts to in-house CNC machining and 3D printing.",
+      "Ran design reviews before parts were committed to fabrication.",
+      "Placed 6th globally at MATE 2024 and set 10 records; the team's engineering presentation scored 113/100, the highest in MATE ROV history.",
+    ],
+    cover: withBase("/images/projects/MUREX/murex-rov.jpg"),
+    coverCaption: "The ROV on the pool deck, February 2024. Photos on this page are from murexrobotics.com.",
+    duration: "Nov 2021 — Jun 2024",
+    year: 2024,
+    order: 6,
+    status: "completed",
+    tags: ["Onshape", "CNC machining", "3D printing", "Manipulator design", "Design reviews", "Team leadership"],
+    role: "Mechanical Lead: ROV and manipulator mechanical design, in-house fabrication, design reviews.",
+    team: "MUREX Robotics, Phillips Exeter Academy",
+    problem:
+      "MATE asks student teams to build an underwater robot that completes missions modeled on real ocean work, then defend the engineering to judges. Outsourced machined parts were expensive and slow to iterate on.",
+    approach:
+      "Bring fabrication in-house: design parts for CNC machining and 3D printing so the team could iterate quickly and cheaply, and review every design before it was committed to metal.",
+    results:
+      "Manufacturing cost fell 88%, and the team placed 6th in the world at MATE 2024 with the highest-scoring engineering presentation in the competition's history.",
+    media: [
+      {
+        type: "image",
+        src: withBase("/images/projects/MUREX/murex-mission.jpg"),
+        label: "Mission run",
+        caption: "The ROV working a practice mission course on the pool floor.",
+      },
+      {
+        type: "image",
+        src: withBase("/images/projects/MUREX/murex-presentation.jpg"),
+        label: "Presentation",
+        caption: "The engineering presentation at MATE 2024, which scored 113/100, the highest in MATE ROV history.",
+      },
+      {
+        type: "image",
+        src: withBase("/images/projects/MUREX/murex-judges.jpg"),
+        label: "Judging",
+        caption: "Walking MATE judges through the ROV at the 2024 competition.",
+      },
+      {
+        type: "image",
+        src: withBase("/images/projects/MUREX/murex-worlds-team.jpg"),
+        label: "The team",
+        caption: "The MUREX team at the 2024 MATE ROV World Championship, where it placed 6th in the world.",
+      },
+    ],
+    links: [{ label: "MUREX Robotics", href: "https://www.murexrobotics.com" }],
+  },
+  {
+    slug: "compact-automated-aquaponics",
+    badge: "Design + build lead",
+    category: "hardware",
+    title: "Automated Aquaponics System",
+    tagline: "A compact aquaponics system that grew lettuce and raised fish for a campus dining hall.",
+    summary:
+      "I designed a compact aquaponics system in Fusion 360, hand-built it, and added a sensor and control stack that monitors fish and plant health. It was deployed on campus, supplying the dining hall with fresh lettuce and fish.",
+    impact: ["Deployed in a campus dining hall", "Sensors + control for fish and plant health"],
+    highlights: [
+      "Designed the system in Fusion 360 and hand-built it.",
+      "Built a sensor and control stack that monitors fish and plant health.",
+      "Deployed it on campus, where it supplied the dining hall with fresh lettuce and fish.",
+      "Used it as a hands-on teaching tool across biology and engineering.",
+    ],
+    cover: withBase("/images/projects/Aquaponics/AquaponicsDLab.jpg"),
+    coverCaption: "The system during the build, in the lab.",
+    duration: "Dec 2023 — Jun 2025",
+    year: 2023,
+    order: 7,
+    status: "completed",
+    tags: ["Fusion 360", "Sensors", "Closed-loop control", "Fabrication"],
+    role: "Design and build lead: CAD, fabrication, sensing and control.",
+    problem: "The dining hall wanted fresh, local food, but most aquaponics setups are too big and need daily manual care.",
+    approach: "A compact frame designed in Fusion 360, with sensors and control logic watching water and plant conditions so the system needs less hands-on attention.",
+    results: "Deployed on campus and supplying the dining hall with fresh lettuce and fish.",
+    media: [
+      {
+        type: "image",
+        src: withBase("/images/projects/Aquaponics/AquaponicsDHall.jpg"),
+        label: "Deployed",
+        caption: "Deployed in the dining hall.",
+      },
+    ],
+  },
+  {
+    slug: "microplastics-research",
+    badge: "Lead researcher",
+    category: "hardware",
+    title: "Microplastics Dynamics Research",
+    tagline: "Research on how microplastics move through water, recognized by NASA and the EPA.",
+    summary:
+      "I designed flume experiments and field sampling to study how microplastics move through the water column and to measure pollution in local rivers, and built an image-processing pipeline to classify particles.",
+    impact: ["Open-access datasets used in local policy", "Recognized by NASA and the EPA"],
+    highlights: [
+      "Designed flume experiments and field-sampling campaigns to track how microplastics move in water.",
+      "Built an image-processing pipeline in Python to classify particles.",
+      "Calibrated salinity and turbidity sensors for the field work.",
+      "Published open-access datasets that informed local mitigation policy; the work was recognized by NASA and the EPA.",
+    ],
+    cover: withBase("/images/projects/Microplastics/Microplastics.jpg"),
+    coverCaption: "The flume used to simulate how microplastics move through water.",
+    duration: "Jan 2022 — May 2023",
+    year: 2022,
+    order: 8,
+    status: "completed",
+    tags: ["Experiment design", "Python", "Image processing", "Sensors"],
+    role: "Lead researcher: experiment design, sampling, data pipeline.",
+    problem: "How microplastics move through rivers and the water column was poorly understood, which limited what local mitigation could target.",
+    approach: "Flume experiments to control the variables, field sampling to measure the real rivers, and an image-processing pipeline to count and classify the particles.",
+    results: "Open-access datasets that informed local mitigation policy; the research was recognized by NASA and the EPA.",
   },
 ];
 
-export const skillCategories: SkillCategory[] = [
+// ── Software ─────────────────────────────────────────────────────────────────
+const software: Project[] = [
   {
-    title: "Programming",
-    skills: [
-      { name: "Python", level: 0.8 },
-      { name: "Java", level: 0.9 },
-      { name: "TypeScript", level: 0.6 },
-      { name: "MATLAB", level: 0.5 },
+    slug: "envoy",
+    badge: "Tech lead · team of 2",
+    category: "software",
+    title: "Envoy",
+    tagline: "An AI outreach assistant that turns a plain-English goal into researched companies, the right contacts and source-linked emails you approve before they send.",
+    summary:
+      "Envoy turns a goal like “who do I want to work with?” into researched organizations, the right contacts and a personalized email where every claim about the company links to its source. Jiwoo Jung and I built it in about two days, and it won Best Enterprise Reinvention at Berkeley SCET's Innovation Intelligence Hackathon.",
+    impact: [
+      "Winner — Best Enterprise Reinvention, AI-Native Enterprise track",
+      "Every quoted phrase verified word for word against its source",
+      "~$0.05 per company researched and drafted",
+    ],
+    stats: [
+      { value: "Winner", label: "Best Enterprise Reinvention, AI-Native Enterprise track" },
+      { value: "~2 days", label: "from idea to winning demo" },
+      { value: "90% → 0%", label: "of briefs needlessly escalated to the bigger model, before vs. after the cost-ledger fix" },
+      { value: "~$0.05", label: "per company researched and drafted" },
+    ],
+    highlights: [
+      "Built the full stack (Next.js, Postgres, Claude, Exa, Hunter, Gmail API) in about two days with Claude Code.",
+      "Restricted the model's evidence IDs to the pages it was actually given, then checked in code that every citation exists and every quote appears word for word.",
+      "Built a per-campaign cost ledger that showed 9 of 10 briefs escalating to the bigger model unnecessarily; after the fix, 0 of 5 did, at about $0.05 per company.",
+      "Shipped a demo-only public mode with fictional companies and simulated sending, so the live site can't spend API credits.",
+    ],
+    cover: withBase("/images/software/envoy-hero.jpg"),
+    coverFit: "contain",
+    coverCaption: "Envoy's landing page. Describe who you want to reach, and it finds organizations that fit, reads their sites and news, finds the right people, and drafts an email with a source behind every sentence.",
+    duration: "Oct 2026",
+    year: 2026,
+    order: 0,
+    status: "active",
+    tags: ["Next.js 16", "TypeScript", "Claude API", "Exa", "Hunter", "Gmail API", "Drizzle + Postgres", "Vercel"],
+    role: "Owned the full technical stack, front end and back end, built with Claude Code. Jiwoo Jung led the pitch.",
+    team: "With Jiwoo Jung (pitch)",
+    problem:
+      "Client outreach for my consulting club (BEACN) took more than an hour per company across Apollo, spreadsheets, Claude and GMass: research the company, find the right person, tailor the email, mail-merge it.",
+    approach:
+      "Turn the goal into checkable criteria, find companies with Exa, read their sites and news, then write a fit brief and the email's personal lines in one structured Claude call that can only cite documents it was given. Code checks every citation and quote; only briefs that fail escalate to a stronger model.",
+    results:
+      "Won Best Enterprise Reinvention, built in about two days. The cost ledger cut needless escalations from 9/10 to 0/5, holding cost near $0.05 per company. The public demo runs on fictional sample companies with simulated sending.",
+    media: [
+      {
+        type: "image",
+        src: withBase("/images/software/envoy-award.jpg"),
+        label: "The win",
+        caption: "Receiving Best Enterprise Reinvention (AI-Native Enterprise track) at Berkeley SCET's Innovation Intelligence Hackathon, October 2026.",
+      },
+      {
+        type: "image",
+        src: withBase("/images/software/envoy-brief.jpg"),
+        label: "Cited brief",
+        caption: "Each company gets a fit score and a brief checked against your criteria. Every supported claim carries a superscript citation to the page it came from.",
+      },
+      {
+        type: "image",
+        src: withBase("/images/software/envoy-verify.jpg"),
+        label: "Claim checks",
+        caption: "Claims are labeled Supported, Evidenced or Inferred, and anything the sources don't back moves to “Still unknown” instead of staying in the email.",
+      },
+      {
+        type: "image",
+        src: withBase("/images/software/envoy-draft.jpg"),
+        label: "Draft",
+        caption: "A personalized draft per recipient, with each company-specific line traceable to a source. Every draft is editable, and nothing sends until the user approves it.",
+      },
+      {
+        type: "image",
+        src: withBase("/images/software/envoy-send.jpg"),
+        label: "Send controls",
+        caption: "Sending runs through the user's own Gmail with send-only permission: one email per recipient, randomized spacing, hourly and daily caps, business hours, an opt-out footer and no tracking pixels.",
+      },
+      {
+        type: "image",
+        src: withBase("/images/pitch-envoy.jpg"),
+        label: "Pitch",
+        caption: "Pitching Envoy to the judges and the room at Berkeley SCET.",
+      },
+      {
+        type: "image",
+        src: withBase("/images/software/envoy-demo.jpg"),
+        label: "Demo table",
+        caption: "Demoing Envoy at the Innovation Intelligence Hackathon.",
+      },
+    ],
+    links: [
+      { label: "Live demo", href: "https://envoy-one-brown.vercel.app" },
+      { label: "GitHub", href: "https://github.com/antangled/Envoy" },
     ],
   },
   {
-    title: "CAD / Simulation",
-    skills: [
-      { name: "Fusion 360", level: 0.7 },
-      { name: "Onshape", level: 0.9 },
-      { name: "Solidworks", level: 0.6 },
-      { name: "ANSYS", level: 0.5 },
-      { name: "KiCad", level: 0.6 },
+    slug: "fantom-finder",
+    badge: "Software lead · team of 2",
+    category: "software",
+    title: "Fantom Finder",
+    tagline: "Passive radar that checks whether a drone's or ship's broadcast position is real, built from scratch in one hackathon weekend.",
+    summary:
+      "Drones broadcast their position over FAA Remote ID and ships over AIS, and both can be faked with a few dollars of hardware. Fantom Finder checks each broadcast against passive-radar tracks: if nothing is on radar where a drone claims to be, it's flagged PHANTOM. David and I built it from scratch at the 3rd Annual National Security Hackathon in San Francisco on about $300 of commercial SDR hardware.",
+    impact: ["Remote ID + AIS spoof detection", "Built from scratch in one weekend", "~$300 of commercial SDR hardware"],
+    stats: [
+      { value: "~$300", label: "of commercial SDR hardware: Pi 5, Pluto+, RTL-SDR" },
+      { value: "2", label: "broadcast standards checked: FAA Remote ID and ship AIS" },
+      { value: "3", label: "verdicts, each with a reason: confirmed, phantom, deception" },
+      { value: "24 h", label: "from hackathon kickoff to submission" },
+    ],
+    highlights: [
+      "Wrote the fusion service in Python: it matches each Remote ID claim to the nearest radar track within 80 m and returns CONFIRMED, PHANTOM or DECEPTION with a plain-language reason.",
+      "Built a maritime version that runs the same checks on AIS ship broadcasts.",
+      "Geolocated radar tracks from bistatic range and Doppler, with an honest error ring on each, and drew them on a live map beside the verdict feed.",
+      "Sent every verdict out as Cursor-on-Target XML on the ATAK channel, so military TAK clients show it with no integration work.",
+      "Wrote software and ESP32 spoofers to attack our own system on stage, plus a validator that checks 16 fields on every CoT message.",
+      "Wrote and delivered the 3-minute pitch.",
+    ],
+    cover: withBase("/images/software/fantom-combined.jpg"),
+    coverFit: "contain",
+    coverCaption:
+      "The operator view: live verdicts on the left, radar tracks geolocated around the receiver on the right, and each verdict's Cursor-on-Target message below.",
+    duration: "May 2026",
+    year: 2026,
+    order: 1,
+    status: "completed",
+    tags: ["Python", "aiohttp + SSE", "Passive radar (blah2)", "SDR", "Leaflet", "Cursor-on-Target / ATAK", "ESP32"],
+    role: "Software and pitch: fusion service, geolocation, operator dashboard and map, TAK output, spoofers. David ran the hardware, RF and radar pipeline.",
+    team: "With David (hardware, RF, radar pipeline)",
+    problem:
+      "Remote ID and AIS have no cryptographic signing, so anyone can broadcast a drone or ship that isn't there, and a receiver will believe it. Active radar that could check costs millions and gives away its own position.",
+    approach:
+      "Use passive radar, which listens to reflections of TV and Wi-Fi signals already in the air, as an independent physical check. Match each broadcast claim to a radar track, and flag claims with no track behind them.",
+    results:
+      "End to end in one weekend: spoofed broadcasts were flagged PHANTOM against live radar tracks from our receiver at the venue.",
+    media: [
+      {
+        type: "image",
+        src: withBase("/images/software/fantom-dashboard.jpg"),
+        label: "Verdict feed",
+        fit: "contain",
+        caption: "The verdict feed: every claim gets a verdict, the reason behind it, and the time from claim to verdict.",
+      },
+      {
+        type: "image",
+        src: withBase("/images/software/fantom-map.jpg"),
+        label: "Track map",
+        fit: "contain",
+        caption: "Radar tracks geolocated from bistatic range and Doppler, each drawn with its error ring around the receiver.",
+      },
     ],
   },
   {
-    title: "Fabrication / Prototyping",
-    skills: [
-      { name: "3D Printing", level: 0.9 },
-      { name: "Machining & Manufacturing", level: 0.8 },
-      { name: "Soldering / PCBs", level: 0.8 },
-      { name: "Rapid Prototyping", level: 0.8 },
+    slug: "bommaker",
+    badge: "Solo",
+    category: "software",
+    title: "BOMMaker",
+    tagline: "A Chrome extension that adds any product page to a running bill of materials in one click.",
+    summary:
+      "Every hardware build means pricing dozens of parts across Amazon, DigiKey, AliExpress and maker shops, then copying them into a spreadsheet by hand. BOMMaker captures the name, price, image, store and part number from the page you're on into a live BOM with totals and what's left to buy, and exports a real Excel file. Everything stays in local storage: no account, no server.",
+    impact: ["One-click capture from any store", "Excel export with live formulas", "No account, no server"],
+    stats: [
+      { value: "5", label: "extraction tiers, from per-store recipes down to manual entry" },
+      { value: "~45", label: "part categories, classified locally with no LLM" },
+      { value: "59", label: "pages in the extraction test harness (45 product, 14 edge cases)" },
+      { value: "0", label: "servers: all data stays in the browser" },
     ],
+    highlights: [
+      "Wrote a five-tier extractor: hand-tuned recipes for stores like Amazon, then schema.org JSON-LD, Open Graph and microdata tags, DOM heuristics, and manual entry.",
+      "Classified parts into ~45 categories with a local scored matcher where specific phrases outrank single words, so “DC motor driver” lands in Motor drivers, not Motors; covered by a 53-case test suite.",
+      "Shipped without broad site access: capture runs only on the tab you click, and auto-detect asks for permission only when you turn it on.",
+      "Exported Excel files with live formulas, green purchased rows and linked parts, plus CSV, a PCB-assembly sheet in JLCPCB/PCBWay format and a shareable web page.",
+      "Tested extraction against 59 real store and edge-case pages in an offline harness, then confirmed in a live browser.",
+    ],
+    cover: withBase("/images/software/bommaker-dashboard.jpg"),
+    coverFit: "contain",
+    coverCaption: "The dashboard: one project's parts with live totals, what's been spent, purchase progress and Excel, CSV and PCB-assembly export.",
+    duration: "Jun 2026 — Present",
+    year: 2026,
+    order: 2,
+    status: "active",
+    tags: ["TypeScript", "React 19", "WXT", "Chrome extension (MV3)", "ExcelJS", "Playwright"],
+    role: "Solo developer and designer.",
+    problem:
+      "Building anything physical means tracking dozens of parts across many stores. Copying each one into a spreadsheet by hand is slow, and links, prices and quantities drift out of date.",
+    approach:
+      "Capture from the page itself: a layered extractor reads structured data where stores publish it and falls back gracefully where they don't, and a small local classifier files each part so the BOM organizes itself.",
+    results:
+      "One click adds a part to a running BOM that exports straight to Excel. Re-capturing the same part bumps its quantity instead of duplicating it.",
+    media: [
+      {
+        type: "image",
+        src: withBase("/images/software/bommaker-card.jpg"),
+        label: "Capture card",
+        fit: "contain",
+        caption: "On a product page, the capture card opens pre-filled with the part, price, category and project. Shown on a demo store page.",
+      },
+      {
+        type: "image",
+        src: withBase("/images/software/bommaker-sidebar.jpg"),
+        label: "BOM sidebar",
+        fit: "contain",
+        caption: "“Open BOM” slides out the running list: quantities, line totals, what's purchased and what's left to buy.",
+      },
+      {
+        type: "image",
+        src: withBase("/images/software/bommaker-share.jpg"),
+        label: "Share page",
+        fit: "contain",
+        caption: "One click turns a BOM into a self-contained web page for build logs, forums or GitHub Pages.",
+      },
+    ],
+  },
+  {
+    slug: "beacnreach",
+    badge: "Solo",
+    category: "software",
+    title: "BeacnReach",
+    tagline: "A weekly outreach form for BEACN's project managers that shows the exact email a company will get as they type.",
+    summary:
+      "BEACN, a student sustainability consulting group at UC Berkeley, wins clients through cold outreach. Each week every project manager submits companies to contact. BeacnReach replaces that spreadsheet with a form that previews the exact email live, highlights which parts the PM still has to write, and saves each submission to the club's Google Sheet.",
+    impact: ["Live preview of the exact email", "Same template code in the browser and the API", "$0 to run"],
+    stats: [
+      { value: "Live", label: "preview of the exact email, updated on every keystroke" },
+      { value: "1", label: "template module shared by the page and the API" },
+      { value: "$0", label: "to run: Vercel functions and a Google Sheet, no database" },
+    ],
+    highlights: [
+      "Built the form with inputs on the left and the email on the right, color-coded by who supplies each part: the PM's words, the sender's details, per-contact fields, and what's still missing.",
+      "Shared one template-and-checks module between the browser and the API, inlined at build time, so the preview and the stored email can't drift apart.",
+      "Added a company search through Clearbit's autocomplete, proxied by a Vercel function and cached for a day, with the club's own company list as a fallback.",
+      "Checked submissions as PMs type: empty fields, leftover placeholder brackets, and companies someone already submitted this week. Only @berkeley.edu addresses are accepted, and the page never sees who submitted what.",
+      "Used a Google Sheet as the database: the app creates its own tabs and rebuilds a PM leaderboard after every submission.",
+    ],
+    cover: withBase("/images/software/beacnreach-form.jpg"),
+    coverFit: "contain",
+    coverCaption:
+      "The form with demo data. The preview updates as you type; red marks the scope that still needs writing.",
+    duration: "Nov 2026 — Present",
+    year: 2026,
+    order: 3,
+    status: "active",
+    tags: ["JavaScript", "Vercel Functions", "Google Sheets API", "Clearbit", "HTML/CSS"],
+    role: "Designed and built it for BEACN's project managers.",
+    problem:
+      "PMs drafted outreach in a shared spreadsheet, so nobody saw the final email until it was sent, half-finished lines slipped through, and two PMs could pitch the same company in the same week.",
+    approach:
+      "Show the exact email while the PM writes it, check the inputs as they go, and keep the club's Google Sheet as the store so admins can still read and edit everything directly.",
+    results:
+      "The form is live for BEACN's PMs. Next comes the contact search and the scheduled sending, reusing pieces from Envoy.",
+  },
+  {
+    slug: "oski-leases",
+    badge: "Solo",
+    minor: true,
+    category: "software",
+    title: "Oski Leases",
+    tagline: "A trust-first student-housing marketplace for UC Berkeley.",
+    summary:
+      "A React 19 + TypeScript marketplace for Berkeley sublets and leases, with an interactive MapLibre map, smart pricing, rent-compliance checks and a trust layer of verification badges, trust scores, vouching and scam detection.",
+    impact: ["75+ source files", "MapLibre geospatial search + cost calculators", "Trust scoring and scam detection"],
+    stats: [
+      { value: "75+", label: "source files — my largest software build" },
+    ],
+    highlights: [
+      "Built the marketplace in React 19 + TypeScript on a Supabase backend.",
+      "Added an interactive MapLibre map, smart pricing, rent-compliance checks and total-cost calculators.",
+      "Designed a trust layer: verification badges, trust scores, vouching, shared-affiliation matching and scam detection.",
+    ],
+    cover: withBase("/images/software/oski.jpg"),
+    duration: "2025",
+    year: 2025,
+    order: 4,
+    status: "active",
+    tags: ["React 19", "TypeScript", "MapLibre", "Supabase"],
+    role: "Solo full-stack developer.",
+    problem:
+      "Berkeley's sublet market runs on group chats and Facebook posts: no pricing transparency, no way to vet a stranger, and real scam risk for students signing from across the country.",
+    approach: "One flow — search on a live map, vet the lister, calculate the true monthly cost, generate an agreement — with trust signals built into every step.",
+    results: "An end-to-end marketplace with the trust layer Berkeley's group-chat market lacks, at 75+ source files.",
+    links: [{ label: "GitHub", href: "https://github.com/antangled/Oski-Leases" }],
+  },
+  {
+    slug: "builddash",
+    badge: "Solo",
+    minor: true,
+    category: "software",
+    title: "BuildDash",
+    tagline: "A marketplace matching part designs to local makers.",
+    summary:
+      "A full-stack Next.js 16 marketplace where buyers upload a 3D model, get an instant preview and price quote, and are matched to nearby fabricators by distance, backed by a Python pricing engine for the platform's unit economics.",
+    impact: ["330+ machines across 6 processes", "Three.js STL viewer + Leaflet matching", "Python pricing engine"],
+    stats: [
+      { value: "330+", label: "machines modeled" },
+      { value: "6", label: "processes: FDM, SLA, CNC, laser, plasma, waterjet" },
+    ],
+    highlights: [
+      "Built a two-sided Next.js 16 marketplace with separate buyer and seller dashboards.",
+      "Added STL upload with an instant Three.js preview and an automated quote.",
+      "Matched buyers to nearby fabricators by distance with Leaflet.",
+      "Wrote a standalone Python engine modeling per-process cost and platform commission.",
+    ],
+    cover: withBase("/images/software/builddash.jpg"),
+    duration: "2026",
+    year: 2026,
+    order: 5,
+    status: "active",
+    tags: ["Next.js 16", "Three.js", "Leaflet", "Supabase", "Python"],
+    role: "Solo full-stack developer.",
+    problem:
+      "Getting one custom part made means cold-emailing shops, guessing at price and waiting days for a quote, while capable printers and CNC machines sit idle a few blocks away.",
+    approach: "Upload → preview → quote → match, in one flow, with a pricing engine behind it so the platform's margins are modeled, not guessed.",
+    results: "An end-to-end flow across 330+ machines and 6 processes, with separate buyer and seller earnings dashboards.",
+    links: [{ label: "GitHub", href: "https://github.com/antangled/BuildDash" }],
+  },
+  {
+    slug: "graded",
+    badge: "Solo",
+    minor: true,
+    category: "software",
+    title: "Graded",
+    tagline: "Tells you exactly what you need on the final.",
+    summary:
+      "A Svelte grade calculator that recomputes weighted grades on every keystroke and back-solves the score needed for each letter grade, with Berkeley-style exam clobber and curved (z-score) tests, at $0 to run.",
+    impact: ["~10 KB runtime bundle", "$0 hosting", "Clobber + curve grade math"],
+    stats: [
+      { value: "~10 KB", label: "runtime bundle" },
+      { value: "$0", label: "to run at any scale — static + localStorage" },
+    ],
+    highlights: [
+      "Built a Svelte SPA that recomputes weighted grades on every keystroke.",
+      "Back-solved the score needed on the final for each letter-grade cutoff.",
+      "Implemented Berkeley-specific exam clobber and curved (z-score) test math.",
+      "Kept it fully client-side (localStorage), so it costs nothing to operate.",
+    ],
+    cover: withBase("/images/software/graded.jpg"),
+    duration: "2025",
+    year: 2025,
+    order: 6,
+    status: "active",
+    tags: ["Svelte", "Vite", "Applied math"],
+    role: "Solo developer and product designer.",
+    problem: "Every time a score posts, students recompute their grade by hand and still can't answer the question that matters: what do I need on the final?",
+    approach: "Do the math on every keystroke, in the browser, with the course's real rules (clobber, curves) built in.",
+    results: "A ~10 KB app that answers the question instantly, with no login, no backend and no running cost.",
+    links: [{ label: "GitHub", href: "https://github.com/antangled/Graded" }],
+  },
+  {
+    slug: "this-portfolio",
+    badge: "Solo",
+    minor: true,
+    category: "software",
+    title: "This Portfolio",
+    tagline: "The site you're reading — rebuilt from scratch three times.",
+    summary:
+      "Designed and built this portfolio in React — three ground-up rebuilds, from a Next.js template to a dark-glass phase to this custom light-hero / dark-gallery system, iterated with audits for accessibility, performance and the ever-important “does this look AI-made” test.",
+    impact: ["3 ground-up rebuilds", "Custom design system, audited to WCAG AA", "React + Vite + Framer Motion"],
+    stats: [
+      { value: "3", label: "ground-up rebuilds" },
+      { value: "AA", label: "WCAG contrast target across both themes" },
+    ],
+    highlights: [
+      "Rebuilt the site three times, each from a blank repo.",
+      "Designed a light-to-dark system with a single signal-orange accent.",
+      "Audited each pass against UX heuristics, WCAG AA and Core Web Vitals.",
+      "Deployed on GitHub Pages with a client-side router and deep-link fallback.",
+    ],
+    cover: withBase("/images/software/portfolio-triptych.jpg"),
+    coverCaption: "v1, v2 and v3, stacked.",
+    duration: "2025 — Present",
+    year: 2026,
+    order: 8,
+    status: "active",
+    tags: ["React", "Vite", "TypeScript", "Framer Motion", "Tailwind CSS"],
+    role: "Sole designer and developer: design system, every component, content and deploy.",
+    problem:
+      "My first portfolio was a Next.js template: a circle-cropped hiking photo, a friendly “Hi, I'm Adam Tang!” and two buttons. Recruiters decide in about five seconds, and a template doesn't win them.",
+    approach:
+      "v2 went all-in on dark glassmorphism and a Playfair serif — and Every Noun Became Title Case. v3 is a ground-up rebuild: custom hero, one cohesive system, one accent, and audits instead of vibes.",
+    results: "The site you're on now. Three versions, each one a lesson in restraint.",
+    media: [
+      {
+        type: "image",
+        src: withBase("/images/software/portfolio-v1.jpg"),
+        label: "v1 home",
+        caption: "v1 — “Hi, I'm Adam Tang!” A circle-cropped hiking photo on a Next.js template. This pic is from so long ago it got chopped. We all start somewhere.",
+      },
+      {
+        type: "image",
+        src: withBase("/images/software/portfolio-v2.jpg"),
+        label: "v2 home",
+        caption: "v2 — the dark-glass era. Glassmorphism, a Playfair serif, and the conviction that Every Word Deserves Capital Letters. At least I got a real headshot.",
+      },
+      {
+        type: "image",
+        src: withBase("/images/software/portfolio-v3.jpg"),
+        label: "v3 home",
+        caption: "v3 — the one you're reading. Custom mirror-hero, cohesive system, one orange accent, and the hard-won lesson that restraint is a feature.",
+      },
+      {
+        type: "image",
+        src: withBase("/images/software/portfolio-projects-v1.jpg"),
+        label: "v1 projects",
+        caption: "v1's projects page: a tidy grid of template cards. Perfectly readable, perfectly forgettable.",
+      },
+      {
+        type: "image",
+        src: withBase("/images/software/portfolio-projects-v2.jpg"),
+        label: "v2 projects",
+        caption: "v2's zig-zag timeline. Slick in a screenshot, but your eyes had to slalom left-right-left to compare two projects.",
+      },
+      {
+        type: "image",
+        src: withBase("/images/software/portfolio-projects-v3.jpg"),
+        label: "v3 projects",
+        caption: "v3 — same work, finally on one axis: a two-column grid, a Hardware / Software toggle, and tiles that play a demo on hover.",
+      },
+    ],
+    links: [
+      { label: "Live site", href: "https://antangled.github.io/engineering_portfolio/" },
+      { label: "GitHub", href: "https://github.com/antangled/engineering_portfolio" },
+    ],
+  },
+  {
+    slug: "newsflash",
+    badge: "Solo",
+    minor: true,
+    category: "software",
+    title: "NewsFlash",
+    tagline: "The day's top tech news in a slim bar at the bottom of whatever page you're on.",
+    summary:
+      "A Chrome extension and Node backend that read posts from 57 hand-picked tech accounts, cluster and rank them with an LLM, and show the top few as one-line headlines in a bar on every page, so the news finds you instead of the other way around.",
+    impact: ["57 curated sources", "LLM ranking and summaries", "Chrome extension + Node backend"],
+    stats: [
+      { value: "57", label: "curated accounts, in three tiers" },
+      { value: "2×", label: "pipeline runs a day" },
+      { value: "5", label: "headlines a day on the free tier" },
+    ],
+    highlights: [
+      "Built an Express 5 + TypeScript + SQLite backend that pulls posts from 57 curated accounts, filters out replies, reposts and spam, then scores, clusters and summarizes them with Gemini.",
+      "Gave stories confirmed by three or more sources a ranking bonus.",
+      "Built an MV3 Chrome extension whose news bar is injected in a shadow DOM, so no website's styles can break it, plus a popup with today's stories, an archive and settings.",
+      "Added X sign-in (OAuth PKCE) for a personal feed, and kept a built-in fallback so the bar is never empty.",
+    ],
+    cover: withBase("/images/software/newsflash-cover.jpg"),
+    coverCaption: "The news bar at the bottom of a page and the popup above it, shown with demo stories instead of live news.",
+    duration: "Mar — May 2026",
+    year: 2026,
+    order: 7,
+    status: "active",
+    tags: ["TypeScript", "Express 5", "SQLite", "Gemini", "Chrome extension (MV3)", "Tauri / Rust"],
+    role: "Solo developer: backend, extension and an early desktop app.",
+    problem: "Tech news is a scroll trap: high noise, low signal. I wanted the day's real headlines to come to me, without opening another feed.",
+    approach: "Curate the sources, let a scheduled pipeline cluster and rank them, and push only the top few as one-line summaries into pages I already have open.",
+    results: "A working extension and backend that turn 57 sources into a handful of daily headlines, with a Tauri desktop app started.",
+    media: [
+      {
+        type: "image",
+        src: withBase("/images/software/newsflash-popup.jpg"),
+        label: "Popup",
+        fit: "contain",
+        caption: "The popup: today's ranked stories, an archive and settings. Shown with demo stories.",
+      },
+      {
+        type: "image",
+        src: withBase("/images/software/newsflash-bar.jpg"),
+        label: "News bar",
+        fit: "contain",
+        caption: "The bar cycles through the day's headlines every six seconds and expands for a short summary.",
+      },
+    ],
+    links: [{ label: "GitHub", href: "https://github.com/antangled/NewsFlash" }],
   },
 ];
+
+export const projects: Project[] = [...hardware, ...software];
+
+/** Home-page proof strip: one hands-on photo per build, shown directly under the hero. */
+export const buildStrip: { slug: string; label: string; alt: string; src: string; clip?: string }[] = [
+  { slug: "internal-cycloidal-actuator", label: "Cycloidal actuator", alt: "Cycloidal actuator prototype v2 held in hand", src: withBase("/images/strip/cycloidal.jpg"), clip: withBase("/videos/clips/kinema-loop.mp4") },
+  { slug: "eldaeon-passive-radar-system", label: "Passive radar", alt: "Eldaeon passive radar rig on a tripod in the lab", src: withBase("/images/strip/radar.jpg") },
+  { slug: "biodiversity-sensing-module", label: "Sensing module", alt: "Custom biodiversity sensing PCB held in hand", src: withBase("/images/strip/biodiversity.jpg") },
+  { slug: "polysynth-x", label: "PolySynth X", alt: "PolySynth X circuit board and 3D-printed keybed", src: withBase("/images/strip/polysynth.jpg"), clip: withBase("/videos/clips/polysynth-loop.mp4") },
+  { slug: "compact-automated-aquaponics", label: "Aquaponics", alt: "Automated aquaponics system in a dining hall", src: withBase("/images/strip/aquaponics.jpg") },
+  { slug: "murex-rov", label: "Underwater ROV", alt: "MUREX underwater ROV on the pool deck", src: withBase("/images/strip/murex.jpg") },
+];
+
+export function getProjects(category: "hardware" | "software"): Project[] {
+  return projects.filter((p) => p.category === category).sort((a, b) => a.order - b.order);
+}
+
+export function getProject(slug: string): Project | undefined {
+  return projects.find((p) => p.slug === slug);
+}
+
+export function adjacentProjects(slug: string) {
+  const project = getProject(slug);
+  if (!project) return { prev: undefined, next: undefined };
+  const list = getProjects(project.category);
+  const i = list.findIndex((p) => p.slug === slug);
+  return {
+    prev: i > 0 ? list[i - 1] : undefined,
+    next: i < list.length - 1 ? list[i + 1] : undefined,
+  };
+}
