@@ -1,10 +1,9 @@
 import { Link } from "react-router-dom";
 import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
-import { useState } from "react";
-import { ArrowRight, Download, Play } from "lucide-react";
+import { useRef } from "react";
+import { ArrowRight, Download } from "lucide-react";
 import { profile } from "@/data/profile";
-import { buildStrip } from "@/data/projects";
-import { HoverClip } from "../motion/HoverClip";
+import { HeroCallouts } from "./HeroCallouts";
 import { withBase } from "@/lib/withBase";
 import { DUR, EASE } from "@/lib/motion";
 import { Linkedin } from "../icons/Linkedin";
@@ -24,14 +23,15 @@ import { Linkedin } from "../icons/Linkedin";
  *   450 ms  "I build" slides out of the photo's left edge
  *   600 ms  "products." rises into its line (both copies, same timing)
  *  1000 ms  caption, then buttons
- *  1450 ms  the two prints are tossed in (left, then top right) and land with a wobble
- *  2400 ms  scroll cue
+ *  1450 ms  zoom callouts: a reticle locks onto the photo, dashed rays grow out,
+ *           and each build zooms out of it and decodes (see HeroCallouts)
+ *  3200 ms  scroll cue
  *
  * Every animation is a transform / clip-path / opacity string, so Motion runs it
  * on WAAPI (compositor).
  */
 
-const T = { photo: 0, name: 0.3, cards: 1.45, cardStep: 0.22, build: 0.45, products: 0.6, caption: 1.0, buttons: 1.1, cue: 2.4 };
+const T = { photo: 0, name: 0.3, build: 0.45, products: 0.6, caption: 1.0, buttons: 1.1, cue: 3.2 };
 
 function Products({ reduced, light }: { reduced: boolean; light?: boolean }) {
   return (
@@ -48,82 +48,6 @@ function Products({ reduced, light }: { reduced: boolean; light?: boolean }) {
         </motion.span>
       </span>
     </span>
-  );
-}
-
-/**
- * Two builds pinned around the portrait like prints: the cycloidal actuator
- * (its clip looping) on the left, the MATE ROV top right. Tilted, gently
- * bobbing, straightening and lifting on hover. Positions
- * come from the hero's CSS geometry (.hero-float--*), so they sit in the open
- * space around the photo and words at every width without resizing either.
- */
-const FLOATS: { slot: "l1" | "r1"; slug: string; label: string; video?: boolean }[] = [
-  // left: the actuator on its own, its clip looping whenever it's on screen
-  { slot: "l1", slug: "internal-cycloidal-actuator", label: "Cycloidal actuator", video: true },
-  { slot: "r1", slug: "murex-rov", label: "MATE ROV" },
-];
-
-/**
- * "Toss and land": after the caption and buttons settle, each print is flung in
- * from off screen, spinning as it flies, overshoots its resting tilt, wobbles
- * once and settles (then the idle bob takes over). Transform strings only, so
- * Motion runs them on WAAPI. The card's own tilt (--rot) sits on an inner
- * element, so these angles are on top of it.
- */
-const TOSS: Record<(typeof FLOATS)[number]["slot"], string[]> = {
-  l1: [
-    "translate(-55vw, 35vh) rotate(-38deg) scale(0.85)",
-    "translate(0vw, 0vh) rotate(7deg) scale(1.05)",
-    "translate(0vw, 0vh) rotate(-3deg) scale(0.98)",
-    "translate(0vw, 0vh) rotate(1deg) scale(1.01)",
-    "translate(0vw, 0vh) rotate(0deg) scale(1)",
-  ],
-  r1: [
-    "translate(40vw, -45vh) rotate(42deg) scale(0.85)",
-    "translate(0vw, 0vh) rotate(-8deg) scale(1.05)",
-    "translate(0vw, 0vh) rotate(3deg) scale(0.98)",
-    "translate(0vw, 0vh) rotate(-1deg) scale(1.01)",
-    "translate(0vw, 0vh) rotate(0deg) scale(1)",
-  ],
-};
-
-function FloatCard({ f, i, reduced }: { f: (typeof FLOATS)[number]; i: number; reduced: boolean }) {
-  const [hot, setHot] = useState(false);
-  const b = buildStrip.find((x) => x.slug === f.slug)!;
-  return (
-    <motion.div
-      data-reveal
-      className={`hero-float hero-float--${f.slot}`}
-      initial={reduced ? { opacity: 0 } : { opacity: 0, transform: TOSS[f.slot][0] }}
-      animate={reduced ? { opacity: 1 } : { opacity: [0, 1, 1, 1, 1], transform: TOSS[f.slot] }}
-      transition={
-        reduced
-          ? { duration: DUR.slow, ease: EASE, delay: T.cards + i * T.cardStep }
-          : { duration: 1.15, times: [0, 0.6, 0.78, 0.9, 1], ease: [EASE, "easeInOut", "easeInOut", "easeOut"], delay: T.cards + i * T.cardStep }
-      }
-    >
-      <div className="hero-float-bob" style={{ animationDelay: `${-i * 1.7}s` }}>
-        <Link
-          to={`/projects/${f.slug}`}
-          data-cursor="view"
-          data-cursor-label={b.clip ? "Play" : "View"}
-          aria-label={f.label}
-          onMouseEnter={() => setHot(true)}
-          onMouseLeave={() => setHot(false)}
-          onFocus={() => setHot(true)}
-          onBlur={() => setHot(false)}
-          className="hero-float-card group"
-        >
-          <img src={b.src} alt="" width={640} height={480} decoding="async" draggable={false} />
-          {b.clip && (f.video ? <HoverClip src={b.clip} mode="inview" /> : <HoverClip src={b.clip} active={hot} />)}
-          <span className="hero-float-label">
-            {b.clip && <Play aria-hidden className="h-2.5 w-2.5 shrink-0 fill-current" />}
-            {f.label}
-          </span>
-        </Link>
-      </div>
-    </motion.div>
   );
 }
 
@@ -153,6 +77,7 @@ function Rise({
 
 export function Hero() {
   const reduced = useReducedMotion() ?? false;
+  const stageRef = useRef<HTMLDivElement>(null);
   // the scroll cue fades as soon as you start scrolling
   const { scrollY } = useScroll();
   const cueOpacity = useTransform(scrollY, [0, 120], [1, 0]);
@@ -161,7 +86,7 @@ export function Hero() {
     <section className="hero relative flex overflow-x-clip min-h-[100svh] flex-col items-center px-[4vw] pb-24 pt-24 lg:pt-[5.5rem]">
       <h1 className="sr-only">I build products.</h1>
 
-      <div className="hero-stage relative w-full">
+      <div ref={stageRef} className="hero-stage relative w-full">
         {/* name, small, in the headline face, sitting on top of "I build" */}
         <motion.p
           data-reveal
@@ -191,11 +116,8 @@ export function Hero() {
         </span>
 
         {/* builds pinned around the portrait (desktop) */}
-        <nav aria-label="Builds" className="hidden lg:contents">
-          {FLOATS.map((f, i) => (
-            <FloatCard key={f.slug} f={f} i={i} reduced={reduced} />
-          ))}
-        </nav>
+        {/* builds as magnified callouts from the portrait (desktop) */}
+        <HeroCallouts stageRef={stageRef} reduced={reduced} />
 
         {/* ink copy of "products." (behind the photo) */}
         <Products reduced={reduced} />

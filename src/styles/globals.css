@@ -674,12 +674,10 @@ html.lenis-scrolling [data-scroll-inert] {
   }
 }
 
-
-/* ---- Hero floating builds (Hero.tsx FloatCard) ------------------------------
-   Tilted prints in the open space around the portrait; desktop only.
-   Positions use the hero geometry (--F, --pw, --ph, --by, --py, --d):
-     l1  the actuator video, alone under "I build", tilted left
-     r1  above "products.", clear of its letter tops (py + 0.10F) */
+/* ---- Hero zoom callouts (HeroCallouts.tsx) ----------------------------------
+   Card slots (desktop): straight, not tilted, so the dashed rays meet their
+   corners. l1 sits flush with "I build"'s left edge under it (a long funnel back
+   to the photo); r1 sits right of the photo above "products.". */
 .hero-float {
   display: none;
 }
@@ -688,94 +686,116 @@ html.lenis-scrolling [data-scroll-inert] {
     display: block;
     position: absolute;
     z-index: 5;
+    aspect-ratio: 4 / 3;
   }
-  /* alone on the left: larger, centred in the space under "I build"
-     (from its baseline, 0.77F down, to the photo's bottom) */
   .hero-float--l1 {
-    --rot: -6deg;
-    --w: calc(var(--F) * 1.75);
-    width: var(--w);
-    left: calc(50% - var(--pw) / 2 - var(--g) - var(--F) * 1.25 - var(--w) / 2);
-    top: calc((var(--by) + var(--F) * 0.77 + var(--ph) - var(--w) * 0.75) / 2);
+    width: calc(var(--F) * 1.6);
+    left: calc(50% - var(--pw) / 2 - var(--g) - var(--F) * 2.5);
+    top: calc((var(--by) + var(--F) * 0.77 + var(--ph) - var(--F) * 1.2) / 2);
   }
   .hero-float--r1 {
-    --rot: 6deg;
     width: calc(var(--F) * 1.35);
     left: calc(50% + var(--pw) / 2 + var(--F) * 0.85);
     top: calc(var(--by) - var(--F) * 0.18);
   }
 }
-.hero-float-bob {
-  animation: hero-bob 7s ease-in-out infinite;
-}
-@keyframes hero-bob {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-8px);
-  }
-}
-.hero-float-card {
+.callout-card {
   position: relative;
   display: block;
-  aspect-ratio: 4 / 3;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
-  border-radius: clamp(0.75rem, 1vw, 1.1rem);
-  background: #16181c;
-  transform: rotate(var(--rot));
-  box-shadow:
-    0 0 0 1px rgba(21, 23, 27, 0.08),
-    0 28px 50px -26px rgba(21, 23, 27, 0.55);
+  border-radius: 0.6rem;
+  background: #0d0f12;
+  box-shadow: 0 30px 60px -30px rgba(21, 23, 27, 0.6);
   transition:
     transform 400ms var(--ease-expo),
     box-shadow 400ms var(--ease-expo);
   outline: none;
 }
-.hero-float-card:hover,
-.hero-float-card:focus-visible {
-  transform: rotate(0deg) translateY(-6px) scale(1.06);
-  box-shadow:
-    0 0 0 2px var(--color-signal),
-    0 36px 60px -26px rgba(21, 23, 27, 0.6);
+.callout-card:hover,
+.callout-card:focus-visible {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 40px 70px -30px rgba(21, 23, 27, 0.65);
 }
-.hero-float:has(.hero-float-card:hover) {
-  z-index: 8;
-}
-.hero-float-card img {
+.callout-card img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   pointer-events: none;
 }
-.hero-float-label {
+/* the binary field the card arrives as */
+.callout-decode {
   position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  background: #0b0c0f;
+}
+.callout-bits {
+  position: absolute;
+  inset: -2px;
+  padding: 6px 8px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 13px;
+  letter-spacing: 0.18em;
+  word-break: break-all;
+  color: rgba(255, 90, 31, 0.75);
+  text-shadow: 0 0 6px rgba(255, 90, 31, 0.45);
+}
+.callout-scan {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  margin-top: -1px;
+  background: #ff5a1f;
+  box-shadow: 0 0 14px 3px rgba(255, 90, 31, 0.7);
+}
+/* terminal-style file name, bottom left */
+.callout-label {
+  position: absolute;
+  z-index: 3;
   left: 0.55rem;
   bottom: 0.55rem;
   display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.3rem 0.65rem;
-  border-radius: 999px;
-  background: rgba(10, 11, 13, 0.72);
+  gap: 0.4em;
+  padding: 0.3rem 0.6rem;
+  border-radius: 0.3rem;
+  background: rgba(10, 11, 13, 0.78);
   color: #fff;
-  font-size: 0.72rem;
-  font-weight: 500;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
   white-space: nowrap;
-  opacity: 0;
-  transform: translateY(6px);
-  transition:
-    opacity 150ms var(--ease-expo),
-    transform 400ms var(--ease-expo);
 }
-.hero-float-card:hover .hero-float-label,
-.hero-float-card:focus-visible .hero-float-label {
-  opacity: 1;
-  transform: translateY(0);
+/* ZOOM readout over the reticle: a small HUD tag, legible on grey or on the suit */
+.callout-readout {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: rgba(10, 11, 13, 0.78);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 14px;
+  letter-spacing: 0.14em;
+  color: #fff;
+  white-space: nowrap;
+}
+/* dashed strokes; they march only while the card is hovered */
+.callout-dash {
+  stroke-dasharray: 6 5;
+}
+.callout--hot .callout-dash {
+  animation: callout-ants 0.8s linear infinite;
+}
+@keyframes callout-ants {
+  to {
+    stroke-dashoffset: -11;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
-  .hero-float-bob {
+  .callout--hot .callout-dash {
     animation: none;
   }
 }
