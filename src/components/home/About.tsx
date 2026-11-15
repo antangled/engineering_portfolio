@@ -119,7 +119,7 @@ function Row({ exp, current, open, onToggle }: { exp: ExperienceEntry; current?:
         aria-expanded={open}
         aria-controls={id}
         data-cursor="link"
-        className="group grid w-full grid-cols-[auto_1fr_auto] items-center gap-x-4 gap-y-1 py-5 text-left sm:grid-cols-[auto_minmax(0,1fr)_minmax(0,1.2fr)_auto_auto]"
+        className="group grid w-full grid-cols-[auto_1fr_auto] items-center gap-x-4 gap-y-1 py-5 text-left sm:grid-cols-[auto_minmax(0,1fr)_minmax(0,1.2fr)_12.5rem_auto]"
       >
         <span className="relative flex h-2.5 w-2.5" aria-hidden>
           {current && <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-signal opacity-60" />}
@@ -129,7 +129,7 @@ function Row({ exp, current, open, onToggle }: { exp: ExperienceEntry; current?:
           {exp.org}
         </span>
         <span className="col-start-2 row-start-2 text-sm text-ink-500 sm:col-start-3 sm:row-start-1">{exp.role}</span>
-        <span className="col-start-3 row-start-1 hidden whitespace-nowrap font-mono text-xs text-ink-500 sm:col-start-4 sm:inline">
+        <span className="col-start-3 row-start-1 hidden whitespace-nowrap text-right font-mono text-xs text-ink-500 sm:col-start-4 sm:inline">
           {exp.period}
           {current && <span className="ml-2 rounded-full bg-signal/10 px-1.5 py-0.5 text-signal-ink">NOW</span>}
         </span>

@@ -5,7 +5,6 @@ import { profile, heroStatus } from "../../data/profile";
 import { Linkedin } from "../icons/Linkedin";
 import { withBase } from "../../lib/withBase";
 import { DUR, EASE as ease } from "../../lib/motion";
-import { SplitFlap } from "../motion/SplitFlap";
 
 /*
  * v4 entrance, one orchestrated ~1.2 s sequence:
@@ -126,7 +125,14 @@ export function Hero() {
               </p>
             </Follow>
             <Follow i={2} className="mt-4">
-              <SplitFlap messages={heroStatus} />
+              {/* quiet status line (the split-flap board read as clutter) */}
+              <p className="inline-flex items-center gap-2.5 font-mono text-xs uppercase tracking-wider text-white/80">
+                <span className="relative flex h-2 w-2" aria-hidden>
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-signal opacity-60" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-signal" />
+                </span>
+                {heroStatus[0]}
+              </p>
             </Follow>
             <Follow i={3}>
               <div className="mt-4 flex flex-wrap items-center gap-3">
