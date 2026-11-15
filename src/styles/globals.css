@@ -174,6 +174,11 @@ html.lenis body {
 .lenis.lenis-stopped {
   overflow: hidden;
 }
+/* Charts re-render on every hovered cell. While the page is scrolling under a
+   still pointer, ignore hover there so each frame isn't a React render. */
+html.lenis-scrolling [data-scroll-inert] {
+  pointer-events: none;
+}
 
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -400,4 +405,73 @@ html.lenis body {
   --accent: #23272e;
   --accent-foreground: #f1f2f4;
   --input: rgba(241, 242, 244, 0.12);
+}
+
+/* ---- Home statement (Statement.tsx) --------------------------------------
+   Plays once when it enters view: words rise out of a mask, each project
+   thumbnail pops in, then the proof phrases turn orange as an underline draws.
+   Transitions live on the "in" state only, so arming (hiding) is instant. */
+.statement .st-mask {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  /* room for descenders inside the clip */
+  padding-bottom: 0.1em;
+  margin-bottom: -0.1em;
+}
+.statement .st-word {
+  display: inline-block;
+}
+.statement .st-thumb {
+  display: inline-block;
+  width: 1.45em;
+  height: 0.8em;
+  margin-right: 0.16em;
+  vertical-align: -0.02em;
+  overflow: hidden;
+  border-radius: 0.2em;
+  background: var(--color-surface);
+  box-shadow: 0 0 0 1px rgba(21, 23, 27, 0.08);
+}
+.statement .st-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 800ms var(--ease-expo);
+}
+.statement .st-proof:hover .st-thumb img {
+  transform: scale(1.12);
+}
+.statement .st-line {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-repeat: no-repeat;
+  background-position: 0 88%;
+  background-size: 100% 0.045em;
+  color: var(--color-signal-ink);
+}
+.statement[data-st="armed"] .st-word {
+  transform: translateY(110%);
+}
+.statement[data-st="armed"] .st-thumb {
+  transform: scale(0) rotate(-10deg);
+}
+.statement[data-st="armed"] .st-line {
+  color: var(--color-ink-900);
+  background-size: 0% 0.045em;
+}
+.statement[data-st="in"] .st-word {
+  transition: transform 800ms var(--ease-expo);
+}
+.statement[data-st="in"] .st-thumb {
+  transition: transform 800ms var(--ease-expo);
+  transition-delay: calc(var(--st-at) + 120ms);
+}
+.statement[data-st="in"] .st-line {
+  transition:
+    color 400ms var(--ease-expo) calc(var(--st-at) + 420ms),
+    background-size 800ms var(--ease-expo) calc(var(--st-at) + 420ms);
+}
+.statement .st-proof:hover .st-thumb {
+  transform: rotate(-4deg) scale(1.06);
+  transition-delay: 0ms;
 }

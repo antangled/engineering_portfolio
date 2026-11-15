@@ -13,6 +13,7 @@ import { cn } from "../../lib/utils";
 import { ProjectGallery } from "./ProjectGallery";
 import { coverTransitionName } from "../../data/featured";
 import { Lightbox } from "./Lightbox";
+import { KinemaExplorer } from "../kinema/KinemaExplorer";
 import { CopyEmail } from "../CopyEmail";
 import { contact, profile, socialLinks } from "../../data/profile";
 import { usePageTitle } from "../../lib/usePageTitle";
@@ -391,6 +392,9 @@ export function ProjectDetail() {
             </dl>
           </Reveal>
         )}
+
+        {/* Phase 3b: Kinema's actuator in 3D */}
+        {project.slug === "internal-cycloidal-actuator" && project.cover && <KinemaExplorer poster={project.cover} />}
 
         {/* Overview + what I did | at a glance */}
         <div className="mt-14 grid gap-10 lg:grid-cols-[1.6fr_1fr] lg:gap-14">

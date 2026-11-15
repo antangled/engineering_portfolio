@@ -35,6 +35,8 @@ export interface SplitFlapTextProps {
   words?: string[];
   /** Time each word stays up, in ms. */
   interval?: number;
+  /** Portfolio edit: stop cycling (e.g. while scrolled off screen). */
+  paused?: boolean;
   /** Tiles always shown, so the board doesn't change width. Defaults to the longest word. */
   length?: number;
   className?: string;
@@ -218,6 +220,7 @@ export default function SplitFlapText({
   text,
   words = ["NOW BOARDING", "GATE 12", "ON TIME", "LAST CALL"],
   interval = 3800,
+  paused = false,
   length,
   className,
   tileClassName,
@@ -234,7 +237,7 @@ export default function SplitFlapText({
   }, []);
 
   useEffect(() => {
-    if (text !== undefined || words.length < 2) {
+    if (text !== undefined || words.length < 2 || paused) {
       return;
     }
     const id = window.setInterval(
@@ -242,7 +245,7 @@ export default function SplitFlapText({
       interval
     );
     return () => window.clearInterval(id);
-  }, [text, words.length, interval]);
+  }, [text, words.length, interval, paused]);
 
   const value = clean(text ?? words[index] ?? "");
   const size =

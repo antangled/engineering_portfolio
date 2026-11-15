@@ -64,7 +64,7 @@
 - After the build strip, the v3 line is set large and revealed word by word as you scroll:
   > "From cycloidal actuators to satellite-IoT field sensors and RF drone detection."
 - *cycloidal actuators*, *satellite-IoT field sensors* and *RF drone detection* turn signal-orange as they land and link to Kinema, Biodiversity and Eldaeon.
-- Pinned briefly on desktop. Normal, fully visible text on phones and with reduced motion.
+- ~~Pinned briefly on desktop.~~ **Revised after review (Nov 15):** no pin and no full-screen size. A compact block (about 390 px tall) beside a "What I build" label: the words rise in once on entering view, a small thumbnail of each build pops in beside its phrase, and the phrases turn orange as an underline draws. CSS transitions only, so no per-scroll-frame work. Normal, fully visible text on phones and with reduced motion.
 
 ## Phase 3: Selected work as stacking cards
 
@@ -79,7 +79,7 @@
 - Phones get a plain vertical list of the same cards, with no pinning.
 - **Fallback if stacking feels too much:** alternating image/text rows (ayoungcho style), using the same card content. This is a one-file swap.
 
-## Phase 3b: Kinema in 3D (starts when the model arrives)
+## Phase 3b: Kinema in 3D (done Nov 15, from the RO80 drive v2 Onshape GLBs)
 
 - **Home, Kinema stacking card:** a scroll-driven exploded view. While the card is pinned, the parts separate along the axis (housing → cycloidal discs → eccentric cam → output bearing), each name appears beside its part, and then they reassemble.
 - **Kinema project page:** an interactive viewer tile. Drag to rotate, an "Explode" toggle, and part names on hover.

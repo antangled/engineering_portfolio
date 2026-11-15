@@ -94,6 +94,7 @@ function Ranking({ domain }: { domain: Domain }) {
       <div
         role="img"
         aria-label={`${domain} tools by number of projects: ${list.map((t) => `${t.name} ${t.count}`).join(", ")}`}
+        data-scroll-inert
         className={cn("cursor-pointer", wide ? "[--bar-label-width:150px]" : "[--bar-label-width:112px]")}
         onClick={() => navigate(`/projects/${tool.proofSlug}`)}
         data-cursor="view"
@@ -166,7 +167,7 @@ function BuildCalendar() {
           </p>
         </div>
       </div>
-      <div data-lenis-prevent className="no-scrollbar -mx-2 mt-6 overflow-x-auto px-2">
+      <div data-lenis-prevent data-scroll-inert className="no-scrollbar -mx-2 mt-6 overflow-x-auto px-2">
         <div className="min-w-[760px]">
           <HeatmapInteractionProvider>
             <HeatmapInteractionBoundary>

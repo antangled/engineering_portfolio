@@ -1,110 +1,95 @@
-import { useRef } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { motion, useScroll, useTransform, type MotionValue } from "motion/react";
-import { useRichMotion } from "@/lib/motion";
+import { useReducedMotion } from "motion/react";
+import { ArrowUpRight } from "lucide-react";
+import { getProject } from "@/data/projects";
+import { useInViewOnce } from "@/lib/motion";
 
-/** The v3 supporting line, set large. Linked phrases point at the proof. */
-const PARTS: { text: string; to?: string }[] = [
+/** The v3 supporting line. Each proof phrase carries a thumbnail of the build it names. */
+const PARTS: { text: string; slug?: string }[] = [
   { text: "From" },
-  { text: "cycloidal actuators", to: "/projects/internal-cycloidal-actuator" },
+  { text: "cycloidal actuators", slug: "internal-cycloidal-actuator" },
   { text: "to" },
-  { text: "satellite-IoT field sensors", to: "/projects/biodiversity-sensing-module" },
+  { text: "satellite-IoT field sensors", slug: "biodiversity-sensing-module" },
   { text: "and" },
-  { text: "RF drone detection", to: "/projects/eldaeon-passive-radar-system" },
+  { text: "RF drone detection", slug: "eldaeon-passive-radar-system" },
 ];
 
-const INK = "#15171b";
-const SIGNAL = "#d33e08"; // signal-ink: AA on the light register
-const DIM = 0.14;
-
-type Word = { word: string; to?: string; first: boolean; last: boolean };
-const WORDS: Word[] = PARTS.flatMap((p) => {
-  const ws = p.text.split(" ");
-  return ws.map((word, i) => ({ word, to: p.to, first: i === 0, last: i === ws.length - 1 }));
-});
-
-// max-w in ch must live on the element with the big font-size (ch = that font's "0").
-const headline = "max-w-[19ch] text-balance font-display text-[clamp(2.3rem,6.2vw,6.5rem)] font-semibold leading-[1.02] tracking-[-0.025em]";
-
-/** One word whose opacity (and, for proof words, color) is driven by scroll. */
-function ScrollWord({ w, i, progress }: { w: Word; i: number; progress: MotionValue<number> }) {
-  // Words land across 8%–70% of the pinned scroll, the rest is a short hold.
-  const start = 0.08 + (i / WORDS.length) * 0.62;
-  const end = start + 0.62 / WORDS.length;
-  const opacity = useTransform(progress, [start, end], [DIM, 1]);
-  const color = useTransform(progress, [end - 0.01, end + 0.04], [INK, w.to ? SIGNAL : INK]);
-  return (
-    <motion.span style={{ opacity, color }} className="inline">
-      {w.word}
-    </motion.span>
-  );
-}
-
-/** Render words, wrapping each linked phrase in one <Link>. */
-function Sentence({ progress }: { progress?: MotionValue<number> }) {
-  const out: React.ReactNode[] = [];
-  let group: React.ReactNode[] = [];
-  WORDS.forEach((w, i) => {
-    const node = progress ? (
-      <ScrollWord key={i} w={w} i={i} progress={progress} />
-    ) : (
-      <span key={i} className={w.to ? "text-signal-ink" : undefined}>
-        {w.word}
-      </span>
-    );
-    const space = i < WORDS.length - 1 ? " " : "";
-    if (!w.to) {
-      out.push(node, space);
-      return;
-    }
-    group.push(node, w.last ? "" : " ");
-    if (w.last) {
-      out.push(
-        <Link
-          key={`l${i}`}
-          to={w.to}
-          data-cursor="link"
-          className="rounded-md decoration-[0.06em] underline-offset-[0.14em] hover:underline focus-visible:underline"
-        >
-          {group}
-        </Link>,
-        space
-      );
-      group = [];
-    }
-  });
-  return (
-    <p className={headline}>
-      {out}
-      <span className="text-signal">.</span>
-    </p>
-  );
-}
+const STEP = 45; // ms between words
 
 /**
- * Phase 2: the line from the hero, set large and read in word by word as you
- * scroll. Desktop pins it briefly; phones and reduced motion get the same text,
- * fully visible, with the proof phrases already orange.
+ * Phase 2, revised: a compact statement, not a pinned full-screen one. When it
+ * enters view the words rise from a mask one after another, each thumbnail pops
+ * in, and the proof phrases turn orange as an underline draws under them. It
+ * plays once, on CSS transitions only (no per-scroll-frame work). The text is in
+ * the HTML from the start; the hidden state only applies once JS has armed it.
  */
 export function Statement() {
-  const rich = useRichMotion();
-  const ref = useRef<HTMLElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
+  const reduced = useReducedMotion();
+  const [ref, inView] = useInViewOnce<HTMLParagraphElement>(0.4);
+  // Arm (hide) only after mount, so the prerendered HTML always shows the text.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  const state = !mounted || reduced || inView ? "in" : "armed";
 
-  if (!rich) {
-    return (
-      <section aria-label="What I build" className="mx-auto max-w-[1400px] px-[5vw] py-20 text-ink-900 sm:py-28">
-        <Sentence />
-      </section>
-    );
-  }
+  let w = 0;
+  const words = (text: string) =>
+    text.split(" ").map((word, i, a) => {
+      const delay = w++ * STEP;
+      // The space sits outside the clipped box: trailing spaces inside an inline-block collapse.
+      return [
+        <span key={i} className="st-mask">
+          <span className="st-word" style={{ transitionDelay: `${delay}ms` }}>
+            {word}
+          </span>
+        </span>,
+        i < a.length - 1 ? " " : "",
+      ];
+    });
 
   return (
-    <section ref={ref} aria-label="What I build" className="relative h-[210vh]">
-      <div className="sticky top-0 flex h-screen items-center">
-        <div className="mx-auto w-full max-w-[1400px] px-[5vw] text-ink-900">
-          <Sentence progress={scrollYProgress} />
-        </div>
+    <section aria-label="What I build" className="mx-auto max-w-[1400px] px-[5vw] py-16 sm:py-24">
+      <div className="grid gap-6 lg:grid-cols-12 lg:gap-10">
+        <p className="flex items-center gap-3 font-mono text-xs uppercase tracking-wider text-ink-500 lg:col-span-3 lg:items-start lg:pt-4">
+          <span aria-hidden className="h-px w-8 bg-signal" />
+          What I build
+        </p>
+        <p
+          ref={ref}
+          data-st={state}
+          className="statement max-w-[24ch] text-balance font-display text-[clamp(2rem,4.2vw,4rem)] font-semibold leading-[1.08] tracking-[-0.02em] text-ink-900 lg:col-span-9"
+        >
+          {PARTS.map((part, pi) => {
+            const sep = pi < PARTS.length - 1 ? " " : "";
+            if (!part.slug) return [words(part.text), sep];
+            const project = getProject(part.slug);
+            const at = w * STEP;
+            return [
+              <Link
+                key={part.slug}
+                to={`/projects/${part.slug}`}
+                data-cursor="link"
+                className="st-proof group"
+                style={{ ["--st-at" as string]: `${at}ms` }}
+              >
+                <span aria-hidden className="st-thumb">
+                  {project?.cover && <img src={project.cover} alt="" loading="lazy" decoding="async" />}
+                </span>
+                <span className="st-line">{words(part.text)}</span>
+                {/* zero-width slot so the hover arrow never shifts the text */}
+                <span aria-hidden className="relative inline-block w-0">
+                  <ArrowUpRight className="absolute bottom-[0.5em] left-[0.04em] h-[0.45em] w-[0.45em] text-signal opacity-0 transition-all duration-[400ms] ease-expo group-hover:translate-x-[0.06em] group-hover:opacity-100" />
+                </span>
+              </Link>,
+              sep,
+            ];
+          })}
+          <span className="st-mask">
+            <span className="st-word text-signal" style={{ transitionDelay: `${w * STEP}ms` }}>
+              .
+            </span>
+          </span>
+        </p>
       </div>
     </section>
   );

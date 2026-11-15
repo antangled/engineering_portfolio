@@ -1,4 +1,5 @@
-import { lazy, Suspense, useEffect, useRef, useState } from "react";
+import { lazy, Suspense } from "react";
+import { useNear } from "@/lib/useNear";
 import { projects } from "@/data/projects";
 import { tools } from "@/data/skills";
 import { CountUp } from "../motion/CountUp";
@@ -6,19 +7,6 @@ import { Reveal } from "../motion/Reveal";
 
 // Charts (Bklit + d3) are a separate chunk, fetched only when the section nears the viewport.
 const SkillsCharts = lazy(() => import("./SkillsCharts"));
-
-function useNear<T extends Element>(margin = "800px 0px") {
-  const ref = useRef<T>(null);
-  const [near, setNear] = useState(false);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el || near) return;
-    const io = new IntersectionObserver(([e]) => e.isIntersecting && setNear(true), { rootMargin: margin });
-    io.observe(el);
-    return () => io.disconnect();
-  }, [near, margin]);
-  return [ref, near] as const;
-}
 
 const firstYear = Math.min(...projects.map((p) => p.year));
 
