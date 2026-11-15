@@ -31,6 +31,12 @@ function KinemaMedia({ item, s }: { item: FeaturedItem; s: MotionValue<number> }
     <KinemaStage
       poster={item.image ?? ""}
       posterFit="cover"
+      // the CAD is the card: no photo first (the project page has the photos);
+      // load well ahead (after the hero entrance) so it's already drawn when
+      // the card slides in
+      posterFallbackOnly
+      preloadMargin="1600px 0px"
+      preloadAfterMs={3500}
       explode={explode}
       turn={turn}
       yaw={yaw}
@@ -151,14 +157,7 @@ export function FeaturedStack({ items }: { items: FeaturedItem[] }) {
   return (
     <div ref={ref} className="relative -mt-[6vh]">
       {items.map((item, i) => (
-        <StackCard
-          key={item.slug}
-          item={item}
-          i={i}
-          n={items.length}
-          progress={scrollYProgress}
-          approach={approach}
-        />
+        <StackCard key={item.slug} item={item} i={i} n={items.length} progress={scrollYProgress} approach={approach} />
       ))}
     </div>
   );
