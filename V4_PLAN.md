@@ -65,9 +65,11 @@
   - It is drawn twice: black on the page, and white (plus a soft scrim) inside the photo frame.
   - The words slide or rise out from behind the photo.
 - Caption centred under the photo: UC Berkeley seal, role, "UC Berkeley · EECS". Then View my work / Résumé / LinkedIn. A subtle animated scroll cue at the bottom of the first screen.
-- Builds reel right under the hero: the six builds on an endless belt.
-  - It drifts on its own, picks up speed from page scrolling, and can be dragged and thrown.
-  - Hovering stops it and plays the clip.
+- All six builds in the hero's two open corners: four under "I build", two above "products.".
+  - Each opens upward like the photo, and zooms and plays its clip on hover.
+  - Phones: a 2-column grid under the buttons, with the first row on the first screen.
+  - This replaced the drifting reel, which Adam found hidden and not good-looking.
+- Caption: "Adam Tang / Mechatronics & Embedded Systems Engineer", with "UC Berkeley · EECS" and the seal.
 - Then the full-width image statement.
 
 ## Phase 2: Statement reveal (the image version is back, full width, below the hero)

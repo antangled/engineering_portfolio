@@ -483,7 +483,7 @@ html.lenis-scrolling [data-scroll-inert] {
    Word widths in Clash Display at -0.04em: "I build" 2.50em, "products." 4.55em.
    Phones: "I build" sits above the photo, "products." crosses it, centred. */
 .hero-stage {
-  --pw: 62vw;
+  --pw: min(52vw, 320px);
   --ph: calc(var(--pw) / 0.58);
   --g: 0.75rem;
   --F: min(15.5vw, 6rem);
@@ -598,8 +598,43 @@ html.lenis-scrolling [data-scroll-inert] {
   }
 }
 
-/* ---- Builds reel (BuildReel.tsx) ---- */
-.reel-card {
-  width: clamp(220px, 23vw, 340px);
+/* ---- Hero build tiles ------------------------------------------------------
+   Desktop: two grids in the hero's open corners. Left: under "I build", from
+   its baseline to the photo's bottom (2×2). Right: above "products." (2×1,
+   bottom-aligned to the word). Both are exactly "I build"'s width (2.5em), so
+   the composition stays symmetric about the photo. Phones: a 2-column grid
+   under the buttons. */
+.hero-tiles {
+  display: none;
+}
+@media (min-width: 1024px) {
+  .hero-tiles {
+    position: absolute;
+    z-index: 5;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--g);
+    width: calc(var(--F) * 2.5);
+  }
+  .hero-tiles--left {
+    right: calc(50% + var(--pw) / 2 + var(--g));
+    top: calc(var(--by) + var(--F) * 1.02 + var(--g) * 0.5);
+    bottom: 0;
+    grid-auto-rows: minmax(0, 1fr);
+  }
+  .hero-tiles--right {
+    left: calc(50% + var(--pw) / 2 + var(--g));
+    top: 0;
+    height: calc(var(--py) + var(--F) * 0.02);
+    align-content: end;
+  }
+  .hero-tiles--right .hero-tile {
+    aspect-ratio: 4 / 3;
+  }
+}
+.hero-tile {
+  min-height: 0;
+}
+.hero-tiles-sm .hero-tile {
   aspect-ratio: 4 / 3;
 }

@@ -1,7 +1,10 @@
 import { Link } from "react-router-dom";
 import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
-import { ArrowRight, Download } from "lucide-react";
+import { useState } from "react";
+import { ArrowRight, Download, Play } from "lucide-react";
 import { profile } from "@/data/profile";
+import { buildStrip, getProject } from "@/data/projects";
+import { HoverClip } from "../motion/HoverClip";
 import { withBase } from "@/lib/withBase";
 import { DUR, EASE } from "@/lib/motion";
 import { Linkedin } from "../icons/Linkedin";
@@ -25,7 +28,57 @@ import { Linkedin } from "../icons/Linkedin";
  * on WAAPI (compositor).
  */
 
-const T = { photo: 0, build: 0.45, products: 0.6, caption: 1.0, buttons: 1.1, cue: 1.6 };
+const T = { photo: 0, build: 0.45, products: 0.6, tiles: 0.8, tileStep: 0.07, caption: 1.0, buttons: 1.1, cue: 1.6 };
+
+type Build = (typeof buildStrip)[number];
+
+/** One build in the hero: opens upward like the photo, zooms + plays its clip on hover. */
+function Tile({ b, i, reduced }: { b: Build; i: number; reduced: boolean }) {
+  const [hot, setHot] = useState(false);
+  const project = getProject(b.slug);
+  const delay = T.tiles + i * T.tileStep;
+  return (
+    <motion.div
+      data-reveal
+      className="hero-tile"
+      initial={reduced ? { opacity: 0 } : { clipPath: "inset(100% 0% 0% 0% round 1rem)" }}
+      animate={reduced ? { opacity: 1 } : { clipPath: "inset(0% 0% 0% 0% round 1rem)" }}
+      transition={{ duration: DUR.slow, ease: EASE, delay }}
+    >
+      <Link
+        to={`/projects/${b.slug}`}
+        data-cursor="view"
+        data-cursor-label={b.clip ? "Play" : "View"}
+        onMouseEnter={() => setHot(true)}
+        onMouseLeave={() => setHot(false)}
+        onFocus={() => setHot(true)}
+        onBlur={() => setHot(false)}
+        className="group relative block h-full w-full overflow-hidden rounded-2xl bg-surface ring-1 ring-ink-900/10 transition-shadow duration-[400ms] ease-expo hover:ring-2 hover:ring-signal focus-visible:ring-2 focus-visible:ring-signal focus-visible:outline-none"
+      >
+        <motion.img
+          src={b.src}
+          alt={b.alt}
+          width={640}
+          height={480}
+          decoding="async"
+          draggable={false}
+          className="h-full w-full object-cover transition-transform duration-[800ms] ease-expo group-hover:scale-[1.07]"
+          initial={reduced ? false : { transform: "scale(1.2)" }}
+          animate={{ transform: "scale(1)" }}
+          transition={{ duration: 1.2, ease: EASE, delay }}
+        />
+        {b.clip && <HoverClip src={b.clip} active={hot} className="transition-transform duration-[800ms] ease-expo group-hover:scale-[1.07]" />}
+        <span className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 bg-linear-to-t from-black/75 via-black/20 to-transparent px-3 pb-2.5 pt-8 text-white">
+          <span className="flex items-center gap-1.5 text-[0.8rem] font-medium leading-tight">
+            {b.clip && <Play aria-hidden className="h-2.5 w-2.5 shrink-0 fill-current opacity-80" />}
+            {b.label}
+          </span>
+          {project && <span className="font-mono text-[0.65rem] text-white/70">{project.year}</span>}
+        </span>
+      </Link>
+    </motion.div>
+  );
+}
 
 function Products({ reduced, light }: { reduced: boolean; light?: boolean }) {
   return (
@@ -95,6 +148,20 @@ export function Hero() {
           </span>
         </span>
 
+        {/* builds in the two open corners: under "I build", and above "products." */}
+        <nav aria-label="Builds" className="contents">
+          <div className="hero-tiles hero-tiles--left">
+            {buildStrip.slice(0, 4).map((b, i) => (
+              <Tile key={b.slug} b={b} i={i} reduced={reduced} />
+            ))}
+          </div>
+          <div className="hero-tiles hero-tiles--right">
+            {buildStrip.slice(4).map((b, i) => (
+              <Tile key={b.slug} b={b} i={i + 4} reduced={reduced} />
+            ))}
+          </div>
+        </nav>
+
         {/* ink copy of "products." (behind the photo) */}
         <Products reduced={reduced} />
 
@@ -133,15 +200,19 @@ export function Hero() {
           <img src={withBase("/images/berkeley-seal.svg")} alt="UC Berkeley seal" className="h-full w-full" />
         </span>
         <span className="text-left">
-          <span className="block text-base font-semibold tracking-tight text-ink-900 sm:text-lg">{profile.role}</span>
+          <span className="block text-base tracking-tight text-ink-700 sm:text-lg">
+            <span className="font-semibold text-ink-900">{profile.name}</span>
+            <span aria-hidden className="mx-2 text-ink-900/25">/</span>
+            {profile.role}
+          </span>
           <span className="block font-mono text-[0.7rem] uppercase tracking-[0.2em] text-ink-500">UC Berkeley · EECS</span>
         </span>
       </Rise>
-      <Rise delay={T.buttons} reduced={reduced} className="mt-5 flex flex-wrap items-center justify-center gap-3">
+      <Rise delay={T.buttons} reduced={reduced} className="mt-5 flex flex-wrap items-center justify-center gap-2 sm:gap-3">
         <Link
           to="/projects"
           data-cursor="link"
-          className="group inline-flex h-12 items-center gap-2 rounded-full bg-ink-900 px-7 text-sm font-medium text-white transition-colors duration-[150ms] hover:bg-signal"
+          className="group inline-flex h-12 items-center gap-2 rounded-full bg-ink-900 px-5 text-sm sm:px-7 font-medium text-white transition-colors duration-[150ms] hover:bg-signal"
         >
           View my work
           <ArrowRight className="h-4 w-4 transition-transform duration-[400ms] ease-expo group-hover:translate-x-1" aria-hidden />
@@ -151,7 +222,7 @@ export function Hero() {
           target="_blank"
           rel="noreferrer"
           data-cursor="link"
-          className="inline-flex h-12 items-center gap-2 rounded-full border border-ink-900/20 bg-surface px-6 text-sm font-medium text-ink-900 transition-colors duration-[150ms] hover:border-signal hover:text-signal-ink"
+          className="inline-flex h-12 items-center gap-2 rounded-full border border-ink-900/20 bg-surface px-4 text-sm sm:px-6 font-medium text-ink-900 transition-colors duration-[150ms] hover:border-signal hover:text-signal-ink"
         >
           <Download className="h-4 w-4" aria-hidden />
           Résumé
@@ -167,6 +238,13 @@ export function Hero() {
           <Linkedin className="h-[1.1rem] w-[1.1rem]" />
         </a>
       </Rise>
+
+      {/* phones and tablets: the builds as a grid under the buttons */}
+      <nav aria-label="Builds" className="hero-tiles-sm mt-6 grid w-full max-w-xl grid-cols-2 gap-3 lg:hidden">
+        {buildStrip.map((b, i) => (
+          <Tile key={b.slug} b={b} i={i} reduced={reduced} />
+        ))}
+      </nav>
 
       {/* subtle scroll cue */}
       <motion.div
