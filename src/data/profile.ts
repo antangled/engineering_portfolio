@@ -74,7 +74,7 @@ export const aboutShort: { text: string; to?: string }[] = [
 /** v4 About: the facts line that replaces the table. */
 export const factsLine = ["B.S. EECS", "Minor Bioengineering", "3.91 GPA", "Tau Beta Pi", "HKN", "May 2028"];
 
-/** v4 Recognition: three photo cards (COP28 has no photo yet — Adam will add them). */
+/** v4 Recognition: three photo cards. */
 export const recognition: {
   title: string;
   org: string;
@@ -106,6 +106,9 @@ export const recognition: {
     title: "U.S. youth delegate",
     org: "COP28, Dubai",
     year: "2023",
+    // Adam at the COP28 venue (Expo City Dubai), 30 Nov 2023; metadata stripped
+    image: withBase("/images/about/cop28-selfie.jpg"),
+    imagePosition: "35% 45%",
     detail: "Selected from 5,000 applicant NGOs after founding a climate nonprofit that became a UNFCCC observer organization.",
   },
 ];
