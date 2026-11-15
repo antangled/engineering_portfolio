@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Hero } from "./Hero";
 import { BuildStrip } from "./BuildStrip";
+import { Statement } from "./Statement";
 import { FeaturedWork } from "./FeaturedWork";
 import { AboutSection } from "./AboutSection";
 import { Skills } from "./Skills";
@@ -37,6 +38,7 @@ export function Home() {
     <div className="paper-grid">
       <Hero />
       <BuildStrip />
+      <Statement />
       <FeaturedWork />
       <AboutSection />
       <Skills />

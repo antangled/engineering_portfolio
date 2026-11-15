@@ -213,3 +213,16 @@ html.lenis body {
     clip-path: none !important;
   }
 }
+
+/* v4: shared-image morph between a home card and its project page */
+::view-transition-group(*) {
+  animation-duration: 560ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 400ms;
+}
+::view-transition-image-pair(*) {
+  isolation: auto;
+}

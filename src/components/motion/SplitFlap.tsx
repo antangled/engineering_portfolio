@@ -82,6 +82,21 @@ export function SplitFlap({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [animated, seen, hold, messages.join("|")]);
 
+  // Phones: one static line (30 flap cells don't fit a 375 px card).
+  if (!desktop) {
+    return (
+      <p
+        className={cn(
+          "inline-flex items-center gap-2 font-mono text-[0.7rem] uppercase tracking-wider text-white/85",
+          className,
+        )}
+      >
+        <span aria-hidden className="h-1.5 w-1.5 shrink-0 rounded-full bg-signal" />
+        {messages[0]}
+      </p>
+    );
+  }
+
   return (
     <div ref={ref} className={cn("inline-flex", className)}>
       <span className="sr-only">{messages.join(". ")}</span>

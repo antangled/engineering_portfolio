@@ -10,6 +10,7 @@ import {
 } from "../../data/projects";
 import { cn } from "../../lib/utils";
 import { ProjectGallery } from "./ProjectGallery";
+import { coverTransitionName } from "../../data/featured";
 import { Lightbox } from "./Lightbox";
 import { CopyEmail } from "../CopyEmail";
 import { contact, profile, socialLinks } from "../../data/profile";
@@ -356,6 +357,7 @@ export function ProjectDetail() {
             className="mt-8"
           >
             <ProjectGallery
+              transitionName={coverTransitionName(project.slug)}
               items={items}
               title={project.title}
               onOpen={setLightbox}

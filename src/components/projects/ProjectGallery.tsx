@@ -28,6 +28,7 @@ function FeatureVideo({
   className,
   style,
   title,
+  vt,
 }: {
   item: Media;
   index: number;
@@ -35,10 +36,12 @@ function FeatureVideo({
   className?: string;
   style?: CSSProperties;
   title: string;
+  vt?: string;
 }) {
   const [muted, setMuted] = useState(true);
   return (
     <div
+      data-vt={vt}
       style={style}
       className={cn("group relative overflow-hidden rounded-3xl border border-mist/10 bg-black", className)}
     >
@@ -91,6 +94,7 @@ function Tile({
   extra = 0,
   eager = false,
   title,
+  vt,
 }: {
   item: Media;
   index: number;
@@ -100,6 +104,7 @@ function Tile({
   extra?: number;
   eager?: boolean;
   title: string;
+  vt?: string;
 }) {
   const isVideo = item.type === "video";
   const label = extra > 0 ? `View all ${index + extra + 1} images` : `Enlarge: ${item.label || item.caption || title}`;
@@ -110,13 +115,19 @@ function Tile({
       aria-label={label}
       data-cursor="view"
       data-cursor-label={extra > 0 ? `+${extra}` : isVideo ? "Play" : "View"}
+      data-vt={vt}
       style={style}
       className={cn(
         "group relative overflow-hidden rounded-3xl border border-mist/10",
         item.onWhite ? "bg-white" : "bg-night-800",
-        className
+        className,
       )}
-      onMouseEnter={(e) => e.currentTarget.querySelector("video")?.play().catch(() => {})}
+      onMouseEnter={(e) =>
+        e.currentTarget
+          .querySelector("video")
+          ?.play()
+          .catch(() => {})
+      }
       onMouseLeave={(e) => {
         const v = e.currentTarget.querySelector("video");
         if (v) v.pause();
@@ -139,7 +150,7 @@ function Tile({
           decoding="async"
           className={cn(
             "h-full w-full transition-transform duration-700 ease-expo group-hover:scale-[1.03]",
-            item.fit === "contain" ? cn("object-contain", item.onWhite && "p-4") : "object-cover"
+            item.fit === "contain" ? cn("object-contain", item.onWhite && "p-4") : "object-cover",
           )}
         />
       )}
@@ -174,9 +185,12 @@ export function ProjectGallery({
   title,
   onOpen,
   placeholder,
+  transitionName,
 }: {
   /** hero first, then supporting media — same order the lightbox uses */
   items: Media[];
+  /** v4: view-transition name shared with the home card, so its image morphs into the main tile */
+  transitionName?: string;
   title: string;
   onOpen: (i: number) => void;
   placeholder?: boolean;
@@ -193,11 +207,29 @@ export function ProjectGallery({
   const visible = rest.slice(0, 4);
   const extra = rest.length - visible.length;
   const n = visible.length;
+  const vt: CSSProperties | undefined = transitionName ? { viewTransitionName: transitionName } : undefined;
   const renderMain = (style?: CSSProperties, className?: string) =>
     main.autoplay ? (
-      <FeatureVideo item={main} index={0} onOpen={onOpen} title={title} style={style} className={className} />
+      <FeatureVideo
+        item={main}
+        index={0}
+        onOpen={onOpen}
+        title={title}
+        style={{ ...style, ...vt }}
+        className={className}
+        vt={transitionName}
+      />
     ) : (
-      <Tile item={main} index={0} onOpen={onOpen} eager title={title} style={style} className={className} />
+      <Tile
+        item={main}
+        index={0}
+        onOpen={onOpen}
+        eager
+        title={title}
+        style={{ ...style, ...vt }}
+        className={className}
+        vt={transitionName}
+      />
     );
 
   return (

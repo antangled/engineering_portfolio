@@ -20,8 +20,8 @@ const variants: Record<RevealKind, Variants> = {
     shown: { y: "0%" },
   },
   "wipe": {
-    hidden: { clipPath: "inset(0 100% 0 0)" },
-    shown: { clipPath: "inset(0 0% 0 0)" },
+    hidden: { clipPath: "inset(0% 100% 0% 0%)" },
+    shown: { clipPath: "inset(0% 0% 0% 0%)" },
   },
 };
 
@@ -61,11 +61,14 @@ export function Reveal({
   const v = reduced ? { hidden: { opacity: 0 }, shown: { opacity: 1 } } : variants[kind];
   // A mask line sits inside a <span> wrapper, so it must be a span itself.
   const Comp = (kind === "mask-line" ? motion.span : motion[as]) as typeof motion.div;
+  // Wipe: Chrome's IntersectionObserver honors the target's own clip-path, so a
+  // fully clipped element never "enters view". Observe an unclipped wrapper.
+  const wrapped = kind === "mask-line" || kind === "wipe";
   const inner = (
     <Comp
-      ref={kind === "mask-line" ? undefined : (ref as never)}
+      ref={wrapped ? undefined : (ref as never)}
       data-reveal
-      className={cn(kind === "mask-line" && "block", kind !== "mask-line" && className)}
+      className={cn(wrapped ? kind === "mask-line" && "block" : className, kind === "wipe" && "h-full")}
       variants={v}
       initial="hidden"
       animate={inView ? "shown" : "hidden"}
@@ -75,6 +78,13 @@ export function Reveal({
     </Comp>
   );
 
+  if (kind === "wipe") {
+    return (
+      <div ref={ref as never} className={className}>
+        {inner}
+      </div>
+    );
+  }
   if (kind !== "mask-line") return inner;
   return (
     <span ref={ref as never} className={cn("block overflow-hidden", className)}>
