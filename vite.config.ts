@@ -3,9 +3,9 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 
-// Production base: the v4 preview lives at /engineering_portfolio/v4/ until it is
-// promoted. Promote by building with SITE_BASE=/engineering_portfolio/.
-const PROD_BASE = process.env.SITE_BASE ?? "/engineering_portfolio/v4/";
+// Production base: v4 is the main site (promoted 2026-11-15). A preview build for
+// /engineering_portfolio/v4/ uses SITE_BASE (see the deploy:preview script).
+const PROD_BASE = process.env.SITE_BASE ?? "/engineering_portfolio/";
 
 export default defineConfig({
   base: process.env.NODE_ENV === "production" ? PROD_BASE : "/",

@@ -6,10 +6,11 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build && node scripts/prerender.mjs && touch dist/.nojekyll",
-    "deploy": "npm run build && gh-pages -d dist",
+    "deploy": "npm run build && gh-pages -d dist --add -m \"Deploy site\"",
     "preview": "vite preview",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,css,md}\""
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,css,md}\"",
+    "deploy:preview": "SITE_BASE=/engineering_portfolio/v4/ npm run build && gh-pages -d dist --dest v4 --add -m \"Deploy v4 preview\""
   },
   "dependencies": {
     "@number-flow/react": "^0.6.2",
