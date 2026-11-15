@@ -1,6 +1,6 @@
 import { useEffect, useState, type RefObject } from "react";
 import { Link } from "react-router-dom";
-import { motion } from "motion/react";
+import { motion, useScroll } from "motion/react";
 import TypewriterTitle from "@/components/kokonutui/type-writer";
 import GlitchText from "@/components/kokonutui/glitch-text";
 import { buildStrip } from "@/data/projects";
@@ -21,6 +21,15 @@ import { HoverClip } from "../motion/HoverClip";
  * Geometry is measured from the real layout (photo + card slots), so the lines
  * meet the corners exactly at any width. Desktop only (the slots are hidden on
  * smaller screens). Reduced motion: everything is drawn in its final state.
+ *
+ * Scroll handoff (desktop): over the first scroll the diagram retracts (frames
+ * fade, rays fold back into the reticles, reticles close), the MATE ROV card
+ * shrinks back into its reticle as the rays fold in, and the cycloidal card
+ * flies down, tilting, and shrinks exactly onto its thumbnail in the statement line below and *stays*
+ * there as the thumbnail, still playing (no swap or crossfade to the photo). The
+ * real thumbnail stays transparent underneath as its placeholder. It is scrubbed by the scroll position, so scrolling back up
+ * rewinds it. All of it is transform / clip-path / opacity, written straight to
+ * the elements once per scroll frame (no React renders).
  */
 
 type Box = { x: number; y: number; w: number; h: number };
@@ -55,9 +64,15 @@ const rel = (el: Element, origin: DOMRect): Box => {
   return { x: r.left - origin.left, y: r.top - origin.top, w: r.width, h: r.height };
 };
 
-type Geo = { w: number; h: number; photo: Box; cards: Box[] };
+/** Where the flying card lands: the statement thumbnail, in stage coordinates. */
+type Handoff = { el: HTMLElement; box: Box; radius: number; range: number };
+type Geo = { w: number; h: number; photo: Box; cards: Box[]; handoff: Handoff | null };
 
-function useGeometry(stageRef: RefObject<HTMLElement | null>) {
+const HANDOFF_SLUG = "internal-cycloidal-actuator";
+/** the card lands when the thumbnail's top is this far down the screen */
+const LAND_AT = 0.4;
+
+function useGeometry(stageRef: RefObject<HTMLElement | null>, reduced: boolean) {
   const [geo, setGeo] = useState<Geo | null>(null);
   // useEffect, not useLayoutEffect: the stage is our parent, and React attaches a
   // parent's ref only after its children's layout effects have run.
@@ -70,14 +85,48 @@ function useGeometry(stageRef: RefObject<HTMLElement | null>) {
       if (!photo || slots.some((s) => !s)) return;
       const o = stage.getBoundingClientRect();
       const cards = slots.map((s) => rel(s!, o));
-      if (cards.some((c) => c.w === 0)) return setGeo(null); // hidden (small screens)
-      setGeo({ w: o.width, h: o.height, photo: rel(photo, o), cards });
+      const thumb = document.querySelector<HTMLElement>(`[data-handoff-slug="${HANDOFF_SLUG}"]`);
+      if (cards.some((c) => c.w === 0)) {
+        // hidden (small screens): the thumbnail keeps its own pop-in
+        if (thumb) {
+          delete thumb.dataset.handoff;
+          thumb.style.opacity = "";
+        }
+        return setGeo(null);
+      }
+      let handoff: Handoff | null = null;
+      if (thumb && !reduced) {
+        // switch off the thumb's pop-in transform first, so we measure its real box
+        thumb.dataset.handoff = "on";
+        const box = rel(thumb, o);
+        const range = o.top + window.scrollY + box.y - window.innerHeight * LAND_AT;
+        if (box.w > 0 && range > 200) {
+          handoff = { el: thumb, box, radius: parseFloat(getComputedStyle(thumb).borderTopLeftRadius) || 0, range };
+        } else {
+          delete thumb.dataset.handoff;
+        }
+      }
+      setGeo({ w: o.width, h: o.height, photo: rel(photo, o), cards, handoff });
     };
     measure();
     const ro = new ResizeObserver(measure);
     ro.observe(stage);
-    return () => ro.disconnect();
-  }, [stageRef]);
+    // the statement re-wraps when its font loads or the page resizes
+    const para = document.querySelector(`[data-handoff-slug="${HANDOFF_SLUG}"]`)?.closest("p");
+    if (para) ro.observe(para);
+    window.addEventListener("resize", measure);
+    // the display font loading re-flows the statement (moving the thumbnail
+    // sideways) without resizing it, so re-measure once fonts are in
+    let alive = true;
+    document.fonts?.ready.then(() => alive && measure());
+    document.fonts?.addEventListener("loadingdone", measure);
+    return () => {
+      alive = false;
+      ro.disconnect();
+      window.removeEventListener("resize", measure);
+      document.fonts?.removeEventListener("loadingdone", measure);
+    };
+  }, [stageRef, reduced]);
   return geo;
 }
 
@@ -95,7 +144,8 @@ function funnel(s: Box, c: Box) {
   return { a: [sx, s.y], b: [cx, c.y], c2: [cx, c.y + c.h], d: [sx, s.y + s.h] } as const;
 }
 
-const pts = (...p: readonly (readonly [number, number])[]) => p.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(" ");
+const pts = (...p: readonly (readonly [number, number])[]) =>
+  p.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(" ");
 
 function Callout({
   i,
@@ -132,108 +182,129 @@ function Callout({
         </pattern>
       </defs>
 
-      {/* funnel: hatching + a whisper of fill */}
-      <motion.polygon
-        initial={{ points: anim ? collapsed : full, opacity: anim ? 0 : 1 }}
-        animate={{ points: full, opacity: 1 }}
-        transition={tr(t0 + 0.25, D.funnel)}
-        fill={`url(#${id})`}
-      />
-      <motion.polygon
-        initial={{ points: anim ? collapsed : full }}
-        animate={{ points: full }}
-        transition={tr(t0 + 0.25, D.funnel)}
-        fill={ORANGE}
-        fillOpacity={0.05}
-      />
-
-      {/* the two dashed rays */}
-      {(
-        [
-          [f.a, f.b],
-          [f.d, f.c2],
-        ] as const
-      ).map(([p, q], k) => (
-        <motion.line
-          key={k}
-          className="callout-dash"
-          x1={p[0]}
-          y1={p[1]}
-          initial={{ x2: anim ? p[0] : q[0], y2: anim ? p[1] : q[1] }}
-          animate={{ x2: q[0], y2: q[1] }}
+      {/* funnel: hatching + a whisper of fill + the rays; on scroll it folds back
+          into the reticle's facing edge */}
+      <g data-co-funnel={i} style={{ transformBox: "view-box", transformOrigin: `${f.a[0]}px ${s.y + s.h / 2}px` }}>
+        <motion.polygon
+          initial={{ points: anim ? collapsed : full, opacity: anim ? 0 : 1 }}
+          animate={{ points: full, opacity: 1 }}
           transition={tr(t0 + 0.25, D.funnel)}
-          stroke={ORANGE}
-          strokeWidth="1.5"
+          fill={`url(#${id})`}
         />
-      ))}
+        <motion.polygon
+          initial={{ points: anim ? collapsed : full }}
+          animate={{ points: full }}
+          transition={tr(t0 + 0.25, D.funnel)}
+          fill={ORANGE}
+          fillOpacity={0.05}
+        />
 
-      {/* reticle on the photo: dashed box + corner brackets */}
-      <motion.g
-        initial={anim ? { opacity: 0, scale: 1.5 } : { opacity: 1, scale: 1 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={tr(t0, D.reticle)}
-        style={{ transformOrigin: `${s.x + s.w / 2}px ${s.y + s.h / 2}px`, transformBox: "view-box" }}
-      >
-        <rect className="callout-dash" x={s.x} y={s.y} width={s.w} height={s.h} fill="none" stroke={ORANGE} strokeWidth="1.5" />
-        {[
-          [s.x, s.y, 1, 1],
-          [s.x + s.w, s.y, -1, 1],
-          [s.x, s.y + s.h, 1, -1],
-          [s.x + s.w, s.y + s.h, -1, -1],
-        ].map(([x, y, dx, dy], k) => (
-          <path
+        {/* the two dashed rays */}
+        {(
+          [
+            [f.a, f.b],
+            [f.d, f.c2],
+          ] as const
+        ).map(([p, q], k) => (
+          <motion.line
             key={k}
-            d={`M${x} ${y + 9 * dy} V${y} H${x + 9 * dx}`}
-            fill="none"
+            className="callout-dash"
+            x1={p[0]}
+            y1={p[1]}
+            initial={{ x2: anim ? p[0] : q[0], y2: anim ? p[1] : q[1] }}
+            animate={{ x2: q[0], y2: q[1] }}
+            transition={tr(t0 + 0.25, D.funnel)}
             stroke={ORANGE}
-            strokeWidth="2.5"
-            strokeLinecap="square"
+            strokeWidth="1.5"
           />
         ))}
-        <circle cx={s.x + s.w / 2} cy={s.y + s.h / 2} r="2" fill={ORANGE} />
-      </motion.g>
+      </g>
 
-      {/* dashed frame + selection handles around the card */}
-      <motion.g
-        initial={{ opacity: anim ? 0 : 1 }}
-        animate={{ opacity: 1 }}
-        transition={tr(t0 + 0.45 + D.zoom, 0.3)}
+      {/* reticle on the photo (+ its readout); on scroll it closes */}
+      <g
+        data-co-reticle={i}
+        style={{ transformBox: "view-box", transformOrigin: `${s.x + s.w / 2}px ${s.y + s.h / 2}px` }}
       >
-        <rect
-          className="callout-dash"
-          x={card.x - 5}
-          y={card.y - 5}
-          width={card.w + 10}
-          height={card.h + 10}
-          fill="none"
-          stroke={ORANGE}
-          strokeWidth="1.5"
-        />
-        {[
-          [card.x - 5, card.y - 5],
-          [card.x + card.w / 2, card.y - 5],
-          [card.x + card.w + 5, card.y - 5],
-          [card.x - 5, card.y + card.h / 2],
-          [card.x + card.w + 5, card.y + card.h / 2],
-          [card.x - 5, card.y + card.h + 5],
-          [card.x + card.w / 2, card.y + card.h + 5],
-          [card.x + card.w + 5, card.y + card.h + 5],
-        ].map(([x, y], k) => (
-          <rect key={k} x={x - 3.5} y={y - 3.5} width="7" height="7" fill="#fff" stroke={ORANGE} strokeWidth="1.5" />
-        ))}
-      </motion.g>
-
-      {/* reticle readout (foreignObject keeps it in the same coordinate space) */}
-      <foreignObject x={s.x} y={s.y - 22} width="160" height="20" style={{ overflow: "visible" }}>
-        <motion.div
-          initial={{ opacity: anim ? 0 : 1 }}
-          animate={{ opacity: 1 }}
-          transition={tr(t0 + 0.15, 0.3)}
-          className="callout-readout"
+        <motion.g
+          initial={anim ? { opacity: 0, scale: 1.5 } : { opacity: 1, scale: 1 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={tr(t0, D.reticle)}
+          style={{ transformOrigin: `${s.x + s.w / 2}px ${s.y + s.h / 2}px`, transformBox: "view-box" }}
         >
-          <GlitchText text={`ZOOM_0${i + 1} · ${zoom}×`} trigger="idle" intensity="subtle" accent={ORANGE} className="text-white" />
-        </motion.div>
-      </foreignObject>
+          <rect
+            className="callout-dash"
+            x={s.x}
+            y={s.y}
+            width={s.w}
+            height={s.h}
+            fill="none"
+            stroke={ORANGE}
+            strokeWidth="1.5"
+          />
+          {[
+            [s.x, s.y, 1, 1],
+            [s.x + s.w, s.y, -1, 1],
+            [s.x, s.y + s.h, 1, -1],
+            [s.x + s.w, s.y + s.h, -1, -1],
+          ].map(([x, y, dx, dy], k) => (
+            <path
+              key={k}
+              d={`M${x} ${y + 9 * dy} V${y} H${x + 9 * dx}`}
+              fill="none"
+              stroke={ORANGE}
+              strokeWidth="2.5"
+              strokeLinecap="square"
+            />
+          ))}
+          <circle cx={s.x + s.w / 2} cy={s.y + s.h / 2} r="2" fill={ORANGE} />
+        </motion.g>
+
+        {/* reticle readout (foreignObject keeps it in the same coordinate space) */}
+        <foreignObject x={s.x} y={s.y - 22} width="160" height="20" style={{ overflow: "visible" }}>
+          <motion.div
+            initial={{ opacity: anim ? 0 : 1 }}
+            animate={{ opacity: 1 }}
+            transition={tr(t0 + 0.15, 0.3)}
+            className="callout-readout"
+          >
+            <GlitchText
+              text={`ZOOM_0${i + 1} · ${zoom}×`}
+              trigger="idle"
+              intensity="subtle"
+              accent={ORANGE}
+              className="text-white"
+            />
+          </motion.div>
+        </foreignObject>
+      </g>
+
+      {/* dashed frame + selection handles around the card; fades as you scroll */}
+      <g data-co-frame={i}>
+        <motion.g initial={{ opacity: anim ? 0 : 1 }} animate={{ opacity: 1 }} transition={tr(t0 + 0.45 + D.zoom, 0.3)}>
+          <rect
+            className="callout-dash"
+            x={card.x - 5}
+            y={card.y - 5}
+            width={card.w + 10}
+            height={card.h + 10}
+            fill="none"
+            stroke={ORANGE}
+            strokeWidth="1.5"
+          />
+          {[
+            [card.x - 5, card.y - 5],
+            [card.x + card.w / 2, card.y - 5],
+            [card.x + card.w + 5, card.y - 5],
+            [card.x - 5, card.y + card.h / 2],
+            [card.x + card.w + 5, card.y + card.h / 2],
+            [card.x - 5, card.y + card.h + 5],
+            [card.x + card.w / 2, card.y + card.h + 5],
+            [card.x + card.w + 5, card.y + card.h + 5],
+          ].map(([x, y], k) => (
+            <rect key={k} x={x - 3.5} y={y - 3.5} width="7" height="7" fill="#fff" stroke={ORANGE} strokeWidth="1.5" />
+          ))}
+        </motion.g>
+      </g>
     </g>
   );
 }
@@ -263,50 +334,174 @@ function CalloutCard({
   const landed = (t0 + 0.45 + D.zoom) * 1000;
 
   return (
-    <motion.div
-      className="absolute inset-0"
-      initial={reduced ? { opacity: 1 } : { opacity: 0, transform: `translate(${dx}px, ${dy}px) scale(${k})` }}
-      animate={reduced ? { opacity: 1 } : { opacity: 1, transform: "translate(0px, 0px) scale(1)" }}
-      transition={{ delay: t0 + 0.45, duration: D.zoom, ease: EASE, opacity: { delay: t0 + 0.45, duration: 0.15 } }}
-    >
-      <Link
-        to={`/projects/${c.slug}`}
-        data-cursor="view"
-        data-cursor-label={c.video ? "Play" : "View"}
-        aria-label={b.label}
-        onMouseEnter={() => setHot(true)}
-        onMouseLeave={() => setHot(false)}
-        onFocus={() => setHot(true)}
-        onBlur={() => setHot(false)}
-        className="callout-card group"
+    // the scroll handoff transforms this layer; the entrance FLIP runs inside it
+    <div data-fly={i} className="absolute inset-0" style={{ transformOrigin: "0 0" }}>
+      <motion.div
+        className="absolute inset-0"
+        initial={reduced ? { opacity: 1 } : { opacity: 0, transform: `translate(${dx}px, ${dy}px) scale(${k})` }}
+        animate={reduced ? { opacity: 1 } : { opacity: 1, transform: "translate(0px, 0px) scale(1)" }}
+        transition={{ delay: t0 + 0.45, duration: D.zoom, ease: EASE, opacity: { delay: t0 + 0.45, duration: 0.15 } }}
       >
-        <img src={b.src} alt="" width={640} height={480} decoding="async" draggable={false} />
-        {b.clip && (c.video ? <HoverClip src={b.clip} mode="inview" /> : <HoverClip src={b.clip} active={hot} />)}
+        <Link
+          to={`/projects/${c.slug}`}
+          data-cursor="view"
+          data-cursor-label={c.video ? "Play" : "View"}
+          aria-label={b.label}
+          onMouseEnter={() => setHot(true)}
+          onMouseLeave={() => setHot(false)}
+          onFocus={() => setHot(true)}
+          onBlur={() => setHot(false)}
+          className="callout-card group"
+        >
+          <img src={b.src} alt="" width={640} height={480} decoding="async" draggable={false} />
+          {b.clip && (c.video ? <HoverClip src={b.clip} mode="inview" /> : <HoverClip src={b.clip} active={hot} />)}
 
-        <span className="callout-label">
-          <span className="text-signal">&gt;</span>
-          {reduced ? (
-            <span>{c.file}</span>
-          ) : (
-            <TypewriterTitle
-              as="span"
-              sequences={[{ text: c.file, deleteAfter: false }]}
-              autoLoop={false}
-              startDelay={landed - 150}
-              typingSpeed={34}
-              naturalVariance={false}
-              className="inline-flex w-auto justify-start text-white dark:text-white [container-type:normal]!"
-              textClassName="text-[0.7rem] leading-[1.2] @lg:text-[0.7rem] @2xl:text-[0.7rem] pr-0"
-            />
-          )}
-        </span>
-      </Link>
-    </motion.div>
+          <span className="callout-label" data-fly-label={i}>
+            <span className="text-signal">&gt;</span>
+            {reduced ? (
+              <span>{c.file}</span>
+            ) : (
+              <TypewriterTitle
+                as="span"
+                sequences={[{ text: c.file, deleteAfter: false }]}
+                autoLoop={false}
+                startDelay={landed - 150}
+                typingSpeed={34}
+                naturalVariance={false}
+                className="inline-flex w-auto justify-start text-white dark:text-white [container-type:normal]!"
+                textClassName="text-[0.7rem] leading-[1.2] @lg:text-[0.7rem] @2xl:text-[0.7rem] pr-0"
+              />
+            )}
+          </span>
+        </Link>
+      </motion.div>
+    </div>
   );
 }
 
+const clamp01 = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v);
+const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
+const CARD_RADIUS = 9.6; // .callout-card border-radius (0.6rem)
+
+/**
+ * Scroll-scrubbed handoff. p runs 0 → 1 over the scroll that brings the
+ * statement thumbnail up to LAND_AT. The flying card's visible box is lerped from
+ * its slot to the thumbnail in page coordinates (so once landed it scrolls with
+ * the page); a uniform scale keeps the video undistorted and a vertical
+ * clip-path trims 4:3 down to the thumbnail's wider shape.
+ */
+function useHandoff(stageRef: RefObject<HTMLElement | null>, geo: Geo | null) {
+  const { scrollY } = useScroll();
+  useEffect(() => {
+    const stage = stageRef.current;
+    const h = geo?.handoff;
+    if (!stage || !geo || !h) return;
+    const q = <T extends Element>(sel: string) => stage.querySelector<T & ElementCSSInlineStyle>(sel);
+    const fly = q<HTMLElement>('[data-fly="0"]');
+    const label = q<HTMLElement>('[data-fly-label="0"]');
+    const popLabel = q<HTMLElement>('[data-fly-label="1"]');
+    const pop = q<HTMLElement>('[data-fly="1"]');
+    const funnels = [0, 1].map((i) => q<SVGGElement>(`[data-co-funnel="${i}"]`));
+    const reticles = [0, 1].map((i) => q<SVGGElement>(`[data-co-reticle="${i}"]`));
+    const frames = [0, 1].map((i) => q<SVGGElement>(`[data-co-frame="${i}"]`));
+    if (!fly || !pop) return;
+
+    // MATE ROV card + the reticle it came out of
+    const P = geo.cards[1];
+    const PS = srcBox(geo.photo, CALLOUTS[1].src, P);
+    const C = geo.cards[0];
+    const T = h.box;
+    const k = T.w / C.w; // final uniform scale
+    const ci = Math.max(0, (C.h - T.h / k) / 2); // final top/bottom trim, in card px
+
+    const update = (y: number) => {
+      const p = clamp01(y / h.range);
+      const idle = p === 0;
+
+      // the diagram retracts first
+      const fr = clamp01(p / 0.08);
+      const fu = easeInOut(clamp01(p / 0.22));
+      const re = clamp01((p - 0.12) / 0.16);
+      for (let i = 0; i < 2; i++) {
+        const fe = frames[i],
+          fn = funnels[i],
+          rt = reticles[i];
+        if (fe) fe.style.opacity = idle ? "" : String(1 - fr);
+        if (fn) {
+          fn.style.transform = idle ? "" : `scale(${1 - fu})`;
+          fn.style.opacity = idle ? "" : String(1 - fu);
+        }
+        if (rt) {
+          rt.style.transform = idle ? "" : `scale(${1 - 0.5 * re})`;
+          rt.style.opacity = idle ? "" : String(1 - re);
+        }
+      }
+
+      // MATE ROV: the entrance in reverse. It shrinks back into its reticle on
+      // the photo in step with the rays folding in, then closes and fades with
+      // the reticle. Its target is the reticle box as the reticle closes (g).
+      const g = 1 - 0.5 * re;
+      const tw = PS.w * g;
+      const tX = PS.x + (PS.w - tw) / 2;
+      const tY = PS.y + (PS.h - PS.h * g) / 2;
+      const ps = 1 + (tw / P.w - 1) * fu;
+      pop.style.transform = idle ? "" : `translate(${(tX - P.x) * fu}px, ${(tY - P.y) * fu}px) scale(${ps})`;
+      pop.style.opacity = idle ? "" : String(1 - re);
+      pop.style.visibility = re >= 1 ? "hidden" : "";
+      if (popLabel) popLabel.style.opacity = idle ? "" : String(1 - clamp01(p / 0.08));
+
+      // cycloidal: flies into the thumbnail
+      // position moves linearly with the scroll, so on screen the card just
+      // hangs there while the statement rises to meet it; the shrink is eased
+      const e = easeInOut(p);
+      const sc = 1 + (k - 1) * e;
+      const clip = ci * e;
+      const tx = (T.x - C.x) * p;
+      const ty = (T.y - C.y) * p - sc * clip; // keeps the *visible* top on the lerp
+      const rot = -7 * Math.sin(Math.PI * p);
+      const cx = tx + (sc * C.w) / 2;
+      const cy = ty + (sc * C.h) / 2;
+      const radius = CARD_RADIUS + (h.radius / k - CARD_RADIUS) * e;
+      fly.style.transform = idle
+        ? ""
+        : `translate(${cx}px, ${cy}px) rotate(${rot}deg) translate(${-cx}px, ${-cy}px) translate(${tx}px, ${ty}px) scale(${sc})`;
+      fly.style.clipPath = idle ? "" : `inset(${clip}px 0px ${clip}px 0px round ${radius}px)`;
+      // landed: the video card *is* the thumbnail from here on (it sits in page
+      // coordinates, so it scrolls with the line). Pointer events pass through to
+      // the statement link underneath, so its hover arrow and link still work.
+      fly.style.pointerEvents = p >= 1 ? "none" : "";
+      h.el.style.opacity = "0";
+      if (label) label.style.opacity = idle ? "" : String(1 - clamp01(p / 0.12));
+    };
+
+    // once landed, hovering the statement phrase lifts the card like a thumbnail
+    const proof = h.el.closest("a");
+    const card = fly.querySelector(".callout-card");
+    const lift = (on: boolean) => () =>
+      card?.classList.toggle("callout-card--proof-hover", on && fly.style.pointerEvents === "none");
+    const enter = lift(true);
+    const leave = lift(false);
+    proof?.addEventListener("mouseenter", enter);
+    proof?.addEventListener("mouseleave", leave);
+
+    update(scrollY.get());
+    const off = scrollY.on("change", update);
+    return () => {
+      off();
+      proof?.removeEventListener("mouseenter", enter);
+      proof?.removeEventListener("mouseleave", leave);
+      card?.classList.remove("callout-card--proof-hover");
+      for (const el of [fly, pop, label, popLabel, h.el, ...funnels, ...reticles, ...frames]) {
+        if (!el) continue;
+        el.style.transform = el.style.opacity = el.style.clipPath = el.style.visibility = el.style.pointerEvents = "";
+      }
+    };
+  }, [stageRef, geo, scrollY]);
+}
+
 export function HeroCallouts({ stageRef, reduced }: { stageRef: RefObject<HTMLElement | null>; reduced: boolean }) {
-  const geo = useGeometry(stageRef);
+  const geo = useGeometry(stageRef, reduced);
+  useHandoff(stageRef, geo);
   const [hot, setHot] = useState<number | null>(null);
   // after the entrance, geometry changes (resizes) apply instantly
   const [entered, setEntered] = useState(reduced);
@@ -339,14 +534,7 @@ export function HeroCallouts({ stageRef, reduced }: { stageRef: RefObject<HTMLEl
           viewBox={`0 0 ${geo.w} ${geo.h}`}
         >
           {CALLOUTS.map((c, i) => (
-            <Callout
-              key={c.slug}
-              i={i}
-              geo={geo}
-              reduced={reduced}
-              entered={entered}
-              hot={hot === i}
-            />
+            <Callout key={c.slug} i={i} geo={geo} reduced={reduced} entered={entered} hot={hot === i} />
           ))}
         </svg>
       )}
