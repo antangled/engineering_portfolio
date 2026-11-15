@@ -1,7 +1,10 @@
 import { Link } from "react-router-dom";
 import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
-import { ArrowRight, Download } from "lucide-react";
+import { useState } from "react";
+import { ArrowRight, Download, Play } from "lucide-react";
 import { profile } from "@/data/profile";
+import { buildStrip } from "@/data/projects";
+import { HoverClip } from "../motion/HoverClip";
 import { withBase } from "@/lib/withBase";
 import { DUR, EASE } from "@/lib/motion";
 import { Linkedin } from "../icons/Linkedin";
@@ -26,7 +29,7 @@ import { Linkedin } from "../icons/Linkedin";
  * on WAAPI (compositor).
  */
 
-const T = { photo: 0, name: 0.3, build: 0.45, products: 0.6, caption: 1.0, buttons: 1.1, cue: 1.6 };
+const T = { photo: 0, name: 0.3, cards: 0.85, cardStep: 0.09, build: 0.45, products: 0.6, caption: 1.0, buttons: 1.1, cue: 1.6 };
 
 function Products({ reduced, light }: { reduced: boolean; light?: boolean }) {
   return (
@@ -43,6 +46,54 @@ function Products({ reduced, light }: { reduced: boolean; light?: boolean }) {
         </motion.span>
       </span>
     </span>
+  );
+}
+
+/**
+ * Four builds pinned around the portrait like prints on a board: each tilted,
+ * gently bobbing, straightening and lifting on hover (clip plays). Positions
+ * come from the hero's CSS geometry (.hero-float--*), so they sit in the open
+ * space around the photo and words at every width without resizing either.
+ */
+const FLOATS: { slot: "l1" | "l2" | "r1" | "r2"; slug: string; label: string }[] = [
+  { slot: "l1", slug: "internal-cycloidal-actuator", label: "Cycloidal actuator" },
+  { slot: "r1", slug: "murex-rov", label: "MATE ROV" },
+  { slot: "l2", slug: "biodiversity-sensing-module", label: "Biodiversity sensor" },
+  { slot: "r2", slug: "eldaeon-passive-radar-system", label: "Eldaeon passive radar" },
+];
+
+function FloatCard({ f, i, reduced }: { f: (typeof FLOATS)[number]; i: number; reduced: boolean }) {
+  const [hot, setHot] = useState(false);
+  const b = buildStrip.find((x) => x.slug === f.slug)!;
+  return (
+    <motion.div
+      data-reveal
+      className={`hero-float hero-float--${f.slot}`}
+      initial={reduced ? { opacity: 0 } : { opacity: 0, transform: "translateY(28px) scale(0.9)" }}
+      animate={reduced ? { opacity: 1 } : { opacity: 1, transform: "translateY(0px) scale(1)" }}
+      transition={{ duration: DUR.slow, ease: EASE, delay: T.cards + i * T.cardStep }}
+    >
+      <div className="hero-float-bob" style={{ animationDelay: `${-i * 1.7}s` }}>
+        <Link
+          to={`/projects/${f.slug}`}
+          data-cursor="view"
+          data-cursor-label={b.clip ? "Play" : "View"}
+          aria-label={f.label}
+          onMouseEnter={() => setHot(true)}
+          onMouseLeave={() => setHot(false)}
+          onFocus={() => setHot(true)}
+          onBlur={() => setHot(false)}
+          className="hero-float-card group"
+        >
+          <img src={b.src} alt="" width={640} height={480} decoding="async" draggable={false} />
+          {b.clip && <HoverClip src={b.clip} active={hot} />}
+          <span className="hero-float-label">
+            {b.clip && <Play aria-hidden className="h-2.5 w-2.5 shrink-0 fill-current" />}
+            {f.label}
+          </span>
+        </Link>
+      </div>
+    </motion.div>
   );
 }
 
@@ -89,7 +140,9 @@ export function Hero() {
           animate={reduced ? { opacity: 1 } : { opacity: 1, transform: "translateY(0em)" }}
           transition={{ duration: DUR.slow, ease: EASE, delay: T.name }}
         >
-          {profile.name}
+          {/* the underline runs under "Adam Tan" and stops before the g's loop */}
+          <span className="hero-name-u">{profile.name.slice(0, -1)}</span>
+          {profile.name.slice(-1)}
         </motion.p>
 
         {/* "I build": its right edge meets the photo; it slides out from behind it */}
@@ -106,6 +159,13 @@ export function Hero() {
             </motion.span>
           </span>
         </span>
+
+        {/* builds pinned around the portrait (desktop) */}
+        <nav aria-label="Builds" className="hidden lg:contents">
+          {FLOATS.map((f, i) => (
+            <FloatCard key={f.slug} f={f} i={i} reduced={reduced} />
+          ))}
+        </nav>
 
         {/* ink copy of "products." (behind the photo) */}
         <Products reduced={reduced} />

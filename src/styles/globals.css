@@ -563,6 +563,10 @@ html.lenis-scrolling [data-scroll-inert] {
 }
 /* the name: same face, ~a quarter of the headline size, left-aligned on the "I"
    of "I build", sitting just above its line box (letter tops are 0.10em down) */
+.hero-name-u {
+  position: relative;
+  z-index: 0;
+}
 .hero-name {
   position: absolute;
   z-index: 0;
@@ -578,15 +582,15 @@ html.lenis-scrolling [data-scroll-inert] {
   bottom: calc(100% - var(--by) + var(--F) * 0.05);
 }
 /* the underline draws in left to right just after the name appears */
-.hero-name::after {
+.hero-name-u::after {
   content: "";
   position: absolute;
   z-index: -1;
   left: 0;
   right: 0;
-  /* just under the baseline (0.82em down in a line-height-1 box for Clash
-     Display), so the loop of the "g" dips into it */
-  top: 0.87em;
+  /* just under the baseline (0.89em below the top of an inline box in Clash
+     Display); it stops at the end of "Tan", before the g's loop */
+  top: 0.94em;
   height: max(2px, 0.075em);
   border-radius: 999px;
   background: var(--color-signal);
@@ -602,12 +606,12 @@ html.lenis-scrolling [data-scroll-inert] {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .hero-name::after {
+  .hero-name-u::after {
     animation: none;
   }
 }
 @media print {
-  .hero-name::after {
+  .hero-name-u::after {
     animation: none;
   }
 }
@@ -670,3 +674,120 @@ html.lenis-scrolling [data-scroll-inert] {
   }
 }
 
+
+/* ---- Hero floating builds (Hero.tsx FloatCard) ------------------------------
+   Four tilted prints in the open space around the portrait; desktop only.
+   Positions use the hero geometry (--F, --pw, --ph, --by, --py, --d):
+     l1  large, under "I build", tilted left
+     l2  smaller, overlapping l1's corner near the photo's bottom-left
+     r1  above "products.", clear of its letter tops (py + 0.10F)
+     r2  under the end of "products.", clear of its descender (py + 0.94F) */
+.hero-float {
+  display: none;
+}
+@media (min-width: 1024px) {
+  .hero-float {
+    display: block;
+    position: absolute;
+    z-index: 5;
+  }
+  .hero-float--l1 {
+    --rot: -7deg;
+    width: calc(var(--F) * 1.45);
+    left: calc(50% - var(--pw) / 2 - var(--g) - var(--F) * 2.2);
+    top: calc(var(--by) + var(--F) * 1.25);
+  }
+  .hero-float--l2 {
+    --rot: 4deg;
+    z-index: 6;
+    width: var(--F);
+    right: calc(50% + var(--pw) / 2 + var(--g) * 1.5);
+    top: calc(var(--ph) - var(--F) * 0.87);
+  }
+  .hero-float--r1 {
+    --rot: 6deg;
+    width: calc(var(--F) * 1.35);
+    left: calc(50% + var(--pw) / 2 + var(--F) * 0.85);
+    top: calc(var(--by) - var(--F) * 0.18);
+  }
+  .hero-float--r2 {
+    --rot: -5deg;
+    width: var(--F);
+    left: calc(50% + var(--d) + var(--F) * 3.4);
+    top: calc(var(--py) + var(--F) + var(--g));
+  }
+}
+.hero-float-bob {
+  animation: hero-bob 7s ease-in-out infinite;
+}
+@keyframes hero-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+.hero-float-card {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: clamp(0.75rem, 1vw, 1.1rem);
+  background: #16181c;
+  transform: rotate(var(--rot));
+  box-shadow:
+    0 0 0 1px rgba(21, 23, 27, 0.08),
+    0 28px 50px -26px rgba(21, 23, 27, 0.55);
+  transition:
+    transform 400ms var(--ease-expo),
+    box-shadow 400ms var(--ease-expo);
+  outline: none;
+}
+.hero-float-card:hover,
+.hero-float-card:focus-visible {
+  transform: rotate(0deg) translateY(-6px) scale(1.06);
+  box-shadow:
+    0 0 0 2px var(--color-signal),
+    0 36px 60px -26px rgba(21, 23, 27, 0.6);
+}
+.hero-float:has(.hero-float-card:hover) {
+  z-index: 8;
+}
+.hero-float-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+.hero-float-label {
+  position: absolute;
+  left: 0.55rem;
+  bottom: 0.55rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.65rem;
+  border-radius: 999px;
+  background: rgba(10, 11, 13, 0.72);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 500;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(6px);
+  transition:
+    opacity 150ms var(--ease-expo),
+    transform 400ms var(--ease-expo);
+}
+.hero-float-card:hover .hero-float-label,
+.hero-float-card:focus-visible .hero-float-label {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-float-bob {
+    animation: none;
+  }
+}
