@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type RefObject } from "react";
+import { useEffect, useState, type RefObject } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "motion/react";
 import TypewriterTitle from "@/components/kokonutui/type-writer";
@@ -14,8 +14,7 @@ import { HoverClip } from "../motion/HoverClip";
  *   1. a dashed orange reticle locks onto a spot on the photo (+ ZOOM readout)
  *   2. two dashed lines grow from the reticle's near edge to the card's near
  *      corners; the funnel between them fills with faint orange hatching
- *   3. the card zooms out of the reticle along the funnel to full size, arriving
- *      as a field of binary that a scan line wipes away to reveal the image
+ *   3. the card zooms out of the reticle along the funnel to full size
  *   4. a dashed outline with corner handles settles on the card; its file name
  *      types out (Kokonut type-writer)
  *
@@ -32,34 +31,24 @@ const CALLOUTS = [
     slug: "internal-cycloidal-actuator",
     file: "cycloidal_actuator.mp4",
     video: true,
-    // where on the photo it "zooms" from, as fractions of the photo: the folded hands
-    src: { fx: 0.1, fy: 0.76, fw: 0.2 },
+    // where on the photo it "zooms" from, as fractions of the photo: the folded
+    // hands, low enough to stay clear of the "p" in "products."
+    src: { fx: 0.1, fy: 0.81, fw: 0.14 },
   },
   {
     slot: "r1",
     slug: "murex-rov",
     file: "mate_rov.jpg",
     video: false,
-    // upper right of the photo, by the ear, clear of the headline
-    src: { fx: 0.7, fy: 0.2, fw: 0.18 },
+    // the plain backdrop in the photo's top-right corner, clear of the head
+    src: { fx: 0.79, fy: 0.07, fw: 0.13 },
   },
 ] as const;
 
 const ORANGE = "#ff5a1f";
 const T0 = 1.45; // first callout starts after the caption and buttons
 const STEP = 0.4; // second callout follows
-const D = { reticle: 0.35, funnel: 0.55, zoom: 0.75, decode: 0.6 };
-
-/** Deterministic 0/1 noise for the "decode" layer. */
-function bits(n: number, seed: number) {
-  let s = seed;
-  let out = "";
-  for (let i = 0; i < n; i++) {
-    s = (s * 1103515245 + 12345) & 0x7fffffff;
-    out += s % 7 === 0 ? " " : s % 2 ? "1" : "0";
-  }
-  return out;
-}
+const D = { reticle: 0.35, funnel: 0.55, zoom: 0.75 };
 
 const rel = (el: Element, origin: DOMRect): Box => {
   const r = el.getBoundingClientRect();
@@ -271,7 +260,6 @@ function CalloutCard({
   const dx = s.x + s.w / 2 - (card.x + card.w / 2);
   const dy = s.y + s.h / 2 - (card.y + card.h / 2);
   const k = s.w / card.w;
-  const binary = useMemo(() => bits(900, 17 + i * 31), [i]);
   const landed = (t0 + 0.45 + D.zoom) * 1000;
 
   return (
@@ -295,25 +283,6 @@ function CalloutCard({
         <img src={b.src} alt="" width={640} height={480} decoding="async" draggable={false} />
         {b.clip && (c.video ? <HoverClip src={b.clip} mode="inview" /> : <HoverClip src={b.clip} active={hot} />)}
 
-        {/* decode: binary field wiped away by a scan line once the card lands */}
-        {!reduced && (
-          <motion.span
-            aria-hidden
-            className="callout-decode"
-            initial={{ clipPath: "inset(0% 0% 0% 0%)" }}
-            animate={{ clipPath: "inset(100% 0% 0% 0%)" }}
-            transition={{ delay: t0 + 0.45 + D.zoom, duration: D.decode, ease: "linear" }}
-          >
-            <span className="callout-bits">{binary}</span>
-            <motion.span
-              className="callout-scan"
-              initial={{ top: "0%" }}
-              animate={{ top: "100%" }}
-              transition={{ delay: t0 + 0.45 + D.zoom, duration: D.decode, ease: "linear" }}
-            />
-          </motion.span>
-        )}
-
         <span className="callout-label">
           <span className="text-signal">&gt;</span>
           {reduced ? (
@@ -323,7 +292,7 @@ function CalloutCard({
               as="span"
               sequences={[{ text: c.file, deleteAfter: false }]}
               autoLoop={false}
-              startDelay={landed + D.decode * 1000 - 250}
+              startDelay={landed - 150}
               typingSpeed={34}
               naturalVariance={false}
               className="inline-flex w-auto justify-start text-white dark:text-white [container-type:normal]!"
@@ -343,7 +312,7 @@ export function HeroCallouts({ stageRef, reduced }: { stageRef: RefObject<HTMLEl
   const [entered, setEntered] = useState(reduced);
   useEffect(() => {
     if (reduced) return;
-    const id = setTimeout(() => setEntered(true), (T0 + STEP * (CALLOUTS.length - 1) + 0.45 + D.zoom + D.decode + 0.4) * 1000);
+    const id = setTimeout(() => setEntered(true), (T0 + STEP * (CALLOUTS.length - 1) + 0.45 + D.zoom + 0.6) * 1000);
     return () => clearTimeout(id);
   }, [reduced]);
 
