@@ -59,7 +59,14 @@
 - Build strip: thumbnails get a gentle hover scale, and play a short muted clip on hover where one exists (PolySynth, Kinema).
 - The hero stays light: no 3D or heavy backgrounds here, so it loads instantly.
 
-## Phase 2: Statement reveal
+## Phase 1b: Orbit hero (added Nov 15, Adam's idea; replaces the hero, build strip and Phase 2 statement)
+
+- Adam cut out of the hero photo (Apple Vision, on-device) and centred. "I build" slides in from the left and "products." from the right, landing either side of his head, behind him.
+- The six builds spiral in and then orbit him slowly (80 s per lap) on a tilted ring. It's one CSS 3D scene, so cards behind him really pass behind him. The orbit runs on the compositor, with zero main-thread work per frame. Hover or focus pauses it, as does scrolling off screen.
+- The statement line wipes in along the bottom, left to right. "View my work" uses Kokonut `attract-button` (iron filings).
+- Phones: the headline is stacked above him and the ring is smaller. Reduced motion: a still arc.
+
+## Phase 2: Statement reveal (superseded by 1b)
 
 - After the build strip, the v3 line is set large and revealed word by word as you scroll:
   > "From cycloidal actuators to satellite-IoT field sensors and RF drone detection."
