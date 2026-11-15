@@ -14,6 +14,9 @@ export const profile = {
   resume: withBase("/AdamTang_Resume.pdf"),
 };
 
+/** Departure-board status line in the hero (v4). Keep each ≤ 30 characters. */
+export const heroStatus = ["Now building: Kinema 6-DOF arm", "Open: Spring + Summer 2027"];
+
 export const education = {
   school: "UC Berkeley",
   degree: "B.S. Electrical Engineering and Computer Sciences",

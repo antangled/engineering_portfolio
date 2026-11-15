@@ -919,11 +919,11 @@ const software: Project[] = [
 export const projects: Project[] = [...hardware, ...software];
 
 /** Home-page proof strip: one hands-on photo per build, shown directly under the hero. */
-export const buildStrip: { slug: string; label: string; alt: string; src: string }[] = [
-  { slug: "internal-cycloidal-actuator", label: "Cycloidal actuator", alt: "Cycloidal actuator prototype v2 held in hand", src: withBase("/images/strip/cycloidal.jpg") },
+export const buildStrip: { slug: string; label: string; alt: string; src: string; clip?: string }[] = [
+  { slug: "internal-cycloidal-actuator", label: "Cycloidal actuator", alt: "Cycloidal actuator prototype v2 held in hand", src: withBase("/images/strip/cycloidal.jpg"), clip: withBase("/videos/clips/kinema-loop.mp4") },
   { slug: "eldaeon-passive-radar-system", label: "Passive radar", alt: "Eldaeon passive radar rig on a tripod in the lab", src: withBase("/images/strip/radar.jpg") },
   { slug: "biodiversity-sensing-module", label: "Sensing module", alt: "Custom biodiversity sensing PCB held in hand", src: withBase("/images/strip/biodiversity.jpg") },
-  { slug: "polysynth-x", label: "PolySynth X", alt: "PolySynth X circuit board and 3D-printed keybed", src: withBase("/images/strip/polysynth.jpg") },
+  { slug: "polysynth-x", label: "PolySynth X", alt: "PolySynth X circuit board and 3D-printed keybed", src: withBase("/images/strip/polysynth.jpg"), clip: withBase("/videos/clips/polysynth-loop.mp4") },
   { slug: "compact-automated-aquaponics", label: "Aquaponics", alt: "Automated aquaponics system in a dining hall", src: withBase("/images/strip/aquaponics.jpg") },
   { slug: "murex-rov", label: "Underwater ROV", alt: "MUREX underwater ROV on the pool deck", src: withBase("/images/strip/murex.jpg") },
 ];

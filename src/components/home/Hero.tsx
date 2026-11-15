@@ -1,10 +1,34 @@
 import { Link } from "react-router-dom";
-import { motion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import { ArrowRight, Download, Linkedin } from "lucide-react";
-import { profile } from "../../data/profile";
+import { profile, heroStatus } from "../../data/profile";
 import { withBase } from "../../lib/withBase";
+import { DUR, EASE as ease } from "../../lib/motion";
+import { SplitFlap } from "../motion/SplitFlap";
 
-const ease = [0.22, 1, 0.36, 1] as const;
+/*
+ * v4 entrance, one orchestrated ~1.2 s sequence:
+ *   0.00  card fades up · photo un-blurs and settles from 1.04×
+ *   0.15  kicker
+ *   0.22  headline lines rise from their masks
+ *   0.55+ role → line → status board → buttons → tags, 80 ms apart
+ */
+const T = { kicker: 0.15, line1: 0.22, line2: 0.32, rest: 0.55, step: 0.08 };
+
+/** One item in the post-headline stagger. */
+function Follow({ i, children, className }: { i: number; children: React.ReactNode; className?: string }) {
+  return (
+    <motion.div
+      data-reveal
+      initial={{ opacity: 0, y: 14 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: DUR.slow, ease, delay: T.rest + i * T.step }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+}
 
 /** Per-line mask reveal: each line rises into view from behind a clipped edge. */
 function Line({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
@@ -14,7 +38,7 @@ function Line({ children, delay = 0 }: { children: React.ReactNode; delay?: numb
         className="block"
         initial={{ y: "110%" }}
         animate={{ y: 0 }}
-        transition={{ duration: 0.9, ease, delay }}
+        transition={{ duration: DUR.slow, ease, delay }}
       >
         {children}
       </motion.span>
@@ -23,13 +47,14 @@ function Line({ children, delay = 0 }: { children: React.ReactNode; delay?: numb
 }
 
 export function Hero() {
+  const reduced = useReducedMotion();
   return (
-    <section className="mx-auto max-w-[1400px] px-[5vw] pt-18 lg:pt-24">
+    <section className="mx-auto max-w-[1400px] px-[5vw] pt-18 lg:pt-[5.25rem]">
       {/* Height leaves room for the build strip below to land in the first viewport */}
       <motion.div
-        initial={{ opacity: 0, y: 24 }}
+        initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.9, ease }}
+        transition={{ duration: DUR.slow, ease }}
         className="relative overflow-hidden rounded-[2.5rem] bg-ink-900 lg:min-h-[clamp(460px,62vh,600px)] lg:bg-studio"
       >
         {/* Hero photo (left) + a horizontally-mirrored copy (right). Because the
@@ -38,10 +63,10 @@ export function Hero() {
             Below lg the photo is a head-and-shoulders band with the text underneath,
             so the copy never sits on the face. */}
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+          initial={reduced ? { opacity: 0 } : { opacity: 0, scale: 1.04, filter: "blur(14px)" }}
+          animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
           transition={{ duration: 1.1, ease }}
-          className="relative h-[clamp(210px,31vh,300px)] lg:absolute lg:inset-0 lg:h-auto"
+          className="relative h-[clamp(210px,31vh,300px)] origin-[30%_40%] lg:absolute lg:inset-0 lg:h-auto"
         >
           <img
             src={withBase("/images/feature-v3.jpg")}
@@ -66,13 +91,13 @@ export function Hero() {
         <div className="absolute inset-0 hidden bg-linear-to-r from-transparent via-black/20 to-black/75 lg:block" />
 
         {/* Text — bottom on mobile, right-of-center on desktop */}
-        <div className="relative z-10 -mt-6 px-6 pb-7 sm:px-10 sm:pb-10 lg:mt-0 lg:flex lg:h-full lg:min-h-[inherit] lg:items-center lg:justify-end lg:px-14 lg:py-10 xl:px-16 xl:py-12">
+        <div className="relative z-10 -mt-6 px-6 pb-7 sm:px-10 sm:pb-10 lg:mt-0 lg:flex lg:h-full lg:min-h-[inherit] lg:items-center lg:justify-end lg:px-14 lg:py-8 xl:px-16 xl:py-9">
           <div className="w-full text-white [text-shadow:0_2px_18px_rgba(0,0,0,0.35)] lg:w-[52%]">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.1 }}
-              className="mb-4 flex items-center gap-2.5 lg:mb-5"
+              transition={{ duration: DUR.slow, ease, delay: T.kicker }}
+              className="mb-4 flex items-center gap-2.5 lg:mb-4"
             >
               <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/95 p-[3px] shadow-xs">
                 <img src={withBase("/images/berkeley-seal.svg")} alt="UC Berkeley seal" className="h-full w-full" />
@@ -83,25 +108,27 @@ export function Hero() {
               </span>
             </motion.div>
 
-            <h1 className="font-display text-[clamp(2.8rem,7vw,6rem)] font-semibold leading-[0.92] tracking-[-0.03em]">
-              <Line delay={0.05}>I build</Line>
-              <Line delay={0.14}>
+            <h1 className="font-display text-[clamp(2.8rem,min(7vw,10.5vh),6rem)] font-semibold leading-[0.92] tracking-[-0.03em]">
+              <Line delay={T.line1}>I build</Line>
+              <Line delay={T.line2}>
                 products<span className="text-signal">.</span>
               </Line>
             </h1>
 
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, ease, delay: 0.5 }}
-            >
-              <p className="mt-4 text-balance text-xl font-medium lg:mt-5">{profile.role}</p>
-              <p className="mt-2 max-w-md text-pretty text-base leading-relaxed text-white/90 lg:mt-3 lg:text-lg lg:leading-7">
-                From cycloidal actuators to satellite-IoT field sensors and RF drone detection — EECS
-                at Berkeley, open to Spring + Summer 2027 co-ops.
+            <Follow i={0}>
+              <p className="mt-3 text-balance text-xl font-medium lg:mt-4">{profile.role}</p>
+            </Follow>
+            <Follow i={1}>
+              <p className="mt-2 max-w-md text-pretty text-base leading-relaxed text-white/90 lg:mt-2 lg:text-lg lg:leading-7">
+                From cycloidal actuators to satellite-IoT field sensors and RF drone detection — EECS at Berkeley, open
+                to Spring + Summer 2027 co-ops.
               </p>
-
-              <div className="mt-6 flex flex-wrap items-center gap-3">
+            </Follow>
+            <Follow i={2} className="mt-4">
+              <SplitFlap messages={heroStatus} />
+            </Follow>
+            <Follow i={3}>
+              <div className="mt-4 flex flex-wrap items-center gap-3">
                 <Link
                   to="/projects"
                   data-cursor="link"
@@ -131,15 +158,19 @@ export function Hero() {
                   <Linkedin className="h-[1.15rem] w-[1.15rem]" />
                 </a>
               </div>
-
-              <div className="mt-5 flex flex-wrap gap-2 font-mono text-[0.65rem] uppercase tracking-wider sm:text-xs sm:tracking-widest">
+            </Follow>
+            <Follow i={4}>
+              <div className="mt-4 flex flex-wrap gap-2 font-mono text-[0.65rem] uppercase tracking-wider sm:text-xs sm:tracking-widest">
                 {profile.disciplines.map((d) => (
-                  <span key={d} className="rounded-full border border-white/30 px-2.5 py-1.5 text-white/90 sm:px-3 sm:py-2">
+                  <span
+                    key={d}
+                    className="rounded-full border border-white/30 px-2.5 py-1.5 text-white/90 sm:px-3 sm:py-2"
+                  >
                     {d}
                   </span>
                 ))}
               </div>
-            </motion.div>
+            </Follow>
           </div>
         </div>
       </motion.div>
