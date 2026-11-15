@@ -24,9 +24,10 @@ import { HoverClip } from "../motion/HoverClip";
  *
  * Scroll handoff (desktop): over the first scroll the diagram retracts (frames
  * fade, rays fold back into the reticles, reticles close), the MATE ROV card
- * zooms toward you and fades, and the cycloidal card flies down, tilting, and
- * shrinks exactly onto its thumbnail in the statement line below, which then
- * takes over. It is scrubbed by the scroll position, so scrolling back up
+ * shrinks back into its reticle as the rays fold in, and the cycloidal card
+ * flies down, tilting, and shrinks exactly onto its thumbnail in the statement line below and *stays*
+ * there as the thumbnail, still playing (no swap or crossfade to the photo). The
+ * real thumbnail stays transparent underneath as its placeholder. It is scrubbed by the scroll position, so scrolling back up
  * rewinds it. All of it is transform / clip-path / opacity, written straight to
  * the elements once per scroll frame (no React renders).
  */
@@ -398,12 +399,16 @@ function useHandoff(stageRef: RefObject<HTMLElement | null>, geo: Geo | null) {
     const q = <T extends Element>(sel: string) => stage.querySelector<T & ElementCSSInlineStyle>(sel);
     const fly = q<HTMLElement>('[data-fly="0"]');
     const label = q<HTMLElement>('[data-fly-label="0"]');
+    const popLabel = q<HTMLElement>('[data-fly-label="1"]');
     const pop = q<HTMLElement>('[data-fly="1"]');
     const funnels = [0, 1].map((i) => q<SVGGElement>(`[data-co-funnel="${i}"]`));
     const reticles = [0, 1].map((i) => q<SVGGElement>(`[data-co-reticle="${i}"]`));
     const frames = [0, 1].map((i) => q<SVGGElement>(`[data-co-frame="${i}"]`));
     if (!fly || !pop) return;
 
+    // MATE ROV card + the reticle it came out of
+    const P = geo.cards[1];
+    const PS = srcBox(geo.photo, CALLOUTS[1].src, P);
     const C = geo.cards[0];
     const T = h.box;
     const k = T.w / C.w; // final uniform scale
@@ -432,11 +437,18 @@ function useHandoff(stageRef: RefObject<HTMLElement | null>, geo: Geo | null) {
         }
       }
 
-      // MATE ROV: zooms toward you and fades
-      const pe = clamp01(p / 0.35);
-      pop.style.transform = idle ? "" : `scale(${1 + 0.45 * pe * pe})`;
-      pop.style.opacity = idle ? "" : String(1 - pe);
-      pop.style.visibility = pe >= 1 ? "hidden" : "";
+      // MATE ROV: the entrance in reverse. It shrinks back into its reticle on
+      // the photo in step with the rays folding in, then closes and fades with
+      // the reticle. Its target is the reticle box as the reticle closes (g).
+      const g = 1 - 0.5 * re;
+      const tw = PS.w * g;
+      const tX = PS.x + (PS.w - tw) / 2;
+      const tY = PS.y + (PS.h - PS.h * g) / 2;
+      const ps = 1 + (tw / P.w - 1) * fu;
+      pop.style.transform = idle ? "" : `translate(${(tX - P.x) * fu}px, ${(tY - P.y) * fu}px) scale(${ps})`;
+      pop.style.opacity = idle ? "" : String(1 - re);
+      pop.style.visibility = re >= 1 ? "hidden" : "";
+      if (popLabel) popLabel.style.opacity = idle ? "" : String(1 - clamp01(p / 0.08));
 
       // cycloidal: flies into the thumbnail
       // position moves linearly with the scroll, so on screen the card just
@@ -454,21 +466,34 @@ function useHandoff(stageRef: RefObject<HTMLElement | null>, geo: Geo | null) {
         ? ""
         : `translate(${cx}px, ${cy}px) rotate(${rot}deg) translate(${-cx}px, ${-cy}px) translate(${tx}px, ${ty}px) scale(${sc})`;
       fly.style.clipPath = idle ? "" : `inset(${clip}px 0px ${clip}px 0px round ${radius}px)`;
-      // last 10%: the real thumbnail fades in under it, then takes over
-      const swap = clamp01((p - 0.9) / 0.1);
-      fly.style.opacity = idle ? "" : String(1 - swap);
-      fly.style.visibility = p >= 1 ? "hidden" : "";
-      h.el.style.opacity = String(swap);
+      // landed: the video card *is* the thumbnail from here on (it sits in page
+      // coordinates, so it scrolls with the line). Pointer events pass through to
+      // the statement link underneath, so its hover arrow and link still work.
+      fly.style.pointerEvents = p >= 1 ? "none" : "";
+      h.el.style.opacity = "0";
       if (label) label.style.opacity = idle ? "" : String(1 - clamp01(p / 0.12));
     };
+
+    // once landed, hovering the statement phrase lifts the card like a thumbnail
+    const proof = h.el.closest("a");
+    const card = fly.querySelector(".callout-card");
+    const lift = (on: boolean) => () =>
+      card?.classList.toggle("callout-card--proof-hover", on && fly.style.pointerEvents === "none");
+    const enter = lift(true);
+    const leave = lift(false);
+    proof?.addEventListener("mouseenter", enter);
+    proof?.addEventListener("mouseleave", leave);
 
     update(scrollY.get());
     const off = scrollY.on("change", update);
     return () => {
       off();
-      for (const el of [fly, pop, label, h.el, ...funnels, ...reticles, ...frames]) {
+      proof?.removeEventListener("mouseenter", enter);
+      proof?.removeEventListener("mouseleave", leave);
+      card?.classList.remove("callout-card--proof-hover");
+      for (const el of [fly, pop, label, popLabel, h.el, ...funnels, ...reticles, ...frames]) {
         if (!el) continue;
-        el.style.transform = el.style.opacity = el.style.clipPath = el.style.visibility = "";
+        el.style.transform = el.style.opacity = el.style.clipPath = el.style.visibility = el.style.pointerEvents = "";
       }
     };
   }, [stageRef, geo, scrollY]);
