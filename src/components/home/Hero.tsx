@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
 import { motion, useReducedMotion } from "motion/react";
-import { ArrowRight, Download, Linkedin } from "lucide-react";
+import { ArrowRight, Download } from "lucide-react";
 import { profile, heroStatus } from "../../data/profile";
+import { Linkedin } from "../icons/Linkedin";
 import { withBase } from "../../lib/withBase";
 import { DUR, EASE as ease } from "../../lib/motion";
 import { SplitFlap } from "../motion/SplitFlap";

@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { motion } from "motion/react";
-import { ArrowLeft, ArrowRight, ArrowUpRight, Download, Linkedin, Mail, Play } from "lucide-react";
+import { ArrowLeft, ArrowRight, ArrowUpRight, Download, Mail, Play } from "lucide-react";
+import { Linkedin } from "../icons/Linkedin";
 import {
   getProject,
   adjacentProjects,

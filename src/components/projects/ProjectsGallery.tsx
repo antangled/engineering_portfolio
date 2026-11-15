@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { motion, useScroll, useTransform } from "motion/react";
+import { AnimatePresence, motion, useScroll, useTransform } from "motion/react";
 import { Link } from "react-router-dom";
 import { ArrowUpRight, ChevronDown } from "lucide-react";
 import { getProjects, type Project } from "../../data/projects";
 import { GalleryTile } from "./GalleryTile";
 import { cn } from "../../lib/utils";
 import { usePageTitle } from "../../lib/usePageTitle";
+import { Reveal } from "../motion/Reveal";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 type Category = "hardware" | "software";
@@ -47,7 +48,12 @@ export function ProjectsGallery() {
           <div>
             <p className="font-mono text-xs uppercase tracking-[0.3em] text-signal-glow">Selected work</p>
             <h1 className="mt-3 font-display text-[clamp(2.5rem,7vw,5rem)] font-semibold leading-[0.95] tracking-tight">
-              Things I've built.
+              <Reveal kind="mask-line" immediate delay={0.05}>
+                Things I've
+              </Reveal>
+              <Reveal kind="mask-line" immediate delay={0.14}>
+                built<span className="text-signal">.</span>
+              </Reveal>
             </h1>
             <p className="mt-4 max-w-lg text-pretty text-mist-dim">
               Hardware systems and software products — each with the problem it solves, my role, and
@@ -96,20 +102,26 @@ export function ProjectsGallery() {
         </motion.div>
 
         {/* Gallery grid */}
-        <div
-          className="mt-14 grid grid-cols-1 gap-x-8 gap-y-14 lg:grid-cols-2 lg:gap-x-12"
-          onMouseLeave={() => setHovered(null)}
-        >
-          {featured.map((project, index) => (
-            <GalleryTile
-              key={project.slug}
-              project={project}
-              index={index}
-              dimmed={hovered !== null && hovered !== project.slug}
-              onHover={setHovered}
-            />
-          ))}
-        </div>
+        {/* Switching category plays the old tiles out, then the new set wipes in, staggered */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={category}
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0, transition: { duration: 0.2 } }}
+            className="mt-14 grid grid-cols-1 gap-x-8 gap-y-14 lg:grid-cols-2 lg:gap-x-12"
+            onMouseLeave={() => setHovered(null)}
+          >
+            {featured.map((project, index) => (
+              <GalleryTile
+                key={project.slug}
+                project={project}
+                index={index}
+                dimmed={hovered !== null && hovered !== project.slug}
+                onHover={setHovered}
+              />
+            ))}
+          </motion.div>
+        </AnimatePresence>
 
         {/* Smaller projects: one compact row each, so the main builds keep the space */}
         {minor.length > 0 && (

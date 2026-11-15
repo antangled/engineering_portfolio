@@ -30,6 +30,10 @@ function StackCard({
   const to = last ? 1 : (i + 1) / (n - 1);
   const scale = useTransform(progress, [from, to], [1, last ? 1 : SHRINK]);
   const dim = useTransform(progress, [from, to], [0, last ? 0 : 0.22]);
+  // The photo settles from 1.18x while this card slides up into place.
+  const enterFrom = i === 0 ? 0 : (i - 1) / (n - 1);
+  const enterTo = i === 0 ? 0.001 : i / (n - 1);
+  const zoom = useTransform(progress, [enterFrom, enterTo], [i === 0 ? 1 : 1.18, 1]);
 
   return (
     <div className="sticky top-0 flex h-screen items-center">
@@ -39,7 +43,7 @@ function StackCard({
       >
         <FeaturedLink item={item} className={cardShell}>
           <div className="grid h-[min(70vh,600px)] grid-cols-12">
-            <FeaturedMedia item={item} className="col-span-7 h-full" />
+            <FeaturedMedia item={item} zoom={zoom} className="col-span-7 h-full" />
             <div className="col-span-5 p-8 xl:p-10">
               <FeaturedBody item={item} index={i} total={n} />
             </div>

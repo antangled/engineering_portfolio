@@ -1,79 +1,84 @@
-import { motion } from "motion/react";
-import { CircuitBoard, Cog, Cpu, Wrench, type LucideIcon } from "lucide-react";
-import { skillGroups } from "../../data/profile";
-import { SheetTicks } from "./SheetTicks";
-import { cn } from "../../lib/utils";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
+import { projects } from "@/data/projects";
+import { tools } from "@/data/skills";
+import { CountUp } from "../motion/CountUp";
+import { Reveal } from "../motion/Reveal";
 
-const ease = [0.22, 1, 0.36, 1] as const;
+// Charts (Bklit + d3) are a separate chunk, fetched only when the section nears the viewport.
+const SkillsCharts = lazy(() => import("./SkillsCharts"));
 
-const ICONS: Record<string, LucideIcon> = {
-  Mechanical: Cog,
-  Electrical: CircuitBoard,
-  "Embedded & software": Cpu,
-  "Fabrication & test": Wrench,
-};
+function useNear<T extends Element>(margin = "800px 0px") {
+  const ref = useRef<T>(null);
+  const [near, setNear] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || near) return;
+    const io = new IntersectionObserver(([e]) => e.isIntersecting && setNear(true), { rootMargin: margin });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [near, margin]);
+  return [ref, near] as const;
+}
 
+const firstYear = Math.min(...projects.map((p) => p.year));
+
+/**
+ * Phase 5, Plan A: data-backed skills on a night panel. Every number is counted
+ * from the project pages (src/data/skills.ts), not self-rated.
+ */
 export function Skills() {
-  const total = skillGroups.reduce((n, g) => n + g.items.length, 0);
-  return (
-    <section className="mx-auto max-w-[1400px] px-[5vw] pb-16">
-      <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.25 }}
-        transition={{ duration: 0.7, ease }}
-        className="flex items-baseline justify-between gap-6"
-      >
-        <h2 className="text-balance font-display text-3xl font-semibold tracking-tight text-ink-900">What I work with.</h2>
-        <span className="font-mono text-xs text-ink-500">{total} tools &amp; skills</span>
-      </motion.div>
+  const [ref, near] = useNear<HTMLDivElement>();
+  const stats = [
+    { value: String(projects.length), label: "projects on this site" },
+    { value: String(tools.length), label: "tools, each tied to proof" },
+    { value: String(new Date().getFullYear() - firstYear), label: "years of builds" },
+  ];
 
-      {/* One panel, four quadrants divided by hairlines — a spec panel, not a card grid */}
-      <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.2 }}
-        transition={{ duration: 0.7, ease, delay: 0.05 }}
-        className="relative mt-8 rounded-4xl border border-line bg-surface shadow-[0_1px_0_rgba(21,23,27,0.04),0_40px_90px_-60px_rgba(21,23,27,0.35)]"
-      >
-        <SheetTicks />
-        <div className="grid sm:grid-cols-2">
-          {skillGroups.map((group, i) => {
-            const Icon = ICONS[group.title] ?? Cog;
-            return (
-              <div
-                key={group.title}
-                className={cn(
-                  "p-6 sm:p-8",
-                  i > 0 && "border-t border-line",
-                  i === 1 && "sm:border-t-0",
-                  i % 2 === 1 && "sm:border-l"
-                )}
-              >
-                <div className="flex items-center justify-between gap-4">
-                  <h3 className="flex items-center gap-2.5 font-medium text-ink-900">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-signal/10 text-signal-ink">
-                      <Icon className="h-4 w-4" aria-hidden />
-                    </span>
-                    {group.title}
-                  </h3>
-                  <span className="font-mono text-xs text-ink-500">{String(group.items.length).padStart(2, "0")}</span>
-                </div>
-                <ul className="mt-5 flex flex-wrap gap-2">
-                  {group.items.map((item) => (
-                    <li
-                      key={item}
-                      className="rounded-lg border border-line bg-paper/70 px-3 py-1.5 text-sm text-ink-700 transition-colors hover:border-signal/40 hover:text-ink-900"
-                    >
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            );
-          })}
+  return (
+    <section id="skills" className="mx-auto max-w-[1400px] px-[5vw] pb-24 lg:pb-32">
+      <div className="dark relative overflow-hidden rounded-[2.5rem] bg-night-900 px-6 py-14 text-mist sm:px-10 lg:px-14 lg:py-20">
+        <div aria-hidden className="bp-grid pointer-events-none absolute inset-0 opacity-60" />
+        <div aria-hidden className="pointer-events-none absolute -left-32 -top-40 h-[420px] w-[420px] rounded-full bg-signal/15 blur-[120px]" />
+
+        <div className="relative">
+          <div className="grid gap-10 lg:grid-cols-12 lg:items-end">
+            <div className="lg:col-span-7">
+              <h2 className="font-display text-[clamp(2.4rem,6vw,4.5rem)] font-semibold leading-[0.95] tracking-tight">
+                <Reveal kind="mask-line">Toolchain.</Reveal>
+              </h2>
+              <Reveal delay={0.1}>
+                <p className="mt-5 max-w-[52ch] text-pretty text-lg leading-relaxed text-mist-dim">
+                  Ranked by how many projects on this site used each tool. Counted from the project pages, not
+                  self-rated. Hover a bar to see the projects; click it to open the proof.
+                </p>
+              </Reveal>
+            </div>
+            <dl className="grid grid-cols-3 gap-4 lg:col-span-5">
+              {stats.map((s, i) => (
+                <Reveal key={s.label} delay={0.1 + i * 0.06}>
+                  <div className="border-l border-mist/15 pl-4">
+                    <dt className="sr-only">{s.label}</dt>
+                    <dd className="font-display text-[clamp(2.2rem,4vw,3.4rem)] font-semibold leading-none text-mist">
+                      <CountUp value={s.value} />
+                    </dd>
+                    <p aria-hidden className="mt-2 text-xs leading-snug text-mist-faint sm:text-sm">
+                      {s.label}
+                    </p>
+                  </div>
+                </Reveal>
+              ))}
+            </dl>
+          </div>
+
+          <div ref={ref} className="mt-14 min-h-[520px]">
+            {near && (
+              <Suspense fallback={<div className="h-[520px] animate-pulse rounded-2xl bg-white/[0.03]" />}>
+                <SkillsCharts />
+              </Suspense>
+            )}
+          </div>
         </div>
-      </motion.div>
+      </div>
     </section>
   );
 }

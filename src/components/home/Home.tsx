@@ -1,13 +1,17 @@
-import { useEffect } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Hero } from "./Hero";
 import { BuildStrip } from "./BuildStrip";
 import { Statement } from "./Statement";
 import { FeaturedWork } from "./FeaturedWork";
-import { AboutSection } from "./AboutSection";
 import { Skills } from "./Skills";
 import { Footer } from "./Footer";
 import { usePageTitle } from "../../lib/usePageTitle";
+
+// About (Kokonut marker/flip/particle components) is below the fold: its own chunk,
+// requested as soon as this module runs, so it's there long before anyone scrolls.
+const aboutChunk = import("./About");
+const About = lazy(() => aboutChunk.then((m) => ({ default: m.About })));
 
 type ScrollState = { scrollTarget?: string } | null;
 
@@ -40,7 +44,9 @@ export function Home() {
       <BuildStrip />
       <Statement />
       <FeaturedWork />
-      <AboutSection />
+      <Suspense fallback={<section id="about" className="min-h-[1600px]" />}>
+        <About />
+      </Suspense>
       <Skills />
       <Footer />
     </div>

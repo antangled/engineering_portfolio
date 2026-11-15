@@ -57,6 +57,59 @@ export const aboutParagraphs: string[] = [
   "Outside engineering, I founded a climate nonprofit that became a UNFCCC observer organization and sent me to COP28 in Dubai as a U.S. youth delegate. I'm looking for an engineering co-op or internship for Spring and Summer 2027.",
 ];
 
+/**
+ * v4 About: one ~60-word paragraph. Segments with `to` are proof phrases — drawn
+ * on with a marker as the paragraph scrolls in, and linked to the project.
+ */
+export const aboutShort: { text: string; to?: string }[] = [
+  { text: "I'm an EECS student at Berkeley who builds things that move, sense and run on their own. Right now that's Kinema, a camera arm on cycloidal actuators I designed. This year I built the " },
+  { text: "drone-detection pipeline at Eldaeon", to: "eldaeon-passive-radar-system" },
+  { text: ", and with Envoy my team of two " },
+  { text: "won Best Enterprise Reinvention", to: "envoy" },
+  { text: ". Before Berkeley, I led mechanical design for an ROV that placed " },
+  { text: "6th in the world at MATE", to: "murex-rov" },
+  { text: "." },
+];
+
+/** v4 About: the facts line that replaces the table. */
+export const factsLine = ["B.S. EECS", "Minor Bioengineering", "3.91 GPA", "Tau Beta Pi", "HKN", "May 2028"];
+
+/** v4 Recognition: three photo cards (COP28 has no photo yet — Adam will add them). */
+export const recognition: {
+  title: string;
+  org: string;
+  year: string;
+  image?: string;
+  imagePosition?: string;
+  detail: string;
+  slug?: string;
+}[] = [
+  {
+    title: "Best Enterprise Reinvention",
+    org: "Berkeley SCET Innovation Intelligence Hackathon",
+    year: "2026",
+    image: withBase("/images/software/envoy-award.jpg"),
+    imagePosition: "50% 40%",
+    detail: "Won the AI-Native Enterprise track with Envoy, an outreach assistant I built end to end with Jiwoo Jung.",
+    slug: "envoy",
+  },
+  {
+    title: "6th in the world",
+    org: "MATE ROV World Championship",
+    year: "2024",
+    image: withBase("/images/projects/MUREX/murex-worlds-team.jpg"),
+    imagePosition: "50% 45%",
+    detail: "Mechanical lead on MUREX: a 6-DOF ROV and 7-DOF manipulator, with manufacturing cost cut 88% by bringing parts in-house.",
+    slug: "murex-rov",
+  },
+  {
+    title: "U.S. youth delegate",
+    org: "COP28, Dubai",
+    year: "2023",
+    detail: "Selected from 5,000 applicant NGOs after founding a climate nonprofit that became a UNFCCC observer organization.",
+  },
+];
+
 export type ExperienceEntry = {
   org: string;
   role: string;

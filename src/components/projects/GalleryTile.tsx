@@ -1,11 +1,12 @@
 import { useRef } from "react";
 import { Link } from "react-router-dom";
-import { motion } from "motion/react";
+import { motion, useInView, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform } from "motion/react";
 import { ArrowUpRight, Play } from "lucide-react";
 import type { Project } from "../../data/projects";
+import { coverTransitionName } from "../../data/featured";
+import { DUR, EASE as ease, useIsDesktop } from "../../lib/motion";
+import { useMorphNavigate } from "../../lib/viewTransition";
 import { cn } from "../../lib/utils";
-
-const ease = [0.22, 1, 0.36, 1] as const;
 
 function Monogram({ title }: { title: string }) {
   const letters = title
@@ -33,7 +34,34 @@ export function GalleryTile({
   onHover: (slug: string | null) => void;
 }) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const frameRef = useRef<HTMLDivElement>(null);
   const hasImage = !project.placeholder && project.cover;
+  const reduced = useReducedMotion();
+  const desktop = useIsDesktop();
+  const morph = useMorphNavigate();
+  const vt = coverTransitionName(project.slug);
+  // Entrance plays when the tile scrolls into view; column-staggered.
+  // Observe the unclipped outer tile: Chrome's IntersectionObserver honors the
+  // frame's own clip-path, so a fully clipped frame would never count as visible.
+  const tileRef = useRef<HTMLDivElement>(null);
+  const shown = useInView(tileRef, { once: true, amount: 0.15 });
+  const delay = (index % 2) * 0.09;
+
+  // Slow parallax: the image drifts ~8% against the frame as the tile crosses the viewport.
+  const { scrollYProgress } = useScroll({ target: frameRef, offset: ["start end", "end start"] });
+  const drift = useTransform(scrollYProgress, [0, 1], reduced ? ["0%", "0%"] : ["-4%", "4%"]);
+
+  // Gentle 3D tilt toward the pointer (desktop only).
+  const rx = useMotionValue(0);
+  const ry = useMotionValue(0);
+  const srx = useSpring(rx, { stiffness: 220, damping: 22 });
+  const sry = useSpring(ry, { stiffness: 220, damping: 22 });
+  const tilt = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!desktop || reduced) return;
+    const r = e.currentTarget.getBoundingClientRect();
+    ry.set(((e.clientX - r.left) / r.width - 0.5) * 6);
+    rx.set(-((e.clientY - r.top) / r.height - 0.5) * 6);
+  };
 
   const enter = () => {
     onHover(project.slug);
@@ -42,6 +70,8 @@ export function GalleryTile({
   };
   const leave = () => {
     onHover(null);
+    rx.set(0);
+    ry.set(0);
     const v = videoRef.current;
     if (v) {
       v.pause();
@@ -51,45 +81,66 @@ export function GalleryTile({
 
   return (
     <motion.div
+      ref={tileRef}
+      layout={!reduced}
       initial={{ opacity: 0, y: 40 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.2 }}
-      transition={{ duration: 0.7, ease, delay: (index % 2) * 0.08 }}
-      animate={{ opacity: dimmed ? 0.55 : 1 }}
+      animate={{ opacity: !shown ? 0 : dimmed ? 0.55 : 1, y: shown ? 0 : 40 }}
+      exit={{ opacity: 0, y: -16, transition: { duration: DUR.base * 0.6, ease } }}
+      transition={{ duration: DUR.slow, ease, delay: dimmed ? 0 : delay }}
       className="group"
       onMouseEnter={enter}
       onMouseLeave={leave}
     >
       <Link
         to={`/projects/${project.slug}`}
+        onClick={morph(`/projects/${project.slug}`, vt)}
         data-cursor="view"
         data-cursor-label="View"
         className="block"
       >
-        <div className="relative aspect-4/3 overflow-hidden rounded-3xl border border-mist/10 bg-night-800">
-          <div className="absolute inset-0 transition-transform duration-700 ease-expo group-hover:scale-[1.04]">
-            {hasImage ? (
-              <img
-                src={project.cover}
-                alt={project.title}
-                loading={index < 2 ? "eager" : "lazy"}
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <Monogram title={project.title} />
-            )}
-            {project.coverVideo && (
-              <video
-                ref={videoRef}
-                src={project.coverVideo}
-                muted
-                loop
-                playsInline
-                preload="metadata"
-                className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-              />
-            )}
-          </div>
+        <motion.div
+          ref={frameRef}
+          onPointerMove={tilt}
+          style={{ rotateX: srx, rotateY: sry, transformPerspective: 900 }}
+          // Image wipes up from the bottom edge as the tile first appears.
+          initial={reduced ? false : { clipPath: "inset(100% 0% 0% 0%)" }}
+          animate={shown ? { clipPath: "inset(0% 0% 0% 0%)" } : undefined}
+          transition={{ duration: DUR.slow * 1.2, ease, delay: delay + 0.05 }}
+          className="relative aspect-4/3 overflow-hidden rounded-3xl border border-mist/10 bg-night-800"
+        >
+          <motion.div
+            style={{ y: drift }}
+            initial={reduced ? false : { scale: 1.25 }}
+            animate={shown ? { scale: 1.1 } : undefined}
+            transition={{ duration: DUR.slow * 1.6, ease, delay }}
+            className="absolute inset-0"
+          >
+            <div className="absolute inset-0 transition-transform duration-700 ease-expo group-hover:scale-[1.04]">
+              {hasImage ? (
+                <img
+                  src={project.cover}
+                  alt={project.title}
+                  loading={index < 2 ? "eager" : "lazy"}
+                  data-vt={vt}
+                  style={{ viewTransitionName: vt }}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <Monogram title={project.title} />
+              )}
+              {project.coverVideo && (
+                <video
+                  ref={videoRef}
+                  src={project.coverVideo}
+                  muted
+                  loop
+                  playsInline
+                  preload="metadata"
+                  className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                />
+              )}
+            </div>
+          </motion.div>
 
           {/* gradient + meta overlays */}
           <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-night-900/70 via-transparent to-transparent opacity-80" />
@@ -122,7 +173,7 @@ export function GalleryTile({
               Demo
             </span>
           )}
-        </div>
+        </motion.div>
 
         {/* caption row */}
         <div className="mt-4 flex items-start justify-between gap-4">
@@ -130,7 +181,7 @@ export function GalleryTile({
             <h3
               className={cn(
                 "font-display text-xl font-semibold tracking-tight text-mist transition-colors duration-300",
-                "group-hover:text-signal"
+                "group-hover:text-signal",
               )}
             >
               {project.title}
