@@ -59,11 +59,16 @@
 - Build strip: thumbnails get a gentle hover scale, and play a short muted clip on hover where one exists (PolySynth, Kinema).
 - The hero stays light: no 3D or heavy backgrounds here, so it loads instantly.
 
-## Phase 1c: Bold, simple hero (Nov 15; replaced the orbit hero, which Adam found too busy)
+## Phase 1c: Bold hero + builds reel (Nov 15, after Adam's review of the orbit and plain versions)
 
-- On the light grid: a narrow portrait in the middle, with "I build" and "products." on one line spanning ~93% of the page. The words slide out from behind the photo's edges.
-- Under the photo: "Mechatronics & Embedded Systems Engineer", "UC Berkeley · EECS", then View my work / Résumé / LinkedIn.
-- Below the hero: the image statement, full width.
+- A large centred portrait. "I build" sits to its left at face height; "products." steps onto the next line and crosses the photo.
+  - It is drawn twice: black on the page, and white (plus a soft scrim) inside the photo frame.
+  - The words slide or rise out from behind the photo.
+- Caption centred under the photo: UC Berkeley seal, role, "UC Berkeley · EECS". Then View my work / Résumé / LinkedIn. A subtle animated scroll cue at the bottom of the first screen.
+- Builds reel right under the hero: the six builds on an endless belt.
+  - It drifts on its own, picks up speed from page scrolling, and can be dragged and thrown.
+  - Hovering stops it and plays the clip.
+- Then the full-width image statement.
 
 ## Phase 2: Statement reveal (the image version is back, full width, below the hero)
 

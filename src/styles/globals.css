@@ -477,36 +477,129 @@ html.lenis-scrolling [data-scroll-inert] {
 }
 
 /* ---- Home hero (Hero.tsx) --------------------------------------------------
-   [I build] [narrow portrait] [products.] as one centred line spanning ~93% of
-   the page. Word widths in Clash Display at -0.04em: 2.50 + 4.55 = 7.05 em. */
-.hero {
-  --pw: min(56vw, 300px);
+   A centred portrait; "I build" to its left, "products." stepped onto the next
+   line and crossing the photo. "products." is drawn twice at the same spot: an
+   ink copy behind the photo and a white copy clipped inside the photo frame.
+   Word widths in Clash Display at -0.04em: "I build" 2.50em, "products." 4.55em.
+   Phones: "I build" sits above the photo, "products." crosses it, centred. */
+.hero-stage {
+  --pw: 62vw;
   --ph: calc(var(--pw) / 0.58);
-  --hero-gap: clamp(0.75rem, 1.4vw, 1.5rem);
+  --g: 0.75rem;
+  --F: min(15.5vw, 6rem);
+  --by: calc(var(--F) * -0.98);
+  --py: calc(var(--ph) * 0.52);
+  --d: calc(var(--F) * -2.275);
+  height: var(--ph);
+  margin-top: var(--F);
 }
 @media (min-width: 1024px) {
-  .hero {
-    --ph: min(62vh, 560px);
+  .hero-stage {
+    --ph: min(68svh, 660px);
     --pw: calc(var(--ph) * 0.58);
+    --g: clamp(0.75rem, 1.2vw, 1.5rem);
+    /* "I build" + gap + half the photo fill ~45% of the page on the left; the
+       whole composition is then centred because "products." starts where the
+       balance requires (--d), crossing the photo */
+    --F: min(calc((45vw - var(--pw) / 2 - var(--g)) / 2.5), 13rem);
+    --by: calc(var(--ph) * 0.14);
+    --py: calc(var(--by) + var(--F) * 0.92);
+    --d: calc(var(--pw) / 2 + var(--g) - 2.05 * var(--F));
+    margin-top: 0;
   }
 }
 .hero-photo {
+  position: absolute;
+  z-index: 10;
+  top: 0;
+  left: 50%;
   width: var(--pw);
   height: var(--ph);
+  margin-left: calc(var(--pw) / -2);
+  overflow: hidden;
+  border-radius: clamp(1.25rem, 2vw, 2rem);
+  box-shadow: 0 50px 90px -50px rgba(21, 23, 27, 0.5);
 }
-.hero-photo-w {
-  width: var(--pw);
+/* a soft dark band behind the white word, so it reads on the grey backdrop too */
+.hero-photo-scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent calc(var(--py) - var(--F) * 0.3),
+    rgba(10, 11, 13, 0.32) calc(var(--py) + var(--F) * 0.25),
+    rgba(10, 11, 13, 0.32) calc(var(--py) + var(--F) * 0.75),
+    transparent calc(var(--py) + var(--F) * 1.3)
+  );
 }
-.hero-line {
-  font-size: calc((93vw - var(--pw) - 2 * var(--hero-gap)) / 7.1);
+.hero-build,
+.hero-products {
+  position: absolute;
+  z-index: 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--F);
   line-height: 0.9;
   letter-spacing: -0.04em;
   white-space: nowrap;
+  color: var(--color-ink-900);
 }
-/* room for the descender of "p" inside the clipping box */
-.hero-word {
-  padding: 0.04em 0.02em 0.16em;
+.hero-build {
+  top: var(--by);
+  left: calc(50% - var(--pw) / 2 - var(--F) * 0.05);
 }
-.hero-line-sm {
-  font-size: min(19vw, 9rem);
+@media (min-width: 1024px) {
+  .hero-build {
+    left: auto;
+    right: calc(50% + var(--pw) / 2 + var(--g));
+  }
+}
+.hero-products {
+  top: var(--py);
+  left: calc(50% + var(--d));
+}
+/* the white copy, in the photo's own coordinates */
+.hero-photo .hero-products--light {
+  z-index: 2;
+  left: calc(var(--d) + var(--pw) / 2);
+  color: #fff;
+  text-shadow: 0 2px 30px rgba(0, 0, 0, 0.25);
+}
+.scroll-cue {
+  position: relative;
+  display: block;
+  width: 1px;
+  height: 2.25rem;
+  overflow: hidden;
+  background: rgba(21, 23, 27, 0.14);
+}
+.scroll-cue::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--color-ink-900);
+  animation: scroll-cue 2s var(--ease-expo) infinite;
+}
+@keyframes scroll-cue {
+  0% {
+    transform: translateY(-100%);
+  }
+  55% {
+    transform: translateY(0%);
+  }
+  100% {
+    transform: translateY(100%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroll-cue::after {
+    animation: none;
+    transform: none;
+  }
+}
+
+/* ---- Builds reel (BuildReel.tsx) ---- */
+.reel-card {
+  width: clamp(220px, 23vw, 340px);
+  aspect-ratio: 4 / 3;
 }

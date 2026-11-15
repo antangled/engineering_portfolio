@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Hero } from "./Hero";
 import { Statement } from "./Statement";
+import { BuildReel } from "./BuildReel";
 import { FeaturedWork } from "./FeaturedWork";
 import { Skills } from "./Skills";
 import { Footer } from "./Footer";
@@ -40,6 +41,7 @@ export function Home() {
   return (
     <div className="paper-grid">
       <Hero />
+      <BuildReel />
       <Statement />
       <FeaturedWork />
       <Suspense fallback={<section id="about" className="min-h-[1600px]" />}>

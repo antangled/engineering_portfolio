@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { motion, useReducedMotion } from "motion/react";
+import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
 import { ArrowRight, Download } from "lucide-react";
 import { profile } from "@/data/profile";
 import { withBase } from "@/lib/withBase";
@@ -7,36 +7,40 @@ import { DUR, EASE } from "@/lib/motion";
 import { Linkedin } from "../icons/Linkedin";
 
 /*
- * v4 hero, simplified: one narrow portrait in the middle, one huge line.
+ * v4 hero: a large centred portrait, "I build" to its left, and "products."
+ * stepped onto the next line, crossing the photo.
  *
- *     0 ms  the portrait opens upward from its bottom edge, the photo settling from 1.15×
- *   450 ms  "I build" slides out of the photo's left edge, "products." out of its right
- *   950 ms  role, then the buttons, fade up under the photo
+ * Legibility where "products." crosses the photo: the word is drawn twice at the
+ * same page coordinates. The ink copy sits behind the photo; a white copy lives
+ * inside the photo frame (which clips it). So the word reads black on the page
+ * and white on the photo, with no seam. All geometry is CSS variables on
+ * .hero-stage (globals.css), so both copies always line up at any width.
  *
- * Everything animates a transform, opacity or clip-path string, so Motion hands it
- * to WAAPI and it runs on the compositor (no hitch if the page is busy).
+ *     0 ms  the photo opens upward, settling from 1.15×
+ *   450 ms  "I build" slides out of the photo's left edge
+ *   600 ms  "products." rises into its line (both copies, same timing)
+ *  1000 ms  caption, then buttons; the scroll cue last
  *
- * Layout: the words and the photo form one centred line sized to span ~95% of the
- * page. "I build" is 2.50 em and "products." 4.55 em in Clash Display at -0.04em,
- * so the font size is (95vw - photo - gaps) / 7.05 (see .hero in globals.css).
+ * Every animation is a transform / clip-path / opacity string, so Motion runs it
+ * on WAAPI (compositor).
  */
 
-const T = { photo: 0, words: 0.45, role: 0.95, buttons: 1.05 };
+const T = { photo: 0, build: 0.45, products: 0.6, caption: 1.0, buttons: 1.1, cue: 1.6 };
 
-/** A word that slides out from behind the photo's edge (its box clips it). */
-function Emerge({ children, from, reduced }: { children: React.ReactNode; from: "left" | "right"; reduced: boolean }) {
-  const start = from === "left" ? "translateX(105%)" : "translateX(-105%)";
+function Products({ reduced, light }: { reduced: boolean; light?: boolean }) {
   return (
-    <span className="hero-word block overflow-hidden">
-      <motion.span
-        data-reveal
-        className="block"
-        initial={reduced ? { opacity: 0 } : { transform: start }}
-        animate={reduced ? { opacity: 1 } : { transform: "translateX(0%)" }}
-        transition={{ duration: 1, ease: EASE, delay: T.words }}
-      >
-        {children}
-      </motion.span>
+    <span className={light ? "hero-products hero-products--light" : "hero-products"} aria-hidden>
+      <span className="block overflow-hidden pb-[0.14em]">
+        <motion.span
+          data-reveal
+          className="block"
+          initial={reduced ? { opacity: 0 } : { transform: "translateY(105%)" }}
+          animate={reduced ? { opacity: 1 } : { transform: "translateY(0%)" }}
+          transition={{ duration: 1, ease: EASE, delay: T.products }}
+        >
+          products<span className="text-signal">.</span>
+        </motion.span>
+      </span>
     </span>
   );
 }
@@ -67,125 +71,119 @@ function Rise({
 
 export function Hero() {
   const reduced = useReducedMotion() ?? false;
-
-  const photo = (
-    <div className="hero-photo relative z-10 mx-auto overflow-hidden rounded-[1.75rem] bg-studio shadow-[0_40px_80px_-40px_rgba(21,23,27,0.45)]">
-      <motion.div
-        data-reveal
-        className="absolute inset-0"
-        initial={reduced ? { opacity: 0 } : { clipPath: "inset(100% 0% 0% 0%)" }}
-        animate={reduced ? { opacity: 1 } : { clipPath: "inset(0% 0% 0% 0%)" }}
-        transition={{ duration: 0.9, ease: EASE, delay: T.photo }}
-      >
-        <motion.img
-          src={withBase("/images/portrait-narrow.webp")}
-          alt="Adam Tang"
-          width={638}
-          height={1100}
-          fetchPriority="high"
-          decoding="async"
-          draggable={false}
-          className="h-full w-full object-cover"
-          initial={reduced ? false : { transform: "scale(1.15)" }}
-          animate={{ transform: "scale(1)" }}
-          transition={{ duration: 1.3, ease: EASE, delay: T.photo }}
-        />
-      </motion.div>
-    </div>
-  );
-
-  const actions = (
-    <div className="flex flex-wrap items-center justify-center gap-3">
-      <Link
-        to="/projects"
-        data-cursor="link"
-        className="group inline-flex h-12 items-center gap-2 rounded-full bg-ink-900 px-7 text-sm font-medium text-white transition-colors duration-[150ms] hover:bg-signal"
-      >
-        View my work
-        <ArrowRight className="h-4 w-4 transition-transform duration-[400ms] ease-expo group-hover:translate-x-1" aria-hidden />
-      </Link>
-      <a
-        href={profile.resume}
-        target="_blank"
-        rel="noreferrer"
-        data-cursor="link"
-        className="inline-flex h-12 items-center gap-2 rounded-full border border-ink-900/20 bg-surface px-6 text-sm font-medium text-ink-900 transition-colors duration-[150ms] hover:border-signal hover:text-signal-ink"
-      >
-        <Download className="h-4 w-4" aria-hidden />
-        Résumé
-      </a>
-      <a
-        href="https://www.linkedin.com/in/adam-tang-2374992a7"
-        target="_blank"
-        rel="noreferrer"
-        data-cursor="link"
-        aria-label="LinkedIn"
-        className="flex h-12 w-12 items-center justify-center rounded-full border border-ink-900/20 bg-surface text-ink-900 transition-colors duration-[150ms] hover:border-signal hover:bg-signal hover:text-white"
-      >
-        <Linkedin className="h-[1.1rem] w-[1.1rem]" />
-      </a>
-    </div>
-  );
-
-  const role = (
-    <p className="text-center">
-      <span className="block text-lg font-semibold tracking-tight text-ink-900 sm:text-xl">{profile.role}</span>
-      <span className="mt-1 block font-mono text-xs uppercase tracking-[0.2em] text-ink-500">UC Berkeley · EECS</span>
-    </p>
-  );
+  // the scroll cue fades as soon as you start scrolling
+  const { scrollY } = useScroll();
+  const cueOpacity = useTransform(scrollY, [0, 120], [1, 0]);
 
   return (
-    <section className="hero px-[2.5vw] pb-8 pt-24 lg:pt-28">
+    <section className="hero relative flex min-h-[100svh] flex-col items-center px-[4vw] pb-24 pt-24 lg:pt-[5.5rem]">
       <h1 className="sr-only">I build products.</h1>
 
-      {/* Desktop: [I build] [photo] [products.] on one line, role + buttons under the photo */}
-      <div className="hidden lg:grid lg:grid-cols-[auto_auto_auto] lg:justify-center lg:gap-x-[var(--hero-gap)]">
-        <div aria-hidden className="hero-line self-center justify-self-end font-display font-semibold text-ink-900">
-          <Emerge from="left" reduced={reduced}>
-            I build
-          </Emerge>
-        </div>
-        {photo}
-        <div aria-hidden className="hero-line self-center font-display font-semibold text-ink-900">
-          <Emerge from="right" reduced={reduced}>
-            products<span className="text-signal">.</span>
-          </Emerge>
-        </div>
-        {/* exactly the photo's width, so it never widens the column; its content
-            overflows evenly both sides, centred under the photo */}
-        <div className="hero-photo-w col-start-2 mt-7 flex justify-center">
-          <div className="w-max shrink-0">
-            <Rise delay={T.role} reduced={reduced}>
-              {role}
-            </Rise>
-            <Rise delay={T.buttons} reduced={reduced} className="mt-5">
-              {actions}
-            </Rise>
-          </div>
+      <div className="hero-stage relative w-full">
+        {/* "I build": its right edge meets the photo; it slides out from behind it */}
+        <span aria-hidden className="hero-build">
+          <span className="block overflow-hidden pb-[0.14em]">
+            <motion.span
+              data-reveal
+              className="block"
+              initial={reduced ? { opacity: 0 } : { transform: "translateX(105%)" }}
+              animate={reduced ? { opacity: 1 } : { transform: "translateX(0%)" }}
+              transition={{ duration: 1, ease: EASE, delay: T.build }}
+            >
+              I build
+            </motion.span>
+          </span>
+        </span>
+
+        {/* ink copy of "products." (behind the photo) */}
+        <Products reduced={reduced} />
+
+        {/* the photo, with the white copy of "products." clipped inside it */}
+        <div className="hero-photo">
+          <motion.div
+            data-reveal
+            className="absolute inset-0"
+            initial={reduced ? { opacity: 0 } : { clipPath: "inset(100% 0% 0% 0%)" }}
+            animate={reduced ? { opacity: 1 } : { clipPath: "inset(0% 0% 0% 0%)" }}
+            transition={{ duration: 0.9, ease: EASE, delay: T.photo }}
+          >
+            <motion.img
+              src={withBase("/images/portrait-narrow.webp")}
+              alt="Adam Tang"
+              width={638}
+              height={1100}
+              fetchPriority="high"
+              decoding="async"
+              draggable={false}
+              className="h-full w-full object-cover"
+              initial={reduced ? false : { transform: "scale(1.15)" }}
+              animate={{ transform: "scale(1)" }}
+              transition={{ duration: 1.3, ease: EASE, delay: T.photo }}
+            />
+            {/* darkens the photo a touch behind the white word */}
+            <div aria-hidden className="hero-photo-scrim" />
+          </motion.div>
+          <Products reduced={reduced} light />
         </div>
       </div>
 
-      {/* Phones and tablets: the line stacked above the photo */}
-      <div className="flex flex-col items-center lg:hidden">
-        <div
-          aria-hidden
-          className="hero-line-sm text-center font-display font-semibold leading-[0.88] tracking-[-0.04em] text-ink-900"
+      {/* caption + actions, centred under the photo */}
+      <Rise delay={T.caption} reduced={reduced} className="mt-7 flex items-center gap-3">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white p-1 shadow-[0_1px_2px_rgba(21,23,27,0.12)] ring-1 ring-ink-900/10">
+          <img src={withBase("/images/berkeley-seal.svg")} alt="UC Berkeley seal" className="h-full w-full" />
+        </span>
+        <span className="text-left">
+          <span className="block text-base font-semibold tracking-tight text-ink-900 sm:text-lg">{profile.role}</span>
+          <span className="block font-mono text-[0.7rem] uppercase tracking-[0.2em] text-ink-500">UC Berkeley · EECS</span>
+        </span>
+      </Rise>
+      <Rise delay={T.buttons} reduced={reduced} className="mt-5 flex flex-wrap items-center justify-center gap-3">
+        <Link
+          to="/projects"
+          data-cursor="link"
+          className="group inline-flex h-12 items-center gap-2 rounded-full bg-ink-900 px-7 text-sm font-medium text-white transition-colors duration-[150ms] hover:bg-signal"
         >
-          <Rise delay={T.words} reduced={reduced}>
-            I build
-          </Rise>
-          <Rise delay={T.words + 0.08} reduced={reduced}>
-            products<span className="text-signal">.</span>
-          </Rise>
-        </div>
-        <div className="mt-6">{photo}</div>
-        <Rise delay={T.role} reduced={reduced} className="mt-6">
-          {role}
-        </Rise>
-        <Rise delay={T.buttons} reduced={reduced} className="mt-5">
-          {actions}
-        </Rise>
-      </div>
+          View my work
+          <ArrowRight className="h-4 w-4 transition-transform duration-[400ms] ease-expo group-hover:translate-x-1" aria-hidden />
+        </Link>
+        <a
+          href={profile.resume}
+          target="_blank"
+          rel="noreferrer"
+          data-cursor="link"
+          className="inline-flex h-12 items-center gap-2 rounded-full border border-ink-900/20 bg-surface px-6 text-sm font-medium text-ink-900 transition-colors duration-[150ms] hover:border-signal hover:text-signal-ink"
+        >
+          <Download className="h-4 w-4" aria-hidden />
+          Résumé
+        </a>
+        <a
+          href="https://www.linkedin.com/in/adam-tang-2374992a7"
+          target="_blank"
+          rel="noreferrer"
+          data-cursor="link"
+          aria-label="LinkedIn"
+          className="flex h-12 w-12 items-center justify-center rounded-full border border-ink-900/20 bg-surface text-ink-900 transition-colors duration-[150ms] hover:border-signal hover:bg-signal hover:text-white"
+        >
+          <Linkedin className="h-[1.1rem] w-[1.1rem]" />
+        </a>
+      </Rise>
+
+      {/* subtle scroll cue */}
+      <motion.div
+        aria-hidden
+        style={{ opacity: cueOpacity }}
+        className="pointer-events-none absolute left-[4vw] top-[calc(100svh-4.25rem)] hidden items-center gap-3 font-mono text-[0.68rem] uppercase tracking-[0.25em] text-ink-500 sm:flex"
+      >
+        <motion.span
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: DUR.slow, ease: EASE, delay: T.cue }}
+          className="flex items-center gap-3"
+        >
+          <span className="scroll-cue" />
+          Scroll
+        </motion.span>
+      </motion.div>
     </section>
   );
 }
