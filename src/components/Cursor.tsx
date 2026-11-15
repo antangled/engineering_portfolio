@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { motion, useMotionValue, useSpring, AnimatePresence } from "framer-motion";
+import { motion, useMotionValue, useSpring, AnimatePresence } from "motion/react";
 
 type CursorMode = "default" | "link" | "view";
 
@@ -45,7 +45,7 @@ export function Cursor() {
   return (
     <motion.div
       aria-hidden
-      className="pointer-events-none fixed left-0 top-0 z-[100] flex items-center justify-center"
+      className="pointer-events-none fixed left-0 top-0 z-100 flex items-center justify-center"
       style={{ x: sx, y: sy }}
     >
       <motion.div

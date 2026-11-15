@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { ArrowUpRight, Play } from "lucide-react";
 import type { Project } from "../../data/projects";
 import { cn } from "../../lib/utils";
@@ -15,7 +15,7 @@ function Monogram({ title }: { title: string }) {
     .slice(0, 2)
     .toUpperCase();
   return (
-    <div className="bp-grid flex h-full w-full items-center justify-center bg-gradient-to-br from-night-700 to-night-800">
+    <div className="bp-grid flex h-full w-full items-center justify-center bg-linear-to-br from-night-700 to-night-800">
       <span className="font-display text-[5rem] font-semibold text-mist/15">{letters}</span>
     </div>
   );
@@ -66,7 +66,7 @@ export function GalleryTile({
         data-cursor-label="View"
         className="block"
       >
-        <div className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-mist/10 bg-night-800">
+        <div className="relative aspect-4/3 overflow-hidden rounded-3xl border border-mist/10 bg-night-800">
           <div className="absolute inset-0 transition-transform duration-700 ease-expo group-hover:scale-[1.04]">
             {hasImage ? (
               <img
@@ -92,7 +92,7 @@ export function GalleryTile({
           </div>
 
           {/* gradient + meta overlays */}
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-night-900/70 via-transparent to-transparent opacity-80" />
+          <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-night-900/70 via-transparent to-transparent opacity-80" />
           <div className="pointer-events-none absolute left-4 top-4 flex items-center gap-2">
             <span className="rounded-full bg-night-900/85 px-2.5 py-1 font-mono text-[0.65rem] text-mist-dim">
               {String(index + 1).padStart(2, "0")}

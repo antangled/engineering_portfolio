@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect } from "react";
-import { MotionConfig } from "framer-motion";
+import { MotionConfig } from "motion/react";
 import { Route, Routes, useLocation } from "react-router-dom";
 import { SmoothScroll } from "./components/SmoothScroll";
 import { Cursor } from "./components/Cursor";

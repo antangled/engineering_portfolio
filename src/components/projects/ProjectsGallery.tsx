@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform } from "motion/react";
 import { Link } from "react-router-dom";
 import { ArrowUpRight, ChevronDown } from "lucide-react";
 import { getProjects, type Project } from "../../data/projects";
@@ -59,7 +59,7 @@ export function ProjectsGallery() {
           <div
             role="group"
             aria-label="Filter work by type"
-            className="inline-flex rounded-full border border-mist/15 bg-night-800/60 p-1 font-mono text-xs uppercase tracking-wider backdrop-blur"
+            className="inline-flex rounded-full border border-mist/15 bg-night-800/60 p-1 font-mono text-xs uppercase tracking-wider backdrop-blur-sm"
           >
             {(["hardware", "software"] as Category[]).map((c) => (
               <button
@@ -125,7 +125,7 @@ export function ProjectsGallery() {
                     data-cursor="link"
                     className="group grid grid-cols-[96px_1fr_auto] items-center gap-4 py-4 sm:grid-cols-[132px_1fr_auto] sm:gap-6"
                   >
-                    <span className="aspect-[4/3] overflow-hidden rounded-xl border border-mist/10 bg-night-800">
+                    <span className="aspect-4/3 overflow-hidden rounded-xl border border-mist/10 bg-night-800">
                       {p.cover && (
                         <img src={p.cover} alt="" loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.05]" />
                       )}

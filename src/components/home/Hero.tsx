@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { ArrowRight, Download, Linkedin } from "lucide-react";
 import { profile } from "../../data/profile";
 import { withBase } from "../../lib/withBase";
@@ -24,7 +24,7 @@ function Line({ children, delay = 0 }: { children: React.ReactNode; delay?: numb
 
 export function Hero() {
   return (
-    <section className="mx-auto max-w-[1400px] px-[5vw] pt-[4.5rem] lg:pt-24">
+    <section className="mx-auto max-w-[1400px] px-[5vw] pt-18 lg:pt-24">
       {/* Height leaves room for the build strip below to land in the first viewport */}
       <motion.div
         initial={{ opacity: 0, y: 24 }}
@@ -59,11 +59,11 @@ export function Hero() {
           />
 
           {/* Small screens: fade the photo into the text panel below */}
-          <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-ink-900 to-transparent lg:hidden" />
+          <div className="absolute inset-x-0 bottom-0 h-2/5 bg-linear-to-t from-ink-900 to-transparent lg:hidden" />
         </motion.div>
 
         {/* Desktop scrim — right-dark, so white type reads over the mirrored backdrop */}
-        <div className="absolute inset-0 hidden bg-gradient-to-r from-transparent via-black/20 to-black/75 lg:block" />
+        <div className="absolute inset-0 hidden bg-linear-to-r from-transparent via-black/20 to-black/75 lg:block" />
 
         {/* Text — bottom on mobile, right-of-center on desktop */}
         <div className="relative z-10 -mt-6 px-6 pb-7 sm:px-10 sm:pb-10 lg:mt-0 lg:flex lg:h-full lg:min-h-[inherit] lg:items-center lg:justify-end lg:px-14 lg:py-10 xl:px-16 xl:py-12">
@@ -74,7 +74,7 @@ export function Hero() {
               transition={{ duration: 0.8, delay: 0.1 }}
               className="mb-4 flex items-center gap-2.5 lg:mb-5"
             >
-              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/95 p-[3px] shadow-sm">
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/95 p-[3px] shadow-xs">
                 <img src={withBase("/images/berkeley-seal.svg")} alt="UC Berkeley seal" className="h-full w-full" />
               </span>
               <span className="font-mono text-[0.65rem] uppercase tracking-[0.14em] sm:text-xs sm:tracking-[0.25em]">
@@ -96,7 +96,7 @@ export function Hero() {
               transition={{ duration: 0.7, ease, delay: 0.5 }}
             >
               <p className="mt-4 text-balance text-xl font-medium lg:mt-5">{profile.role}</p>
-              <p className="mt-2 max-w-md text-pretty text-base leading-relaxed text-white/90 lg:mt-3 lg:text-lg">
+              <p className="mt-2 max-w-md text-pretty text-base leading-relaxed text-white/90 lg:mt-3 lg:text-lg lg:leading-7">
                 From cycloidal actuators to satellite-IoT field sensors and RF drone detection — EECS
                 at Berkeley, open to Spring + Summer 2027 co-ops.
               </p>

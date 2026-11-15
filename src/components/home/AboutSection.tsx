@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { ArrowUpRight, ChevronDown, MapPin } from "lucide-react";
 import {
   profile,
@@ -84,7 +84,7 @@ function TimelineItem({ exp, current }: { exp: ExperienceEntry; current?: boolea
         <p className="mt-2 max-w-[68ch] text-pretty text-sm leading-relaxed text-ink-700">{exp.blurb}</p>
         <div className="mt-3 flex flex-wrap items-center gap-2">
           {exp.tags?.map((t) => (
-            <span key={t} className="rounded-md bg-ink-900/[0.05] px-2 py-1 font-mono text-xs text-ink-700">
+            <span key={t} className="rounded-md bg-ink-900/5 px-2 py-1 font-mono text-xs text-ink-700">
               {t}
             </span>
           ))}
@@ -132,7 +132,7 @@ export function AboutSection() {
           <h2 className="max-w-3xl text-balance font-display text-[clamp(2.2rem,5vw,3.4rem)] font-semibold leading-[0.98] tracking-tight text-ink-900">
             Built to ship — from the gearbox to the field.
           </h2>
-          <p className="inline-flex items-center gap-2.5 rounded-full border border-ink-900/10 bg-surface px-4 py-2 text-sm text-ink-700 shadow-sm">
+          <p className="inline-flex items-center gap-2.5 rounded-full border border-ink-900/10 bg-surface px-4 py-2 text-sm text-ink-700 shadow-xs">
             <span className="relative flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
@@ -149,11 +149,11 @@ export function AboutSection() {
               alt="Adam Tang pitching Envoy with a microphone to a room of judges and students"
               loading="lazy"
               decoding="async"
-              className="aspect-[4/3] w-full object-cover sm:aspect-[16/9] lg:aspect-[21/9]"
+              className="aspect-4/3 w-full object-cover sm:aspect-video lg:aspect-21/9"
               style={{ objectPosition: "28% 58%" }}
             />
             <figcaption className="absolute bottom-4 left-4 right-4 sm:right-auto">
-              <span className="inline-block rounded-2xl bg-surface/95 px-4 py-2.5 text-sm text-ink-700 shadow-sm">
+              <span className="inline-block rounded-2xl bg-surface/95 px-4 py-2.5 text-sm text-ink-700 shadow-xs">
                 Pitching <span className="font-medium text-ink-900">Envoy</span> at Berkeley SCET's Innovation
                 Intelligence Hackathon — it won Best Enterprise Reinvention.
               </span>
@@ -163,7 +163,7 @@ export function AboutSection() {
 
         {/* The datasheet: one white sheet on the blueprint grid, with drawing-style corner marks */}
         <Reveal className="mt-8">
-          <div className="relative rounded-[2rem] border border-line bg-surface shadow-[0_1px_0_rgba(21,23,27,0.04),0_40px_90px_-60px_rgba(21,23,27,0.35)]">
+          <div className="relative rounded-4xl border border-line bg-surface shadow-[0_1px_0_rgba(21,23,27,0.04),0_40px_90px_-60px_rgba(21,23,27,0.35)]">
             <SheetTicks />
             <div className="grid lg:grid-cols-[minmax(0,0.95fr)_minmax(0,2fr)]">
               {/* Identity card (sticky on desktop) */}
@@ -222,7 +222,7 @@ export function AboutSection() {
 
               {/* Story, then the record */}
               <div className="p-6 sm:p-8 lg:p-10">
-                <p className="max-w-[62ch] text-pretty text-lg leading-relaxed text-ink-900 sm:text-xl">{lead}</p>
+                <p className="max-w-[62ch] text-pretty text-lg leading-relaxed text-ink-900 sm:text-xl sm:leading-7">{lead}</p>
                 <div className="mt-5 max-w-[68ch] space-y-4">
                   {rest.map((p, i) => (
                     <p key={i} className="text-pretty leading-relaxed text-ink-700">

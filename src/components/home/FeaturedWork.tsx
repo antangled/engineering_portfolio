@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { getProjects, type Project } from "../../data/projects";
 
@@ -16,7 +16,7 @@ function featured(): Project[] {
 function LightMonogram({ title }: { title: string }) {
   const letters = title.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
   return (
-    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-ink-900/[0.04] to-ink-900/[0.09]">
+    <div className="flex h-full w-full items-center justify-center bg-linear-to-br from-ink-900/4 to-ink-900/9">
       <span className="font-display text-[4rem] font-semibold text-ink-900/15">{letters}</span>
     </div>
   );
@@ -28,7 +28,7 @@ function Card({ project, large }: { project: Project; large?: boolean }) {
   const cover = (
     <div
       className={`relative overflow-hidden rounded-[1.25rem] bg-paper ${
-        extras.length ? "col-span-2 aspect-[16/10] lg:col-span-1 lg:row-span-2 lg:aspect-auto" : large ? "aspect-[16/10]" : "aspect-[4/3]"
+        extras.length ? "col-span-2 aspect-16/10 lg:col-span-1 lg:row-span-2 lg:aspect-auto" : large ? "aspect-16/10" : "aspect-4/3"
       }`}
     >
       {hasImage ? (
@@ -57,12 +57,12 @@ function Card({ project, large }: { project: Project; large?: boolean }) {
     >
       {extras.length ? (
         // Anchor collage: cover left, supporting shots stacked right (2-up row under the cover on small screens)
-        <div className="grid grid-cols-2 gap-2.5 lg:aspect-[16/8] lg:grid-cols-[1.7fr_1fr] lg:grid-rows-2">
+        <div className="grid grid-cols-2 gap-2.5 lg:aspect-16/8 lg:grid-cols-[1.7fr_1fr] lg:grid-rows-2">
           {cover}
           {extras.slice(0, 2).map((img) => (
             <div
               key={img.src}
-              className="aspect-[4/3] overflow-hidden rounded-[1.25rem] border border-line bg-white lg:aspect-auto"
+              className="aspect-4/3 overflow-hidden rounded-[1.25rem] border border-line bg-white lg:aspect-auto"
             >
               <img
                 src={img.src}
@@ -92,7 +92,7 @@ function Card({ project, large }: { project: Project; large?: boolean }) {
           <span className="rounded-full bg-signal/10 px-2.5 py-1 font-mono text-xs text-signal-ink">{project.badge}</span>
         )}
         {project.impact.slice(0, large ? 3 : 1).map((m) => (
-          <span key={m} className="rounded-full bg-ink-900/[0.04] px-2.5 py-1 font-mono text-xs text-ink-500">
+          <span key={m} className="rounded-full bg-ink-900/4 px-2.5 py-1 font-mono text-xs text-ink-500">
             {m}
           </span>
         ))}

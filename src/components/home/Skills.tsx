@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { CircuitBoard, Cog, Cpu, Wrench, type LucideIcon } from "lucide-react";
 import { skillGroups } from "../../data/profile";
 import { SheetTicks } from "./SheetTicks";
@@ -34,7 +34,7 @@ export function Skills() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.2 }}
         transition={{ duration: 0.7, ease, delay: 0.05 }}
-        className="relative mt-8 rounded-[2rem] border border-line bg-surface shadow-[0_1px_0_rgba(21,23,27,0.04),0_40px_90px_-60px_rgba(21,23,27,0.35)]"
+        className="relative mt-8 rounded-4xl border border-line bg-surface shadow-[0_1px_0_rgba(21,23,27,0.04),0_40px_90px_-60px_rgba(21,23,27,0.35)]"
       >
         <SheetTicks />
         <div className="grid sm:grid-cols-2">

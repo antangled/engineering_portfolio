@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { buildStrip } from "../../data/projects";
 
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -14,7 +14,7 @@ export function BuildStrip() {
     <nav aria-label="Builds" className="mx-auto max-w-[1400px] px-[5vw] pt-3">
       <ul
         data-lenis-prevent
-        className="no-scrollbar -mx-[5vw] flex snap-x snap-mandatory scroll-px-[5vw] gap-3 overflow-x-auto px-[5vw] lg:mx-0 lg:grid lg:grid-cols-6 lg:overflow-visible lg:px-0"
+        className="no-scrollbar mx-[-5vw] flex snap-x snap-mandatory scroll-px-[5vw] gap-3 overflow-x-auto px-[5vw] lg:mx-0 lg:grid lg:grid-cols-6 lg:overflow-visible lg:px-0"
       >
         {buildStrip.map((b, i) => (
           <motion.li
@@ -28,7 +28,7 @@ export function BuildStrip() {
               to={`/projects/${b.slug}`}
               data-cursor="view"
               data-cursor-label="View"
-              className="group relative block aspect-[4/3] overflow-hidden rounded-2xl border border-ink-900/10 bg-surface"
+              className="group relative block aspect-4/3 overflow-hidden rounded-2xl border border-ink-900/10 bg-surface"
             >
               <img
                 src={b.src}
@@ -38,7 +38,7 @@ export function BuildStrip() {
                 decoding="async"
                 className="h-full w-full object-cover transition-transform duration-700 ease-expo group-hover:scale-[1.05]"
               />
-              <span className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-3 pb-2 pt-6 font-mono text-xs text-white">
+              <span className="pointer-events-none absolute inset-x-0 bottom-0 bg-linear-to-t from-black/70 to-transparent px-3 pb-2 pt-6 font-mono text-xs text-white">
                 {b.label}
               </span>
             </Link>

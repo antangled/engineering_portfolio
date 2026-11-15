@@ -6,7 +6,7 @@ import path from "node:path";
 import { build } from "esbuild";
 
 const ORIGIN = "https://antangled.github.io";
-const BASE = "/engineering_portfolio/";
+const BASE = process.env.SITE_BASE ?? "/engineering_portfolio/v4/";
 const dist = path.resolve("dist");
 const abs = (p) => (p.startsWith("http") ? p : ORIGIN + (p.startsWith(BASE) ? p : BASE + p.replace(/^\//, "")));
 

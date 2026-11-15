@@ -8,3 +8,4 @@ dist
 src/**/*.js
 src/**/*.d.ts
 *.tsbuildinfo
+!src/global.d.ts

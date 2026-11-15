@@ -151,7 +151,7 @@ function Tile({
         </span>
       )}
       {item.label && extra === 0 && (
-        <span className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 to-transparent px-4 pb-3 pt-8 text-left font-mono text-xs text-white">
+        <span className="pointer-events-none absolute inset-x-0 bottom-0 bg-linear-to-t from-black/75 to-transparent px-4 pb-3 pt-8 text-left font-mono text-xs text-white">
           {item.label}
         </span>
       )}
@@ -183,7 +183,7 @@ export function ProjectGallery({
 }) {
   if (placeholder || items.length === 0) {
     return (
-      <div className="bp-grid flex aspect-[16/7] w-full items-center justify-center rounded-4xl border border-mist/10 bg-gradient-to-br from-night-700 to-night-800">
+      <div className="bp-grid flex aspect-16/7 w-full items-center justify-center rounded-4xl border border-mist/10 bg-linear-to-br from-night-700 to-night-800">
         <p className="font-mono text-xs uppercase tracking-widest text-mist-faint">Visuals coming soon</p>
       </div>
     );
@@ -226,11 +226,11 @@ export function ProjectGallery({
       <div className="lg:hidden">
         <div
           data-lenis-prevent
-          className="no-scrollbar -mx-[5vw] flex snap-x snap-mandatory scroll-px-[5vw] gap-3 overflow-x-auto px-[5vw]"
+          className="no-scrollbar mx-[-5vw] flex snap-x snap-mandatory scroll-px-[5vw] gap-3 overflow-x-auto px-[5vw]"
         >
           {items.map((m, i) =>
             i === 0 && m.autoplay ? (
-              <div key={m.src} className="aspect-[4/3] w-[86%] shrink-0 snap-start">
+              <div key={m.src} className="aspect-4/3 w-[86%] shrink-0 snap-start">
                 {renderMain(undefined, "h-full w-full")}
               </div>
             ) : (
@@ -241,7 +241,7 @@ export function ProjectGallery({
                 onOpen={onOpen}
                 eager={i < 2}
                 title={title}
-                className="aspect-[4/3] w-[86%] shrink-0 snap-start"
+                className="aspect-4/3 w-[86%] shrink-0 snap-start"
               />
             ),
           )}

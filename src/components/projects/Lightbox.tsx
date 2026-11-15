@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion } from "motion/react";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import type { Media } from "../../data/projects";
 
@@ -74,7 +74,7 @@ export function Lightbox({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
-          className="fixed inset-0 z-[90] flex flex-col bg-night-900/[0.96] text-mist"
+          className="fixed inset-0 z-90 flex flex-col bg-night-900/96 text-mist"
           onClick={onClose}
         >
           <div className="flex items-center justify-between px-5 py-4 sm:px-8">
@@ -150,7 +150,7 @@ export function Lightbox({
           </div>
 
           <div className="mx-auto w-full max-w-3xl px-5 pb-6 pt-4 text-center sm:pb-8" onClick={(e) => e.stopPropagation()}>
-            {item.caption && <p className="text-pretty text-sm leading-relaxed text-mist/90 sm:text-base">{item.caption}</p>}
+            {item.caption && <p className="text-pretty text-sm leading-relaxed text-mist/90 sm:text-base sm:leading-6">{item.caption}</p>}
             {count > 1 && (
               <div className="mt-4 flex justify-center gap-3 sm:hidden">
                 <button

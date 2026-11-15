@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { ArrowLeft, ArrowRight, ArrowUpRight, Download, Linkedin, Mail, Play } from "lucide-react";
 import {
   getProject,
@@ -126,7 +126,7 @@ function BuildLogCard({
     >
       <div
         className={cn(
-          "relative aspect-[16/10] overflow-hidden rounded-2xl border border-mist/10",
+          "relative aspect-16/10 overflow-hidden rounded-2xl border border-mist/10",
           item.onWhite ? "bg-white" : "bg-night-800",
         )}
       >
@@ -321,7 +321,7 @@ export function ProjectDetail() {
                 </span>
               )}
             </div>
-            <h1 className="mt-4 text-balance font-display text-[clamp(2.2rem,4.6vw,3.6rem)] font-semibold leading-[1] tracking-tight">
+            <h1 className="mt-4 text-balance font-display text-[clamp(2.2rem,4.6vw,3.6rem)] font-semibold leading-none tracking-tight">
               {project.title}
             </h1>
             <p className="mt-3 max-w-3xl text-pretty text-lg leading-relaxed text-mist-dim">
