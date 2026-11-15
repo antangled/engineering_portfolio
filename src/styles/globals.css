@@ -475,6 +475,14 @@ html.lenis-scrolling [data-scroll-inert] {
   transform: rotate(-4deg) scale(1.06);
   transition-delay: 0ms;
 }
+/* the thumbnail the hero's cycloidal callout flies into (HeroCallouts.tsx): it
+   skips its own pop-in and is faded in by the handoff as the card lands */
+.statement[data-st] .st-thumb[data-handoff="on"] {
+  transform: none;
+}
+.statement[data-st] .st-proof:hover .st-thumb[data-handoff="on"] {
+  transform: rotate(-4deg) scale(1.06);
+}
 
 /* ---- Home hero (Hero.tsx) --------------------------------------------------
    A centred portrait; "I build" to its left, "products." stepped onto the next

@@ -68,7 +68,7 @@ export function Statement() {
                 className="st-proof group"
                 style={{ ["--st-at" as string]: `${at}ms` }}
               >
-                <span aria-hidden className="st-thumb">
+                <span aria-hidden className="st-thumb" data-handoff-slug={part.slug}>
                   {project?.cover && <img src={project.cover} alt="" loading="lazy" decoding="async" />}
                 </span>
                 <span className="st-line">{words(part.text)}</span>

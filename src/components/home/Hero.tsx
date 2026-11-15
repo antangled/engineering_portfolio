@@ -1,11 +1,11 @@
 import { Link } from "react-router-dom";
-import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
+import { motion, useReducedMotion, useScroll, useTransform, type MotionValue } from "motion/react";
 import { useRef } from "react";
 import { ArrowRight, Download } from "lucide-react";
 import { profile } from "@/data/profile";
 import { HeroCallouts } from "./HeroCallouts";
 import { withBase } from "@/lib/withBase";
-import { DUR, EASE } from "@/lib/motion";
+import { DUR, EASE, useRichMotion } from "@/lib/motion";
 import { Linkedin } from "../icons/Linkedin";
 
 /*
@@ -27,15 +27,24 @@ import { Linkedin } from "../icons/Linkedin";
  *           and each build zooms out of it and decodes (see HeroCallouts)
  *  3200 ms  scroll cue
  *
+ * On scroll (desktop): the headline splits apart, "I build" drifting left and
+ * "products." right, faster than the page, while the photo zooms in inside its
+ * frame. Both copies of "products." get the same drift, so they stay aligned.
+ * The cycloidal callout then flies down into the statement (see HeroCallouts).
+ *
  * Every animation is a transform / clip-path / opacity string, so Motion runs it
  * on WAAPI (compositor).
  */
 
 const T = { photo: 0, name: 0.3, build: 0.45, products: 0.6, caption: 1.0, buttons: 1.1, cue: 3.2 };
 
-function Products({ reduced, light }: { reduced: boolean; light?: boolean }) {
+function Products({ reduced, light, drift }: { reduced: boolean; light?: boolean; drift: MotionValue<string> }) {
   return (
-    <span className={light ? "hero-products hero-products--light" : "hero-products"} aria-hidden>
+    <motion.span
+      style={{ transform: drift }}
+      className={light ? "hero-products hero-products--light" : "hero-products"}
+      aria-hidden
+    >
       <span className="block overflow-hidden pb-[0.14em]">
         <motion.span
           data-reveal
@@ -47,9 +56,13 @@ function Products({ reduced, light }: { reduced: boolean; light?: boolean }) {
           products<span className="text-signal">.</span>
         </motion.span>
       </span>
-    </span>
+    </motion.span>
   );
 }
+
+/** px of sideways drift per px scrolled, and how far the photo zooms over the first 900 px */
+const DRIFT = 0.32;
+const ZOOM = 0.12;
 
 function Rise({
   children,
@@ -81,6 +94,13 @@ export function Hero() {
   // the scroll cue fades as soon as you start scrolling
   const { scrollY } = useScroll();
   const cueOpacity = useTransform(scrollY, [0, 120], [1, 0]);
+  // scroll parallax (desktop, motion allowed): words split apart, photo zooms in
+  const rich = useRichMotion();
+  const k = rich ? DRIFT : 0;
+  const z = rich ? ZOOM : 0;
+  const driftL = useTransform(scrollY, (v) => `translateX(${(-v * k).toFixed(1)}px)`);
+  const driftR = useTransform(scrollY, (v) => `translateX(${(v * k).toFixed(1)}px)`);
+  const photoZoom = useTransform(scrollY, (v) => `scale(${(1 + (Math.min(v, 900) / 900) * z).toFixed(4)})`);
 
   return (
     <section className="hero relative flex overflow-x-clip min-h-[100svh] flex-col items-center px-[4vw] pb-24 pt-24 lg:pt-[5.5rem]">
@@ -88,69 +108,79 @@ export function Hero() {
 
       <div ref={stageRef} className="hero-stage relative w-full">
         {/* name, small, in the headline face, sitting on top of "I build" */}
-        <motion.p
-          data-reveal
-          className="hero-name"
-          initial={reduced ? { opacity: 0 } : { opacity: 0, transform: "translateY(0.4em)" }}
-          animate={reduced ? { opacity: 1 } : { opacity: 1, transform: "translateY(0em)" }}
-          transition={{ duration: DUR.slow, ease: EASE, delay: T.name }}
-        >
-          {/* the underline runs under "Adam Tan" and stops before the g's loop */}
-          <span className="hero-name-u">{profile.name.slice(0, -1)}</span>
-          {profile.name.slice(-1)}
-        </motion.p>
+        {/* name + "I build" drift left together on scroll; the wrapper fills the stage so
+            their absolute positions are unchanged */}
+        <motion.div style={{ transform: driftL }} className="pointer-events-none absolute inset-0">
+          <motion.p
+            data-reveal
+            className="hero-name"
+            initial={reduced ? { opacity: 0 } : { opacity: 0, transform: "translateY(0.4em)" }}
+            animate={reduced ? { opacity: 1 } : { opacity: 1, transform: "translateY(0em)" }}
+            transition={{ duration: DUR.slow, ease: EASE, delay: T.name }}
+          >
+            {/* the underline runs under "Adam Tan" and stops before the g's loop */}
+            <span className="hero-name-u">{profile.name.slice(0, -1)}</span>
+            {profile.name.slice(-1)}
+          </motion.p>
 
-        {/* "I build": its right edge meets the photo; it slides out from behind it */}
-        <span aria-hidden className="hero-build">
-          <span className="block overflow-hidden pb-[0.14em]">
-            <motion.span
-              data-reveal
-              className="block"
-              initial={reduced ? { opacity: 0 } : { transform: "translateX(105%)" }}
-              animate={reduced ? { opacity: 1 } : { transform: "translateX(0%)" }}
-              transition={{ duration: 1, ease: EASE, delay: T.build }}
-            >
-              I build
-            </motion.span>
+          {/* "I build": its right edge meets the photo; it slides out from behind it */}
+          <span aria-hidden className="hero-build">
+            <span className="block overflow-hidden pb-[0.14em]">
+              <motion.span
+                data-reveal
+                className="block"
+                initial={reduced ? { opacity: 0 } : { transform: "translateX(105%)" }}
+                animate={reduced ? { opacity: 1 } : { transform: "translateX(0%)" }}
+                transition={{ duration: 1, ease: EASE, delay: T.build }}
+              >
+                I build
+              </motion.span>
+            </span>
           </span>
-        </span>
+        </motion.div>
 
-        {/* builds pinned around the portrait (desktop) */}
         {/* builds as magnified callouts from the portrait (desktop) */}
         <HeroCallouts stageRef={stageRef} reduced={reduced} />
 
         {/* ink copy of "products." (behind the photo) */}
-        <Products reduced={reduced} />
+        <Products reduced={reduced} drift={driftR} />
 
         {/* the photo, with the white copy of "products." clipped inside it */}
         <div className="hero-photo">
-          <motion.div
-            data-reveal
-            className="absolute inset-0"
-            initial={reduced ? { opacity: 0 } : { clipPath: "inset(100% 0% 0% 0%)" }}
-            animate={reduced ? { opacity: 1 } : { clipPath: "inset(0% 0% 0% 0%)" }}
-            transition={{ duration: 0.9, ease: EASE, delay: T.photo }}
-          >
-            <motion.img
-              src={withBase("/images/portrait-narrow.webp")}
-              alt="Adam Tang"
-              width={638}
-              height={1100}
-              fetchPriority="high"
-              decoding="async"
-              draggable={false}
-              className="h-full w-full object-cover"
-              initial={reduced ? false : { transform: "scale(1.15)" }}
-              animate={{ transform: "scale(1)" }}
-              transition={{ duration: 1.3, ease: EASE, delay: T.photo }}
-            />
-            {/* darkens the photo a touch behind the white word */}
-            <div aria-hidden className="hero-photo-scrim" />
+          {/* scroll zoom lives on its own layer, so it never fights the entrance */}
+          <motion.div style={{ transform: photoZoom }} className="absolute inset-0">
+            <motion.div
+              data-reveal
+              className="absolute inset-0"
+              initial={reduced ? { opacity: 0 } : { clipPath: "inset(100% 0% 0% 0%)" }}
+              animate={reduced ? { opacity: 1 } : { clipPath: "inset(0% 0% 0% 0%)" }}
+              transition={{ duration: 0.9, ease: EASE, delay: T.photo }}
+            >
+              <motion.img
+                src={withBase("/images/portrait-narrow.webp")}
+                alt="Adam Tang"
+                width={638}
+                height={1100}
+                fetchPriority="high"
+                decoding="async"
+                draggable={false}
+                className="h-full w-full object-cover"
+                initial={reduced ? false : { transform: "scale(1.15)" }}
+                animate={{ transform: "scale(1)" }}
+                transition={{ duration: 1.3, ease: EASE, delay: T.photo }}
+              />
+              {/* darkens the photo a touch behind the white word */}
+              <div aria-hidden className="hero-photo-scrim" />
+            </motion.div>
           </motion.div>
-          <Products reduced={reduced} light />
+          <Products reduced={reduced} light drift={driftR} />
 
           {/* scroll cue, inside the photo near its bottom edge */}
-          <motion.div aria-hidden style={{ opacity: cueOpacity }} className="hero-cue pointer-events-none absolute inset-x-0 bottom-[4%] z-[3] flex justify-center">
+          <motion.div
+            aria-hidden
+            style={{ opacity: cueOpacity }}
+            className="hero-cue pointer-events-none absolute inset-x-0 bottom-[4%] z-[3] flex justify-center"
+          >
             <motion.span
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -171,17 +201,26 @@ export function Hero() {
         </span>
         <span className="text-left">
           <span className="block text-base font-semibold tracking-tight text-ink-900 sm:text-lg">{profile.role}</span>
-          <span className="block font-mono text-[0.7rem] uppercase tracking-[0.2em] text-ink-500">UC Berkeley · EECS</span>
+          <span className="block font-mono text-[0.7rem] uppercase tracking-[0.2em] text-ink-500">
+            UC Berkeley · EECS
+          </span>
         </span>
       </Rise>
-      <Rise delay={T.buttons} reduced={reduced} className="mt-5 flex flex-wrap items-center justify-center gap-2 sm:gap-3">
+      <Rise
+        delay={T.buttons}
+        reduced={reduced}
+        className="mt-5 flex flex-wrap items-center justify-center gap-2 sm:gap-3"
+      >
         <Link
           to="/projects"
           data-cursor="link"
           className="group inline-flex h-12 items-center gap-2 rounded-full bg-ink-900 px-5 text-sm sm:px-7 font-medium text-white transition-colors duration-[150ms] hover:bg-signal"
         >
           View my work
-          <ArrowRight className="h-4 w-4 transition-transform duration-[400ms] ease-expo group-hover:translate-x-1" aria-hidden />
+          <ArrowRight
+            className="h-4 w-4 transition-transform duration-[400ms] ease-expo group-hover:translate-x-1"
+            aria-hidden
+          />
         </Link>
         <a
           href={profile.resume}
@@ -204,7 +243,6 @@ export function Hero() {
           <Linkedin className="h-[1.1rem] w-[1.1rem]" />
         </a>
       </Rise>
-
     </section>
   );
 }
