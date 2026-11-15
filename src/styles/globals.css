@@ -495,16 +495,24 @@ html.lenis-scrolling [data-scroll-inert] {
 }
 @media (min-width: 1024px) {
   .hero-stage {
-    --ph: min(68svh, 660px);
+    /* leaves room under the photo for caption, buttons and the scroll cue */
+    --ph: min(calc(100svh - 20.5rem), 64svh, 640px);
     --pw: calc(var(--ph) * 0.58);
     --g: clamp(0.75rem, 1.2vw, 1.5rem);
     /* "I build" + gap + half the photo fill ~45% of the page on the left; the
        whole composition is then centred because "products." starts where the
        balance requires (--d), crossing the photo */
-    --F: min(calc((45vw - var(--pw) / 2 - var(--g)) / 2.5), 13rem);
+    --F: min(
+      calc((45vw - var(--pw) / 2 - var(--g)) / 2.5),
+      calc((46vw + var(--pw) / 2) / 4.55) /* "products." keeps a margin when it starts at the photo edge */,
+      13rem
+    );
     --by: calc(var(--ph) * 0.14);
     --py: calc(var(--by) + var(--F) * 0.92);
-    --d: calc(var(--pw) / 2 + var(--g) - 2.05 * var(--F));
+    /* never starts left of the photo, so it can't run into the left tiles */
+    --d: max(calc(var(--pw) / 2 + var(--g) - 2.05 * var(--F)), calc(var(--pw) / -2));
+    /* tiles: two equal boxes per corner, 4:3 */
+    --th: calc((var(--F) * 2.5 - var(--g)) / 2 * 0.75);
     margin-top: 0;
   }
 }
@@ -569,7 +577,7 @@ html.lenis-scrolling [data-scroll-inert] {
   position: relative;
   display: block;
   width: 1px;
-  height: 2.25rem;
+  height: 1.75rem;
   overflow: hidden;
   background: rgba(21, 23, 27, 0.14);
 }
@@ -599,11 +607,12 @@ html.lenis-scrolling [data-scroll-inert] {
 }
 
 /* ---- Hero build tiles ------------------------------------------------------
-   Desktop: two grids in the hero's open corners. Left: under "I build", from
-   its baseline to the photo's bottom (2×2). Right: above "products." (2×1,
-   bottom-aligned to the word). Both are exactly "I build"'s width (2.5em), so
-   the composition stays symmetric about the photo. Phones: a 2-column grid
-   under the buttons. */
+   Desktop: one row of two equal 4:3 tiles in each open corner, both rows exactly
+   "I build"'s width (2.5em). Measured Clash Display metrics in a 0.9 line box:
+   letter tops at 0.10em, baseline at 0.77em. So the left row starts one gap
+   below the "I build" baseline, and the right row ends one gap above the tops of
+   "products." (equal spacing on both sides). Phones: a 2×2 grid under the
+   buttons. */
 .hero-tiles {
   display: none;
 }
@@ -615,21 +624,15 @@ html.lenis-scrolling [data-scroll-inert] {
     grid-template-columns: 1fr 1fr;
     gap: var(--g);
     width: calc(var(--F) * 2.5);
+    height: var(--th);
   }
   .hero-tiles--left {
     right: calc(50% + var(--pw) / 2 + var(--g));
-    top: calc(var(--by) + var(--F) * 1.02 + var(--g) * 0.5);
-    bottom: 0;
-    grid-auto-rows: minmax(0, 1fr);
+    top: calc(var(--by) + var(--F) * 0.77 + var(--g));
   }
   .hero-tiles--right {
     left: calc(50% + var(--pw) / 2 + var(--g));
-    top: 0;
-    height: calc(var(--py) + var(--F) * 0.02);
-    align-content: end;
-  }
-  .hero-tiles--right .hero-tile {
-    aspect-ratio: 4 / 3;
+    top: calc(var(--py) + var(--F) * 0.1 - var(--g) - var(--th));
   }
 }
 .hero-tile {

@@ -32,6 +32,18 @@ const T = { photo: 0, build: 0.45, products: 0.6, tiles: 0.8, tileStep: 0.07, ca
 
 type Build = (typeof buildStrip)[number];
 
+/** The four builds in the hero, in Adam's order, with recruiter-facing names. */
+const HERO_BUILDS: { slug: string; label: string }[] = [
+  { slug: "internal-cycloidal-actuator", label: "Cycloidal actuator" },
+  { slug: "eldaeon-passive-radar-system", label: "Eldaeon passive radar" },
+  { slug: "biodiversity-sensing-module", label: "Biodiversity sensor" },
+  { slug: "murex-rov", label: "MATE ROV" },
+];
+const heroBuilds: Build[] = HERO_BUILDS.map(({ slug, label }) => {
+  const b = buildStrip.find((x) => x.slug === slug)!;
+  return { ...b, label };
+});
+
 /** One build in the hero: opens upward like the photo, zooms + plays its clip on hover. */
 function Tile({ b, i, reduced }: { b: Build; i: number; reduced: boolean }) {
   const [hot, setHot] = useState(false);
@@ -151,13 +163,13 @@ export function Hero() {
         {/* builds in the two open corners: under "I build", and above "products." */}
         <nav aria-label="Builds" className="contents">
           <div className="hero-tiles hero-tiles--left">
-            {buildStrip.slice(0, 4).map((b, i) => (
+            {heroBuilds.slice(0, 2).map((b, i) => (
               <Tile key={b.slug} b={b} i={i} reduced={reduced} />
             ))}
           </div>
           <div className="hero-tiles hero-tiles--right">
-            {buildStrip.slice(4).map((b, i) => (
-              <Tile key={b.slug} b={b} i={i + 4} reduced={reduced} />
+            {heroBuilds.slice(2).map((b, i) => (
+              <Tile key={b.slug} b={b} i={i + 2} reduced={reduced} />
             ))}
           </div>
         </nav>
@@ -241,25 +253,21 @@ export function Hero() {
 
       {/* phones and tablets: the builds as a grid under the buttons */}
       <nav aria-label="Builds" className="hero-tiles-sm mt-6 grid w-full max-w-xl grid-cols-2 gap-3 lg:hidden">
-        {buildStrip.map((b, i) => (
+        {heroBuilds.map((b, i) => (
           <Tile key={b.slug} b={b} i={i} reduced={reduced} />
         ))}
       </nav>
 
-      {/* subtle scroll cue */}
-      <motion.div
-        aria-hidden
-        style={{ opacity: cueOpacity }}
-        className="pointer-events-none absolute left-[4vw] top-[calc(100svh-4.25rem)] hidden items-center gap-3 font-mono text-[0.68rem] uppercase tracking-[0.25em] text-ink-500 sm:flex"
-      >
+      {/* scroll cue, centred under the buttons (desktop; phones see the builds instead) */}
+      <motion.div aria-hidden style={{ opacity: cueOpacity }} className="pointer-events-none mt-6 hidden lg:block">
         <motion.span
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: DUR.slow, ease: EASE, delay: T.cue }}
-          className="flex items-center gap-3"
+          className="flex flex-col items-center gap-2 font-mono text-[0.68rem] uppercase tracking-[0.25em] text-ink-700"
         >
-          <span className="scroll-cue" />
           Scroll
+          <span className="scroll-cue" />
         </motion.span>
       </motion.div>
     </section>
