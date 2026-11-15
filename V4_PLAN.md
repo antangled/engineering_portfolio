@@ -65,11 +65,9 @@
   - It is drawn twice: black on the page, and white (plus a soft scrim) inside the photo frame.
   - The words slide or rise out from behind the photo.
 - Caption centred under the photo: UC Berkeley seal, role, "UC Berkeley · EECS". Then View my work / Résumé / LinkedIn. A subtle animated scroll cue at the bottom of the first screen.
-- All six builds in the hero's two open corners: four under "I build", two above "products.".
-  - Each opens upward like the photo, and zooms and plays its clip on hover.
-  - Phones: a 2-column grid under the buttons, with the first row on the first screen.
-  - This replaced the drifting reel, which Adam found hidden and not good-looking.
-- Caption: "Adam Tang / Mechatronics & Embedded Systems Engineer", with "UC Berkeley · EECS" and the seal.
+- No builds in the hero (Adam found the tiles cluttered); the featured stack below carries the work.
+- "Adam Tang" sits above "I build" in Clash Display at ~0.26× the headline size, with an orange underline that draws in.
+- The caption is role-only: seal, "Mechatronics & Embedded Systems Engineer", "UC Berkeley · EECS".
 - Then the full-width image statement.
 
 ## Phase 2: Statement reveal (the image version is back, full width, below the hero)

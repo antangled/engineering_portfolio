@@ -491,7 +491,7 @@ html.lenis-scrolling [data-scroll-inert] {
   --py: calc(var(--ph) * 0.52);
   --d: calc(var(--F) * -2.275);
   height: var(--ph);
-  margin-top: var(--F);
+  margin-top: calc(var(--F) * 1.4);
 }
 @media (min-width: 1024px) {
   .hero-stage {
@@ -504,15 +504,14 @@ html.lenis-scrolling [data-scroll-inert] {
        balance requires (--d), crossing the photo */
     --F: min(
       calc((45vw - var(--pw) / 2 - var(--g)) / 2.5),
-      calc((46vw + var(--pw) / 2) / 4.55) /* "products." keeps a margin when it starts at the photo edge */,
+      calc((46vw + var(--pw) / 2) / 4.61) /* "products." keeps a page margin */,
       13rem
     );
     --by: calc(var(--ph) * 0.14);
     --py: calc(var(--by) + var(--F) * 0.92);
-    /* never starts left of the photo, so it can't run into the left tiles */
-    --d: max(calc(var(--pw) / 2 + var(--g) - 2.05 * var(--F)), calc(var(--pw) / -2));
-    /* tiles: two equal boxes per corner, 4:3 */
-    --th: calc((var(--F) * 2.5 - var(--g)) / 2 * 0.75);
+    /* start just inside the photo's left edge: a word starting a few px outside
+       leaves a thin black sliver of the "p" next to the frame */
+    --d: max(calc(var(--pw) / 2 + var(--g) - 2.05 * var(--F)), calc(var(--pw) / -2 + var(--F) * 0.06));
     margin-top: 0;
   }
 }
@@ -562,6 +561,59 @@ html.lenis-scrolling [data-scroll-inert] {
     right: calc(50% + var(--pw) / 2 + var(--g));
   }
 }
+/* the name: same face, ~a quarter of the headline size, left-aligned on the "I"
+   of "I build", sitting just above its line box (letter tops are 0.10em down) */
+.hero-name {
+  position: absolute;
+  z-index: 0;
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: calc(var(--F) * 0.26);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  color: var(--color-ink-900);
+  left: calc(50% - var(--pw) / 2 - var(--F) * 0.05 + var(--F) * 0.04);
+  bottom: calc(100% - var(--by) + var(--F) * 0.05);
+}
+/* the underline draws in left to right just after the name appears */
+.hero-name::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -0.1em;
+  height: max(2px, 0.07em);
+  border-radius: 999px;
+  background: var(--color-signal);
+  transform-origin: left center;
+  animation: hero-name-underline 800ms var(--ease-expo) 750ms both;
+}
+@keyframes hero-name-underline {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-name::after {
+    animation: none;
+  }
+}
+@media print {
+  .hero-name::after {
+    animation: none;
+  }
+}
+@media (min-width: 1024px) {
+  .hero-name {
+    /* "I build"'s left edge, whichever bound sized the font */
+    left: calc(50% - var(--pw) / 2 - var(--g) - var(--F) * 2.5 + var(--F) * 0.033);
+  }
+}
 .hero-products {
   top: var(--py);
   left: calc(50% + var(--d));
@@ -606,38 +658,3 @@ html.lenis-scrolling [data-scroll-inert] {
   }
 }
 
-/* ---- Hero build tiles ------------------------------------------------------
-   Desktop: one row of two equal 4:3 tiles in each open corner, both rows exactly
-   "I build"'s width (2.5em). Measured Clash Display metrics in a 0.9 line box:
-   letter tops at 0.10em, baseline at 0.77em. So the left row starts one gap
-   below the "I build" baseline, and the right row ends one gap above the tops of
-   "products." (equal spacing on both sides). Phones: a 2×2 grid under the
-   buttons. */
-.hero-tiles {
-  display: none;
-}
-@media (min-width: 1024px) {
-  .hero-tiles {
-    position: absolute;
-    z-index: 5;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--g);
-    width: calc(var(--F) * 2.5);
-    height: var(--th);
-  }
-  .hero-tiles--left {
-    right: calc(50% + var(--pw) / 2 + var(--g));
-    top: calc(var(--by) + var(--F) * 0.77 + var(--g));
-  }
-  .hero-tiles--right {
-    left: calc(50% + var(--pw) / 2 + var(--g));
-    top: calc(var(--py) + var(--F) * 0.1 - var(--g) - var(--th));
-  }
-}
-.hero-tile {
-  min-height: 0;
-}
-.hero-tiles-sm .hero-tile {
-  aspect-ratio: 4 / 3;
-}

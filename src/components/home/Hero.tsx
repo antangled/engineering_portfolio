@@ -1,10 +1,7 @@
 import { Link } from "react-router-dom";
 import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
-import { useState } from "react";
-import { ArrowRight, Download, Play } from "lucide-react";
+import { ArrowRight, Download } from "lucide-react";
 import { profile } from "@/data/profile";
-import { buildStrip, getProject } from "@/data/projects";
-import { HoverClip } from "../motion/HoverClip";
 import { withBase } from "@/lib/withBase";
 import { DUR, EASE } from "@/lib/motion";
 import { Linkedin } from "../icons/Linkedin";
@@ -20,6 +17,7 @@ import { Linkedin } from "../icons/Linkedin";
  * .hero-stage (globals.css), so both copies always line up at any width.
  *
  *     0 ms  the photo opens upward, settling from 1.15×
+ *   300 ms  the name rises in above "I build"
  *   450 ms  "I build" slides out of the photo's left edge
  *   600 ms  "products." rises into its line (both copies, same timing)
  *  1000 ms  caption, then buttons; the scroll cue last
@@ -28,69 +26,7 @@ import { Linkedin } from "../icons/Linkedin";
  * on WAAPI (compositor).
  */
 
-const T = { photo: 0, build: 0.45, products: 0.6, tiles: 0.8, tileStep: 0.07, caption: 1.0, buttons: 1.1, cue: 1.6 };
-
-type Build = (typeof buildStrip)[number];
-
-/** The four builds in the hero, in Adam's order, with recruiter-facing names. */
-const HERO_BUILDS: { slug: string; label: string }[] = [
-  { slug: "internal-cycloidal-actuator", label: "Cycloidal actuator" },
-  { slug: "eldaeon-passive-radar-system", label: "Eldaeon passive radar" },
-  { slug: "biodiversity-sensing-module", label: "Biodiversity sensor" },
-  { slug: "murex-rov", label: "MATE ROV" },
-];
-const heroBuilds: Build[] = HERO_BUILDS.map(({ slug, label }) => {
-  const b = buildStrip.find((x) => x.slug === slug)!;
-  return { ...b, label };
-});
-
-/** One build in the hero: opens upward like the photo, zooms + plays its clip on hover. */
-function Tile({ b, i, reduced }: { b: Build; i: number; reduced: boolean }) {
-  const [hot, setHot] = useState(false);
-  const project = getProject(b.slug);
-  const delay = T.tiles + i * T.tileStep;
-  return (
-    <motion.div
-      data-reveal
-      className="hero-tile"
-      initial={reduced ? { opacity: 0 } : { clipPath: "inset(100% 0% 0% 0% round 1rem)" }}
-      animate={reduced ? { opacity: 1 } : { clipPath: "inset(0% 0% 0% 0% round 1rem)" }}
-      transition={{ duration: DUR.slow, ease: EASE, delay }}
-    >
-      <Link
-        to={`/projects/${b.slug}`}
-        data-cursor="view"
-        data-cursor-label={b.clip ? "Play" : "View"}
-        onMouseEnter={() => setHot(true)}
-        onMouseLeave={() => setHot(false)}
-        onFocus={() => setHot(true)}
-        onBlur={() => setHot(false)}
-        className="group relative block h-full w-full overflow-hidden rounded-2xl bg-surface ring-1 ring-ink-900/10 transition-shadow duration-[400ms] ease-expo hover:ring-2 hover:ring-signal focus-visible:ring-2 focus-visible:ring-signal focus-visible:outline-none"
-      >
-        <motion.img
-          src={b.src}
-          alt={b.alt}
-          width={640}
-          height={480}
-          decoding="async"
-          draggable={false}
-          className="h-full w-full object-cover transition-transform duration-[800ms] ease-expo group-hover:scale-[1.07]"
-          initial={reduced ? false : { transform: "scale(1.2)" }}
-          animate={{ transform: "scale(1)" }}
-          transition={{ duration: 1.2, ease: EASE, delay }}
-        />
-        {b.clip && <HoverClip src={b.clip} active={hot} className="transition-transform duration-[800ms] ease-expo group-hover:scale-[1.07]" />}
-        <span className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 bg-linear-to-t from-black/75 via-black/20 to-transparent px-3 pb-2.5 pt-8 text-white">
-          <span className="flex items-center gap-1.5 text-[0.8rem] font-medium leading-tight">
-            {b.clip && <Play aria-hidden className="h-2.5 w-2.5 shrink-0 fill-current opacity-80" />}
-            {b.label}
-          </span>
-          {project && <span className="font-mono text-[0.65rem] text-white/70">{project.year}</span>}
-        </span>
-      </Link>
-    </motion.div>
-  );
-}
+const T = { photo: 0, name: 0.3, build: 0.45, products: 0.6, caption: 1.0, buttons: 1.1, cue: 1.6 };
 
 function Products({ reduced, light }: { reduced: boolean; light?: boolean }) {
   return (
@@ -145,6 +81,17 @@ export function Hero() {
       <h1 className="sr-only">I build products.</h1>
 
       <div className="hero-stage relative w-full">
+        {/* name, small, in the headline face, sitting on top of "I build" */}
+        <motion.p
+          data-reveal
+          className="hero-name"
+          initial={reduced ? { opacity: 0 } : { opacity: 0, transform: "translateY(0.4em)" }}
+          animate={reduced ? { opacity: 1 } : { opacity: 1, transform: "translateY(0em)" }}
+          transition={{ duration: DUR.slow, ease: EASE, delay: T.name }}
+        >
+          {profile.name}
+        </motion.p>
+
         {/* "I build": its right edge meets the photo; it slides out from behind it */}
         <span aria-hidden className="hero-build">
           <span className="block overflow-hidden pb-[0.14em]">
@@ -159,20 +106,6 @@ export function Hero() {
             </motion.span>
           </span>
         </span>
-
-        {/* builds in the two open corners: under "I build", and above "products." */}
-        <nav aria-label="Builds" className="contents">
-          <div className="hero-tiles hero-tiles--left">
-            {heroBuilds.slice(0, 2).map((b, i) => (
-              <Tile key={b.slug} b={b} i={i} reduced={reduced} />
-            ))}
-          </div>
-          <div className="hero-tiles hero-tiles--right">
-            {heroBuilds.slice(2).map((b, i) => (
-              <Tile key={b.slug} b={b} i={i + 2} reduced={reduced} />
-            ))}
-          </div>
-        </nav>
 
         {/* ink copy of "products." (behind the photo) */}
         <Products reduced={reduced} />
@@ -212,11 +145,7 @@ export function Hero() {
           <img src={withBase("/images/berkeley-seal.svg")} alt="UC Berkeley seal" className="h-full w-full" />
         </span>
         <span className="text-left">
-          <span className="block text-base tracking-tight text-ink-700 sm:text-lg">
-            <span className="font-semibold text-ink-900">{profile.name}</span>
-            <span aria-hidden className="mx-2 text-ink-900/25">/</span>
-            {profile.role}
-          </span>
+          <span className="block text-base font-semibold tracking-tight text-ink-900 sm:text-lg">{profile.role}</span>
           <span className="block font-mono text-[0.7rem] uppercase tracking-[0.2em] text-ink-500">UC Berkeley · EECS</span>
         </span>
       </Rise>
@@ -251,14 +180,7 @@ export function Hero() {
         </a>
       </Rise>
 
-      {/* phones and tablets: the builds as a grid under the buttons */}
-      <nav aria-label="Builds" className="hero-tiles-sm mt-6 grid w-full max-w-xl grid-cols-2 gap-3 lg:hidden">
-        {heroBuilds.map((b, i) => (
-          <Tile key={b.slug} b={b} i={i} reduced={reduced} />
-        ))}
-      </nav>
-
-      {/* scroll cue, centred under the buttons (desktop; phones see the builds instead) */}
+      {/* scroll cue, centred under the buttons */}
       <motion.div aria-hidden style={{ opacity: cueOpacity }} className="pointer-events-none mt-6 hidden lg:block">
         <motion.span
           initial={{ opacity: 0 }}
