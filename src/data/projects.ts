@@ -413,6 +413,18 @@ const hardware: Project[] = [
         label: "Deployed",
         caption: "Deployed in the dining hall.",
       },
+      {
+        type: "video",
+        src: withBase("/videos/aquaponics-fish.mp4"),
+        label: "Fish are in",
+        caption: "The tank with its first fish, pump running.",
+      },
+      {
+        type: "image",
+        src: withBase("/images/projects/Aquaponics/AquaponicsFish.jpg"),
+        label: "First fish",
+        caption: "One of the first fish in the tank.",
+      },
     ],
   },
   {
