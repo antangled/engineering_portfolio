@@ -1,5 +1,6 @@
 import { Component, lazy, Suspense, useEffect, useMemo, useState, type ReactNode } from "react";
 import { useNear } from "@/lib/useNear";
+import { KINEMA_MODEL } from "@/data/kinema";
 import { cn } from "@/lib/utils";
 import type { KinemaViewerProps } from "./KinemaViewer";
 
@@ -49,8 +50,7 @@ export function KinemaStage({
   load = true,
   posterFallbackOnly = false,
   stillImage,
-  preloadMargin,
-  preloadAfterMs = 0,
+  eager = false,
   className,
   children,
   backdrop,
@@ -69,35 +69,26 @@ export function KinemaStage({
   /** transparent still of the CAD, shown until the live canvas is in */
   stillImage?: string;
   /**
-   * Load earlier than the usual 600px: within this margin, once `preloadAfterMs`
-   * has passed and the main thread is idle (so it never lands on an entrance).
+   * Load at once instead of when near the viewport: the viewer's code and the
+   * model download in parallel from page load, and the first frame is drawn off
+   * screen, so the CAD is live (and follows the scroll) before it's reached.
    */
-  preloadMargin?: string;
-  preloadAfterMs?: number;
+  eager?: boolean;
   /** Drawn behind the poster and the canvas. */
   backdrop?: ReactNode;
   children?: ReactNode;
 }) {
   const [ref, near] = useNear<HTMLDivElement>("600px 0px");
-  const [farRef, nearish] = useNear<HTMLDivElement>(preloadMargin ?? "600px 0px");
-  const [early, setEarly] = useState(false);
-  useEffect(() => {
-    if (!preloadMargin) return;
-    let idle = 0;
-    const t = window.setTimeout(() => {
-      idle = window.requestIdleCallback
-        ? window.requestIdleCallback(() => setEarly(true), { timeout: 1500 })
-        : window.setTimeout(() => setEarly(true), 0);
-    }, preloadAfterMs);
-    return () => {
-      window.clearTimeout(t);
-      if (idle && window.cancelIdleCallback) window.cancelIdleCallback(idle);
-    };
-  }, [preloadMargin, preloadAfterMs]);
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
   const webgl = useMemo(() => (typeof window === "undefined" ? false : hasWebGL()), []);
-  const mount = (near || (early && nearish)) && load && webgl;
+  const mount = (near || eager) && load && webgl;
+  // eager: start the model download alongside the viewer's code (the loader
+  // would otherwise only ask for it once that code has run); the loader's own
+  // request then comes from the HTTP cache
+  useEffect(() => {
+    if (eager && load && webgl) fetch(KINEMA_MODEL).catch(() => {});
+  }, [eager, load, webgl]);
   // the prerendered HTML keeps the poster (the no-JS view); it's dropped right
   // after hydration, so the first client render matches the HTML
   const [hydrated, setHydrated] = useState(false);
@@ -110,8 +101,6 @@ export function KinemaStage({
 
   return (
     <div ref={ref} data-vt={vt} style={style} className={cn("relative overflow-hidden", className)}>
-      {/* a second, wider observer target for the early preload */}
-      <span ref={farRef} aria-hidden className="pointer-events-none absolute inset-0" />
       {backdrop}
       {showStill && (
         <img
