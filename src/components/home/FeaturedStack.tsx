@@ -36,13 +36,13 @@ function KinemaMedia({ item, s }: { item: FeaturedItem; s: MotionValue<number> }
       poster={item.image ?? ""}
       posterFit="cover"
       // the CAD is the card: no photo first (the project page has the photos).
-      // A still of the CAD (same camera, opening pose) is there from the first
-      // paint; the live model loads after the hero entrance and takes over.
+      // It loads from page load and draws off screen, so it's live (following
+      // the scroll) before the card is reached; the still of the CAD (same
+      // camera, opening pose) only covers a slow load.
       posterFallbackOnly
       stillImage={withBase("/images/projects/Cycloidal/kinema-still.webp")}
       startPose={KINEMA_START}
-      preloadMargin="1600px 0px"
-      preloadAfterMs={3500}
+      eager
       explode={explode}
       turn={turn}
       yaw={yaw}
