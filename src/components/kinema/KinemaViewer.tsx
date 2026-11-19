@@ -35,6 +35,12 @@ export type KinemaViewerProps = {
   active?: boolean;
   /** Render once (reduced motion): no loop, no drive. */
   still?: boolean;
+  /**
+   * Pose the first frame is drawn in (it matches a still image shown before the
+   * model loads); the model then eases from it to the live scroll pose, so the
+   * swap from still to canvas is seamless even after the user has scrolled.
+   */
+  startPose?: { explode: number; yaw: number; turn: number };
   onReady?: () => void;
   className?: string;
 };
@@ -101,6 +107,7 @@ function Model({
   yaw,
   speed = 0,
   still,
+  startPose,
   interactive,
   shared,
   onReady,
@@ -166,16 +173,44 @@ function Model({
     [parts]
   );
 
-  const state = useRef({ t: isMV(explode) ? explode.get() : explode, theta: 0, glow: new Map<string, number>(), ready: false, settle: 0 });
+  const state = useRef({
+    t: isMV(explode) ? explode.get() : explode,
+    theta: 0,
+    glow: new Map<string, number>(),
+    ready: false,
+    settle: 0,
+    // catch-up from startPose to the live pose; `hold` keeps the first pose a
+    // moment so the canvas is shown (and the still removed) before anything moves
+    catchUp: startPose ? { ...startPose, hold: 0.12, on: true } : null,
+  });
   const tmp = useMemo(() => new THREE.Vector3(), []);
 
   useFrame((_, rawDt) => {
     const dt = Math.min(rawDt, 1 / 20);
     const s = state.current;
-    const target = isMV(explode) ? explode.get() : explode;
+    let target = isMV(explode) ? explode.get() : explode;
+    let yawNow = yaw?.get() ?? 0;
+    let turnNow = turn?.get() ?? 0;
+    const c = s.catchUp;
+    if (c?.on) {
+      if (!s.ready || c.hold > 0) {
+        c.hold -= s.ready ? dt : 0;
+      } else {
+        c.explode = damp(c.explode, target, 4, dt);
+        c.yaw = damp(c.yaw, yawNow, 4, dt);
+        c.turn = damp(c.turn, turnNow, 4, dt);
+        c.on = Math.abs(c.explode - target) > 0.002 || Math.abs(c.yaw - yawNow) > 0.002 || Math.abs(c.turn - turnNow) > 0.01;
+      }
+      if (c.on) {
+        target = c.explode;
+        yawNow = c.yaw;
+        turnNow = c.turn;
+      }
+    }
     s.t = still || isMV(explode) ? target : damp(s.t, target, 5, dt);
-    if (!still) s.theta += speed * dt;
-    const theta = s.theta + (turn?.get() ?? 0);
+    // no idle spin on the first frame, so it matches the still exactly
+    if (!still && s.ready) s.theta += speed * dt;
+    const theta = s.theta + turnNow;
     const alpha = -theta / RATIO;
     const ca = Math.cos(alpha);
     const sa = Math.sin(alpha);
@@ -212,7 +247,7 @@ function Model({
     d.yawNow = damp(d.yawNow, d.yaw, 6, dt);
     d.pitchNow = damp(d.pitchNow, d.pitch, 6, dt);
     if (root.current) {
-      root.current.rotation.set(BASE_PITCH + d.pitchNow, Math.PI / 2 + BASE_YAW + d.yawNow + (yaw?.get() ?? 0), 0);
+      root.current.rotation.set(BASE_PITCH + d.pitchNow, Math.PI / 2 + BASE_YAW + d.yawNow + yawNow, 0);
     }
 
     // centre the current stack, and fit its projected length into the frame
@@ -352,7 +387,9 @@ export default function KinemaViewer(props: KinemaViewerProps) {
       onPointerCancel={onUp}
     >
       <Canvas
-        frameloop={still ? "demand" : active ? "always" : "never"}
+        // idle = "demand", not "never": the mount effect's invalidate() still draws
+        // one frame off screen, so the model is uploaded and ready before it's seen
+        frameloop={still ? "demand" : active ? "always" : "demand"}
         dpr={[1, 1.75]}
         gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
         camera={{ fov: FOV, near: 0.1, far: 50, position: [0, 0, 4] }}

@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { motion, useMotionValueEvent, useScroll, useTransform, type MotionValue } from "motion/react";
 import { coverTransitionName } from "../../data/featured";
 import { KinemaStage } from "../kinema/KinemaStage";
+import { withBase } from "@/lib/withBase";
 import type { FeaturedItem } from "../../data/featured";
 import { useRichMotion } from "../../lib/motion";
 import { Reveal } from "../motion/Reveal";
@@ -19,10 +20,13 @@ const cardShell =
  * apart as it arrives, hold with their names while pinned, and go back together
  * as the next card slides over. Scrolling also turns the input shaft.
  */
+/** The pose at s = 0, which `kinema-still.webp` was rendered in. */
+const KINEMA_START = { explode: 0, yaw: 0.28, turn: 0 };
+
 function KinemaMedia({ item, s }: { item: FeaturedItem; s: MotionValue<number> }) {
-  const explode = useTransform(s, [0.5, 1.1, 1.55, 2], [0, 1, 1, 0.1]);
-  const turn = useTransform(s, (v) => v * Math.PI * 2.4);
-  const yaw = useTransform(s, [0, 2], [0.28, -0.22]);
+  const explode = useTransform(s, [0.5, 1.1, 1.55, 2], [KINEMA_START.explode, 1, 1, 0.1]);
+  const turn = useTransform(s, (v) => KINEMA_START.turn + v * Math.PI * 2.4);
+  const yaw = useTransform(s, [0, 2], [KINEMA_START.yaw, -0.22]);
   const [active, setActive] = useState(false);
   useMotionValueEvent(s, "change", (v) => setActive(v > 0.05 && v < 2.3));
   const name = coverTransitionName(item.slug);
@@ -31,10 +35,12 @@ function KinemaMedia({ item, s }: { item: FeaturedItem; s: MotionValue<number> }
     <KinemaStage
       poster={item.image ?? ""}
       posterFit="cover"
-      // the CAD is the card: no photo first (the project page has the photos);
-      // load well ahead (after the hero entrance) so it's already drawn when
-      // the card slides in
+      // the CAD is the card: no photo first (the project page has the photos).
+      // A still of the CAD (same camera, opening pose) is there from the first
+      // paint; the live model loads after the hero entrance and takes over.
       posterFallbackOnly
+      stillImage={withBase("/images/projects/Cycloidal/kinema-still.webp")}
+      startPose={KINEMA_START}
       preloadMargin="1600px 0px"
       preloadAfterMs={3500}
       explode={explode}
